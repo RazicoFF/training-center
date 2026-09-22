@@ -12,6 +12,7 @@ use App\Controllers\Api\ProfessionController;
 use App\Controllers\Api\ApplicationController;
 use App\Controllers\Api\AuthController;
 use App\Controllers\Api\MeController;
+use App\Controllers\Api\TestController;
 
 Env::load(dirname(__DIR__));
 
@@ -20,6 +21,7 @@ $router = new Router();
 (new ApplicationController())->register($router);
 (new AuthController())->register($router);
 (new MeController())->register($router);
+(new TestController())->register($router);
 
 $request = Request::fromGlobals();
 $result = $router->dispatch($request);
