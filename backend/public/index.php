@@ -13,6 +13,7 @@ use App\Controllers\Api\ApplicationController;
 use App\Controllers\Api\AuthController;
 use App\Controllers\Api\MeController;
 use App\Controllers\Api\TestController;
+use App\Controllers\Api\CertificateController;
 
 Env::load(dirname(__DIR__));
 
@@ -22,6 +23,7 @@ $router = new Router();
 (new AuthController())->register($router);
 (new MeController())->register($router);
 (new TestController())->register($router);
+(new CertificateController())->register($router);
 
 $request = Request::fromGlobals();
 $result = $router->dispatch($request);
@@ -33,6 +35,13 @@ if ($result === null) {
 
 if (isset($result['error'])) {
     Response::error($result['error']['code'], $result['error']['message'], $result['status']);
+    return;
+}
+
+if (isset($result['file_path'])) {
+    header('Content-Type: application/pdf');
+    header('Content-Disposition: attachment; filename="' . basename($result['file_path']) . '"');
+    readfile($result['file_path']);
     return;
 }
 
