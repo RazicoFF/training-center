@@ -61,6 +61,7 @@ Ko'lamdan tashqarida: veb-admin sahifalarining o'zi, Android ilovaning UI qismi 
 | description_uz, description_ru | TEXT | |
 | duration_days | INT | kurs davomiyligi |
 | price | DECIMAL(12,2) | |
+| image_url | VARCHAR(255) | kasbga oid rasm/ikonka (bepul stok manbadan) |
 
 ### `applications`
 | Ustun | Tip | Izoh |
@@ -203,3 +204,10 @@ backend/
 - `/admin/...` marshrutlari va sahifalari — **Veb-admin panel** sub-loyihasida qo'shiladi (shu backend kod bazasi ustiga).
 - Android ilovaning o'zi (UI, ekranlar) — **Android ilova** sub-loyihasida.
 - Sertifikat PDF shablonining aniq dizayni (logotip, joylashuv) — keyinroq admin panel bilan birga aniqlashtiriladi.
+
+## 10. UI/UX dizayn qarorlari (Android va Veb-admin uchun, keyingi sub-loyihalarda amalga oshiriladi)
+
+- **Android:** Material Design 3, tizim light/dark temasiga moslashuvchi (`DayNight`), Material Icons.
+- **Veb-admin panel:** Bootstrap 5, `prefers-color-scheme` + qo'lda tema almashtirish tugmasi.
+- **Ikki tillilik:** o'zbek va rus (Android — `strings.xml` uz/ru resurslari; veb — til fayllari orqali), foydalanuvchining tanlovi `users.language` ustunida saqlanadi.
+- **Kasb rasmlari/ikonkalari:** bepul litsenziyali stok manbalardan (masalan Flaticon/Unsplash) tanlanadi, `professions.image_url` orqali bog'lanadi.
