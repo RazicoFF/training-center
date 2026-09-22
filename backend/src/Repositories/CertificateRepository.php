@@ -15,7 +15,10 @@ final class CertificateRepository
 
     public function forUser(int $userId): array
     {
-        $stmt = Database::pdo()->prepare('SELECT * FROM certificates WHERE user_id = ? ORDER BY issue_date DESC');
+        $stmt = Database::pdo()->prepare(
+            'SELECT id, user_id, profession_id, certificate_number, issue_date
+             FROM certificates WHERE user_id = ? ORDER BY issue_date DESC'
+        );
         $stmt->execute([$userId]);
 
         return $stmt->fetchAll();
@@ -36,6 +39,10 @@ final class CertificateRepository
 
         $user = (new UserRepository())->find($userId);
         $profession = (new ProfessionRepository())->find($professionId);
+
+        if ($user === null || $profession === null) {
+            throw new \RuntimeException('Cannot issue certificate: user or profession not found');
+        }
 
         $certificateNumber = 'CERT-' . date('Y') . '-' . str_pad((string) $userId, 5, '0', STR_PAD_LEFT) . '-' . random_int(100, 999);
         $issueDate = date('Y-m-d');

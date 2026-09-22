@@ -32,6 +32,10 @@ final class MeController
         }
 
         $user = $this->users->find($claims['user_id']);
+        if ($user === null) {
+            return ['error' => ['code' => 'NOT_FOUND', 'message' => 'User not found'], 'status' => 404];
+        }
+
         unset($user['password_hash']);
 
         return $user;
