@@ -30,7 +30,7 @@ final class Auth
             'exp' => time() + $ttlDays * 86400,
         ];
 
-        return JWT::encode($payload, (string) Env::get('JWT_SECRET'), 'HS256');
+        return JWT::encode($payload, self::secret(), 'HS256');
     }
 
     /**
@@ -38,8 +38,12 @@ final class Auth
      */
     public static function verifyToken(string $token): ?array
     {
+        // Deliberately outside the try/catch below: a misconfigured JWT_SECRET must fail loudly
+        // (propagate to the global exception handler) rather than be swallowed as "invalid token".
+        $secret = self::secret();
+
         try {
-            $decoded = JWT::decode($token, new Key((string) Env::get('JWT_SECRET'), 'HS256'));
+            $decoded = JWT::decode($token, new Key($secret, 'HS256'));
             return [
                 'user_id' => (int) $decoded->user_id,
                 'role' => (string) $decoded->role,
@@ -47,5 +51,19 @@ final class Auth
         } catch (\Throwable) {
             return null;
         }
+    }
+
+    /**
+     * @throws \RuntimeException when JWT_SECRET is missing or left at the shipped example value
+     */
+    private static function secret(): string
+    {
+        $secret = Env::get('JWT_SECRET', '');
+
+        if ($secret === '' || $secret === 'change-me-in-production') {
+            throw new \RuntimeException('JWT_SECRET is not configured');
+        }
+
+        return $secret;
     }
 }
