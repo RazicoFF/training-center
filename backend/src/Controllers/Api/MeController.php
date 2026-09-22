@@ -7,17 +7,21 @@ namespace App\Controllers\Api;
 use App\Core\Request;
 use App\Core\Router;
 use App\Middleware\AuthMiddleware;
+use App\Repositories\ScheduleRepository;
 use App\Repositories\UserRepository;
 
 final class MeController
 {
-    public function __construct(private readonly UserRepository $users = new UserRepository())
-    {
+    public function __construct(
+        private readonly UserRepository $users = new UserRepository(),
+        private readonly ScheduleRepository $scheduleRepository = new ScheduleRepository()
+    ) {
     }
 
     public function register(Router $router): void
     {
         $router->get('/api/v1/me', fn (Request $req) => $this->show($req));
+        $router->get('/api/v1/me/schedule', fn (Request $req) => $this->schedule($req));
     }
 
     private function show(Request $request): array
@@ -31,5 +35,15 @@ final class MeController
         unset($user['password_hash']);
 
         return $user;
+    }
+
+    private function schedule(Request $request): array
+    {
+        $claims = AuthMiddleware::authenticate($request);
+        if ($claims === null) {
+            return ['error' => ['code' => 'UNAUTHORIZED', 'message' => 'Missing or invalid token'], 'status' => 401];
+        }
+
+        return ['schedule' => $this->scheduleRepository->forUser($claims['user_id'])];
     }
 }
