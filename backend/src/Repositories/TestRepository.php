@@ -43,6 +43,8 @@ final class TestRepository
     /**
      * @param int[] $submittedAnswerIds one selected answer id per question
      * @return array{score:int, passed:bool}
+     * @throws \InvalidArgumentException when a submitted answer does not belong to this test's
+     *                                    questions, or two submitted answers belong to the same question
      */
     public function score(int $testId, array $submittedAnswerIds): array
     {
@@ -57,17 +59,39 @@ final class TestRepository
         }
 
         $placeholders = implode(',', array_fill(0, count($submittedAnswerIds), '?'));
-        $correctStmt = $pdo->prepare(
-            "SELECT COUNT(*) FROM answers WHERE id IN ({$placeholders}) AND is_correct = 1"
+        $ownershipStmt = $pdo->prepare(
+            "SELECT a.id, a.question_id, a.is_correct
+             FROM answers a
+             JOIN questions q ON q.id = a.question_id
+             WHERE a.id IN ({$placeholders}) AND q.test_id = ?"
         );
-        $correctStmt->execute($submittedAnswerIds);
-        $correct = (int) $correctStmt->fetchColumn();
+        $ownershipStmt->execute([...$submittedAnswerIds, $testId]);
+        $rows = $ownershipStmt->fetchAll();
+
+        if (count($rows) !== count($submittedAnswerIds)) {
+            throw new \InvalidArgumentException(
+                'One or more submitted answers do not belong to a question of this test'
+            );
+        }
+
+        $questionIds = array_map(static fn (array $row): int => (int) $row['question_id'], $rows);
+        if (count($questionIds) !== count(array_unique($questionIds))) {
+            throw new \InvalidArgumentException('Only one answer per question may be submitted');
+        }
+
+        $correct = 0;
+        foreach ($rows as $row) {
+            if ((int) $row['is_correct'] === 1) {
+                $correct++;
+            }
+        }
 
         $passingScoreStmt = $pdo->prepare('SELECT passing_score FROM tests WHERE id = ?');
         $passingScoreStmt->execute([$testId]);
         $passingScore = (int) $passingScoreStmt->fetchColumn();
 
         $score = (int) round(($correct / $total) * 100);
+        $score = max(0, min(100, $score));
 
         return ['score' => $score, 'passed' => $score >= $passingScore];
     }

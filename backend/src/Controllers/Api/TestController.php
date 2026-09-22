@@ -18,6 +18,7 @@ final class TestController
     public function register(Router $router): void
     {
         $router->get('/api/v1/me/tests', fn (Request $req) => $this->index($req));
+        $router->get('/api/v1/me/tests/{id}', fn (Request $req) => $this->show($req));
         $router->post('/api/v1/me/tests/{id}/submit', fn (Request $req) => $this->submit($req));
     }
 
@@ -31,6 +32,18 @@ final class TestController
         return ['tests' => $this->repository->availableForUser($claims['user_id'])];
     }
 
+    private function show(Request $request): array
+    {
+        $claims = AuthMiddleware::authenticate($request);
+        if ($claims === null) {
+            return ['error' => ['code' => 'UNAUTHORIZED', 'message' => 'Missing or invalid token'], 'status' => 401];
+        }
+
+        $testId = (int) $request->param('id');
+
+        return ['questions' => $this->repository->questionsWithAnswers($testId)];
+    }
+
     private function submit(Request $request): array
     {
         $claims = AuthMiddleware::authenticate($request);
@@ -39,9 +52,23 @@ final class TestController
         }
 
         $testId = (int) $request->param('id');
-        $answerIds = array_map('intval', $request->jsonBody()['answers'] ?? []);
+        $answers = $request->jsonBody()['answers'] ?? [];
 
-        $result = $this->repository->score($testId, $answerIds);
+        if (!is_array($answers)) {
+            return [
+                'error' => ['code' => 'VALIDATION_ERROR', 'message' => 'answers must be an array of answer ids'],
+                'status' => 422,
+            ];
+        }
+
+        $answerIds = array_map('intval', $answers);
+
+        try {
+            $result = $this->repository->score($testId, $answerIds);
+        } catch (\InvalidArgumentException $e) {
+            return ['error' => ['code' => 'VALIDATION_ERROR', 'message' => $e->getMessage()], 'status' => 422];
+        }
+
         $this->repository->recordAttempt($claims['user_id'], $testId, $result['score'], $result['passed']);
 
         return $result;
