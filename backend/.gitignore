@@ -3,3 +3,4 @@
 .env.testing
 /storage/
 /logs/
+backend/.phpunit.result.cache
