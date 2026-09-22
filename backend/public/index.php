@@ -9,11 +9,13 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Core\Router;
 use App\Controllers\Api\ProfessionController;
+use App\Controllers\Api\ApplicationController;
 
 Env::load(dirname(__DIR__));
 
 $router = new Router();
 (new ProfessionController())->register($router);
+(new ApplicationController())->register($router);
 
 $request = Request::fromGlobals();
 $result = $router->dispatch($request);
@@ -23,4 +25,11 @@ if ($result === null) {
     return;
 }
 
-Response::json($result);
+if (isset($result['error'])) {
+    Response::error($result['error']['code'], $result['error']['message'], $result['status']);
+    return;
+}
+
+$status = $result['status'] ?? 200;
+unset($result['status']);
+Response::json($result, $status);
