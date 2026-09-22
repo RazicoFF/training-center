@@ -42,17 +42,27 @@ final class ApplicationRepository
             throw new \RuntimeException('Application not pending');
         }
 
-        $userId = $this->users->create(
-            $application['full_name'],
-            $application['phone'],
-            Auth::hashPassword($temporaryPassword),
-            'student'
-        );
+        $pdo = Database::pdo();
+        $pdo->beginTransaction();
 
-        $stmt = Database::pdo()->prepare(
-            "UPDATE applications SET status = 'approved', created_user_id = ? WHERE id = ?"
-        );
-        $stmt->execute([$userId, $applicationId]);
+        try {
+            $userId = $this->users->create(
+                $application['full_name'],
+                $application['phone'],
+                Auth::hashPassword($temporaryPassword),
+                'student'
+            );
+
+            $stmt = $pdo->prepare(
+                "UPDATE applications SET status = 'approved', created_user_id = ? WHERE id = ?"
+            );
+            $stmt->execute([$userId, $applicationId]);
+
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
 
         return ['user_id' => $userId, 'phone' => $application['phone']];
     }
