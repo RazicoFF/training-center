@@ -7,11 +7,14 @@ namespace App\Controllers\Api;
 use App\Core\Request;
 use App\Core\Router;
 use App\Repositories\ApplicationRepository;
+use App\Repositories\ProfessionRepository;
 
 final class ApplicationController
 {
-    public function __construct(private readonly ApplicationRepository $repository = new ApplicationRepository())
-    {
+    public function __construct(
+        private readonly ApplicationRepository $repository = new ApplicationRepository(),
+        private readonly ProfessionRepository $professions = new ProfessionRepository()
+    ) {
     }
 
     public function register(Router $router): void
@@ -29,6 +32,13 @@ final class ApplicationController
         if ($fullName === '' || $phone === '' || $professionId <= 0) {
             return [
                 'error' => ['code' => 'VALIDATION_ERROR', 'message' => 'full_name, phone, profession_id required'],
+                'status' => 422,
+            ];
+        }
+
+        if ($this->professions->find($professionId) === null) {
+            return [
+                'error' => ['code' => 'VALIDATION_ERROR', 'message' => 'profession_id does not exist'],
                 'status' => 422,
             ];
         }
