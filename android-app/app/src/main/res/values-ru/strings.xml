@@ -16,4 +16,6 @@
     <string name="tab_profile">Профиль</string>
     <string name="schedule_empty">Расписание пока отсутствует</string>
     <string name="schedule_room">Кабинет: %1$s</string>
+    <string name="tests_empty">Пока нет доступных тестов</string>
+    <string name="tests_passing_score">Проходной балл: %1$d%%</string>
 </resources>
