@@ -13,7 +13,10 @@ PHP + MySQL REST API for the training center Android app.
 4. Create databases: `training_center` and `training_center_test` (utf8mb4).
 5. Run migrations: `php database/migrate.php .env` and `php database/migrate.php .env.testing`
 6. Seed professions: `php database/seeders/seed.php .env` and `php database/seeders/seed.php .env.testing`
-7. Serve locally: `php -S localhost:8080 -t public`
+7. Serve locally: `php -S localhost:8080 -t public router.php` (the router script dispatches
+   `/admin` and `/admin/*` to the admin panel and everything else to the JSON API; PHP's
+   built-in server has no path-based routing of its own, so without it every request falls
+   back to `public/index.php`)
 
 ## Tests
 
@@ -29,7 +32,7 @@ Server-rendered at `/admin` (session-authenticated). Setup:
 
 1. After running migrations and seeders (see Setup above), also run: `php database/seeders/seed_admin.php .env`
    This prints the admin login phone and a one-time password — save it, it is not shown again.
-2. Serve alongside the API: `php -S localhost:8080 -t public` (both `public/index.php` and `public/admin.php` are served from the same document root).
+2. Serve alongside the API: `php -S localhost:8080 -t public router.php` (both `public/index.php` and `public/admin.php` are served from the same document root; the router script at `backend/router.php` dispatches `/` and `/admin/*` requests to `public/admin.php` and everything else to `public/index.php`).
 3. Open `http://localhost:8080/admin/login`.
 
 ### Manual smoke test (after `composer install` + migrate + seed + seed_admin)

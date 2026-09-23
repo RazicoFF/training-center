@@ -33,39 +33,7 @@ $router = new Router();
 (new QuestionController())->register($router);
 (new CertificateController())->register($router);
 
-// Create request and handle admin.php path routing
 $request = Request::fromGlobals();
-
-// If REQUEST_URI contains admin.php, adjust the path
-$uri = $_SERVER['REQUEST_URI'] ?? '/';
-if (strpos($uri, '/admin.php') === 0) {
-    // Extract path after admin.php (e.g., /admin.php/login -> /admin/login)
-    $pathAfterPhp = substr($uri, strlen('/admin.php'));
-    if ($pathAfterPhp === '' || $pathAfterPhp === false) {
-        $pathAfterPhp = '/admin';
-    } elseif (strpos($pathAfterPhp, '/') !== 0) {
-        $pathAfterPhp = '/' . $pathAfterPhp;
-    }
-    // Add /admin prefix if not already there
-    if (strpos($pathAfterPhp, '/admin') !== 0) {
-        $pathAfterPhp = '/admin' . $pathAfterPhp;
-    }
-    // Create a modified request with the corrected path
-    $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-    $headers = [];
-    foreach ($_SERVER as $key => $value) {
-        if (str_starts_with($key, 'HTTP_')) {
-            $name = str_replace('_', '-', substr($key, 5));
-            $headers[$name] = (string) $value;
-        }
-    }
-    $raw = file_get_contents('php://input') ?: '';
-    $body = json_decode($raw, true);
-    $body = is_array($body) ? $body : [];
-    $formBody = $_POST;
-
-    $request = new Request($method, $pathAfterPhp, $headers, $body, $formBody);
-}
 
 try {
     $result = $router->dispatch($request);
