@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">O\'quv markazi</string>
+    <string name="login_title">Tizimga kirish</string>
+    <string name="login_phone">Telefon raqam</string>
+    <string name="login_password">Parol</string>
+    <string name="login_submit">Kirish</string>
+    <string name="login_register_link">Ariza berish</string>
 </resources>
