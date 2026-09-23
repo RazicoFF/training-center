@@ -7,6 +7,7 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 use App\Core\Env;
 use App\Core\Request;
 use App\Core\Router;
+use App\Controllers\Admin\ApplicationController;
 use App\Controllers\Admin\AuthController;
 use App\Controllers\Admin\DashboardController;
 
@@ -20,6 +21,7 @@ Env::load(dirname(__DIR__));
 $router = new Router();
 (new AuthController())->register($router);
 (new DashboardController())->register($router);
+(new ApplicationController())->register($router);
 
 $request = Request::fromGlobals();
 
