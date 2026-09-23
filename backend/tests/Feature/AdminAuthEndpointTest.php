@@ -128,5 +128,14 @@ final class AdminAuthEndpointTest extends TestCase
         ]));
 
         $this->assertSame(['redirect' => '/admin/groups'], $resultSafe);
+
+        $csrfToken3 = \App\Core\Csrf::token();
+        $resultProtocolRelative = $router->dispatch(new Request('POST', '/admin/lang', [], [], [
+            'csrf_token' => $csrfToken3,
+            'locale' => 'ru',
+            'back' => '//evil.example',
+        ]));
+
+        $this->assertSame(['redirect' => '/admin'], $resultProtocolRelative);
     }
 }
