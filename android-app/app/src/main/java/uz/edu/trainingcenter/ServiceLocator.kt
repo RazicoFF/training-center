@@ -17,4 +17,5 @@ object ServiceLocator {
     val sessionManager: SessionManager by lazy { SessionManager() }
     val apiService by lazy { NetworkModule.provideApiService(dataStore, sessionManager) }
     val authRepository: AuthRepository by lazy { AuthRepository(apiService, dataStore, sessionManager) }
+    val professionRepository by lazy { uz.edu.trainingcenter.data.repository.ProfessionRepository(apiService, sessionManager) }
 }
