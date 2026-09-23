@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 private val Context.dataStore by preferencesDataStore(name = "training_center_prefs")
@@ -23,11 +24,7 @@ class PreferencesDataStore(private val context: Context) {
     }
 
     suspend fun getToken(): String? {
-        return context.dataStore.data.map { it[tokenKey] }.let { flow ->
-            var result: String? = null
-            flow.collect { result = it }
-            result
-        }
+        return context.dataStore.data.first()[tokenKey]
     }
 
     suspend fun setToken(token: String?) {
@@ -37,9 +34,7 @@ class PreferencesDataStore(private val context: Context) {
     }
 
     suspend fun getBaseUrl(): String {
-        var result = DEFAULT_BASE_URL
-        context.dataStore.data.map { it[baseUrlKey] ?: DEFAULT_BASE_URL }.collect { result = it }
-        return result
+        return context.dataStore.data.first()[baseUrlKey] ?: DEFAULT_BASE_URL
     }
 
     suspend fun setBaseUrl(url: String) {
