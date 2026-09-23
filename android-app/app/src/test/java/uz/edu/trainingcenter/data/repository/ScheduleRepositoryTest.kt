@@ -19,7 +19,7 @@ class ScheduleRepositoryTest {
         val item = ScheduleItemDto("2026-10-01", "09:00:00", "11:00:00", "101", "Ekskavator-1")
         coEvery { api.getSchedule() } returns ScheduleResponse(listOf(item))
 
-        val repository = ScheduleRepository(api, SessionManager())
+        val repository = ScheduleRepository(api, SessionManager(mockk(relaxed = true)))
         val result = repository.getSchedule()
 
         assertTrue(result.isSuccess)

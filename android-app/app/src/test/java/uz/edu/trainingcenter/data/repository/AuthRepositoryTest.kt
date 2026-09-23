@@ -18,7 +18,7 @@ class AuthRepositoryTest {
     fun `login stores token on success`() = runTest {
         val api = mockk<ApiService>()
         val dataStore = mockk<PreferencesDataStore>(relaxed = true)
-        val sessionManager = SessionManager()
+        val sessionManager = SessionManager(mockk(relaxed = true))
         coEvery { api.login(LoginRequest("+998900000000", "pass1234")) } returns LoginResponse("jwt-token")
 
         val repository = AuthRepository(api, dataStore, sessionManager)
@@ -32,7 +32,7 @@ class AuthRepositoryTest {
     fun `login returns failure when API throws`() = runTest {
         val api = mockk<ApiService>()
         val dataStore = mockk<PreferencesDataStore>(relaxed = true)
-        val sessionManager = SessionManager()
+        val sessionManager = SessionManager(mockk(relaxed = true))
         coEvery { api.login(any()) } throws java.io.IOException("network down")
 
         val repository = AuthRepository(api, dataStore, sessionManager)
@@ -45,7 +45,7 @@ class AuthRepositoryTest {
     fun `logout clears the stored token`() = runTest {
         val api = mockk<ApiService>()
         val dataStore = mockk<PreferencesDataStore>(relaxed = true)
-        val sessionManager = SessionManager()
+        val sessionManager = SessionManager(mockk(relaxed = true))
 
         AuthRepository(api, dataStore, sessionManager).logout()
 

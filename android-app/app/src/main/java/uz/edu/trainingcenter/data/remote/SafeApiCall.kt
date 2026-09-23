@@ -1,5 +1,6 @@
 package uz.edu.trainingcenter.data.remote
 
+import kotlinx.coroutines.CancellationException
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -12,6 +13,9 @@ suspend fun <T> safeApiCall(sessionManager: SessionManager, block: suspend () ->
         }
         Result.failure(e)
     } catch (e: IOException) {
+        Result.failure(e)
+    } catch (e: Exception) {
+        if (e is CancellationException) throw e
         Result.failure(e)
     }
 }
