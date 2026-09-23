@@ -92,4 +92,45 @@ class TestTakingViewModelTest {
             assertTrue(submitted.passed)
         }
     }
+
+    @Test
+    fun `load failure emits Error with null previousState`() = runTest(testDispatcher) {
+        val repository = mockk<TestRepository>()
+        coEvery { repository.getQuestions(1) } returns Result.failure(java.io.IOException("network down"))
+
+        val viewModel = TestTakingViewModel(testId = 1, repository = repository)
+
+        viewModel.uiState.test {
+            awaitItem() // Loading
+            val error = awaitItem() as TestTakingUiState.Error
+            assertEquals(null, error.previousState)
+        }
+    }
+
+    @Test
+    fun `submit failure emits Error with real InProgress previousState`() = runTest(testDispatcher) {
+        val repository = mockk<TestRepository>()
+        coEvery { repository.getQuestions(1) } returns Result.success(twoQuestions())
+        coEvery { repository.submit(1, listOf(1, 3)) } returns Result.failure(java.io.IOException("network down"))
+
+        val viewModel = TestTakingViewModel(testId = 1, repository = repository)
+
+        viewModel.uiState.test {
+            awaitItem() // Loading
+            awaitItem() // InProgress index 0
+            viewModel.selectAnswer(1)
+            awaitItem() // InProgress index 0, answer recorded
+            viewModel.nextQuestion()
+            awaitItem() // InProgress index 1
+            viewModel.selectAnswer(3)
+            awaitItem() // InProgress index 1, answer recorded
+            viewModel.submitTest()
+            assertTrue(awaitItem() is TestTakingUiState.Submitting)
+            val error = awaitItem() as TestTakingUiState.Error
+            val previousState = error.previousState
+            assertTrue(previousState != null)
+            assertEquals(2, previousState!!.questions.size)
+            assertEquals(2, previousState.selectedAnswers.size)
+        }
+    }
 }

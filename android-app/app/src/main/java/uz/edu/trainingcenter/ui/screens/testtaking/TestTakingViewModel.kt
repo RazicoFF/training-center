@@ -19,7 +19,7 @@ sealed interface TestTakingUiState {
     ) : TestTakingUiState
     data object Submitting : TestTakingUiState
     data class Submitted(val score: Int, val passed: Boolean) : TestTakingUiState
-    data class Error(val error: UiError, val previousState: InProgress) : TestTakingUiState
+    data class Error(val error: UiError, val previousState: InProgress?) : TestTakingUiState
 }
 
 class TestTakingViewModel(
@@ -34,7 +34,7 @@ class TestTakingViewModel(
         load()
     }
 
-    private fun load() {
+    fun load() {
         viewModelScope.launch {
             _uiState.value = TestTakingUiState.Loading
             val result = repository.getQuestions(testId)
@@ -43,7 +43,7 @@ class TestTakingViewModel(
                 onFailure = {
                     TestTakingUiState.Error(
                         it.toUiError(),
-                        previousState = TestTakingUiState.InProgress(emptyList(), 0, emptyMap())
+                        previousState = null
                     )
                 }
             )
