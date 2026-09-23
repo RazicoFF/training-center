@@ -65,6 +65,12 @@ final class AuthController
 
     private function logout(Request $request): array
     {
+        $body = $request->formBody();
+
+        if (!Csrf::verify($body['csrf_token'] ?? null)) {
+            return ['redirect' => '/admin/login'];
+        }
+
         unset($_SESSION['admin_user_id'], $_SESSION['admin_role']);
         return ['redirect' => '/admin/login'];
     }
@@ -72,8 +78,17 @@ final class AuthController
     private function switchLang(Request $request): array
     {
         $body = $request->formBody();
+
+        if (!Csrf::verify($body['csrf_token'] ?? null)) {
+            return ['redirect' => '/admin/login'];
+        }
+
         Lang::set((string) ($body['locale'] ?? 'uz'));
         $back = (string) ($body['back'] ?? '/admin');
+
+        if (!str_starts_with($back, '/')) {
+            $back = '/admin';
+        }
 
         return ['redirect' => $back];
     }
