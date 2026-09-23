@@ -21,4 +21,8 @@ class AuthRepository(
     suspend fun logout() {
         dataStore.setToken(null)
     }
+
+    suspend fun getMe(): Result<uz.edu.trainingcenter.data.remote.dto.MeDto> {
+        return uz.edu.trainingcenter.data.remote.safeApiCall(sessionManager) { api.getMe() }
+    }
 }
