@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import uz.edu.trainingcenter.R
 import uz.edu.trainingcenter.data.remote.dto.CertificateDto
+import uz.edu.trainingcenter.ui.common.asString
 
 @Composable
 fun CertificatesScreen(viewModel: CertificatesViewModel, padding: PaddingValues) {
@@ -23,7 +24,7 @@ fun CertificatesScreen(viewModel: CertificatesViewModel, padding: PaddingValues)
     Box(modifier = Modifier.fillMaxSize().padding(padding)) {
         when (val s = state) {
             is CertificatesUiState.Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            is CertificatesUiState.Error -> Text(s.message, modifier = Modifier.align(Alignment.Center))
+            is CertificatesUiState.Error -> Text(s.error.asString(), modifier = Modifier.align(Alignment.Center))
             is CertificatesUiState.Success -> {
                 if (s.certificates.isEmpty()) {
                     Text(stringResource(R.string.certificates_empty), modifier = Modifier.align(Alignment.Center))

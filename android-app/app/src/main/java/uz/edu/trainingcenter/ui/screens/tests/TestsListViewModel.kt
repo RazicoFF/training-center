@@ -7,11 +7,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import uz.edu.trainingcenter.data.remote.dto.TestSummaryDto
 import uz.edu.trainingcenter.data.repository.TestRepository
+import uz.edu.trainingcenter.util.UiError
+import uz.edu.trainingcenter.util.toUiError
 
 sealed interface TestsListUiState {
     data object Loading : TestsListUiState
     data class Success(val tests: List<TestSummaryDto>) : TestsListUiState
-    data class Error(val message: String) : TestsListUiState
+    data class Error(val error: UiError) : TestsListUiState
 }
 
 class TestsListViewModel(private val repository: TestRepository) : ViewModel() {
@@ -29,7 +31,7 @@ class TestsListViewModel(private val repository: TestRepository) : ViewModel() {
             val result = repository.getTests()
             _uiState.value = result.fold(
                 onSuccess = { TestsListUiState.Success(it) },
-                onFailure = { TestsListUiState.Error(it.message ?: "Failed to load tests") }
+                onFailure = { TestsListUiState.Error(it.toUiError()) }
             )
         }
     }

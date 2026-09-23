@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.edu.trainingcenter.R
+import uz.edu.trainingcenter.ui.common.asString
 
 @Composable
 fun LoginScreen(
@@ -46,7 +47,7 @@ fun LoginScreen(
         )
         Spacer(Modifier.height(16.dp))
         if (state is LoginUiState.Error) {
-            Text((state as LoginUiState.Error).message, color = MaterialTheme.colorScheme.error)
+            Text((state as LoginUiState.Error).error.asString(), color = MaterialTheme.colorScheme.error)
             Spacer(Modifier.height(8.dp))
         }
         Button(

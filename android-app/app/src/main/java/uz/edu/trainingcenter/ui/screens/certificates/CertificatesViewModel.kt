@@ -8,11 +8,13 @@ import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
 import uz.edu.trainingcenter.data.remote.dto.CertificateDto
 import uz.edu.trainingcenter.data.repository.CertificateRepository
+import uz.edu.trainingcenter.util.UiError
+import uz.edu.trainingcenter.util.toUiError
 
 sealed interface CertificatesUiState {
     data object Loading : CertificatesUiState
     data class Success(val certificates: List<CertificateDto>) : CertificatesUiState
-    data class Error(val message: String) : CertificatesUiState
+    data class Error(val error: UiError) : CertificatesUiState
 }
 
 class CertificatesViewModel(private val repository: CertificateRepository) : ViewModel() {
@@ -30,7 +32,7 @@ class CertificatesViewModel(private val repository: CertificateRepository) : Vie
             val result = repository.getCertificates()
             _uiState.value = result.fold(
                 onSuccess = { CertificatesUiState.Success(it) },
-                onFailure = { CertificatesUiState.Error(it.message ?: "Failed to load certificates") }
+                onFailure = { CertificatesUiState.Error(it.toUiError()) }
             )
         }
     }

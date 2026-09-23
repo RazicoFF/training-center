@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import uz.edu.trainingcenter.data.remote.dto.ProfessionDto
 import uz.edu.trainingcenter.data.repository.ProfessionRepository
+import uz.edu.trainingcenter.util.UiError
+import uz.edu.trainingcenter.util.toUiError
 
 sealed interface RegisterUiState {
     data object Idle : RegisterUiState
@@ -14,7 +16,7 @@ sealed interface RegisterUiState {
     data class ProfessionsLoaded(val professions: List<ProfessionDto>) : RegisterUiState
     data object Submitting : RegisterUiState
     data object Submitted : RegisterUiState
-    data class Error(val message: String) : RegisterUiState
+    data class Error(val error: UiError) : RegisterUiState
 }
 
 class RegisterViewModel(private val repository: ProfessionRepository) : ViewModel() {
@@ -28,7 +30,7 @@ class RegisterViewModel(private val repository: ProfessionRepository) : ViewMode
             val result = repository.getProfessions()
             _uiState.value = result.fold(
                 onSuccess = { RegisterUiState.ProfessionsLoaded(it) },
-                onFailure = { RegisterUiState.Error(it.message ?: "Failed to load professions") }
+                onFailure = { RegisterUiState.Error(it.toUiError()) }
             )
         }
     }
@@ -39,7 +41,7 @@ class RegisterViewModel(private val repository: ProfessionRepository) : ViewMode
             val result = repository.submitApplication(fullName, phone, professionId)
             _uiState.value = result.fold(
                 onSuccess = { RegisterUiState.Submitted },
-                onFailure = { RegisterUiState.Error(it.message ?: "Submission failed") }
+                onFailure = { RegisterUiState.Error(it.toUiError()) }
             )
         }
     }

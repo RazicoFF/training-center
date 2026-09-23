@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import uz.edu.trainingcenter.R
 
 @Composable
@@ -14,7 +15,9 @@ fun ProfileScreen(viewModel: ProfileViewModel, padding: PaddingValues, onLoggedO
     val language by viewModel.language.collectAsState()
     val theme by viewModel.theme.collectAsState()
     val baseUrl by viewModel.baseUrl.collectAsState()
+    val baseUrlError by viewModel.baseUrlError.collectAsState()
     var baseUrlInput by remember(baseUrl) { mutableStateOf(baseUrl) }
+    val scope = rememberCoroutineScope()
 
     Column(modifier = Modifier.fillMaxSize().padding(padding).padding(24.dp)) {
         me?.let {
@@ -25,9 +28,9 @@ fun ProfileScreen(viewModel: ProfileViewModel, padding: PaddingValues, onLoggedO
 
         Text(stringResource(R.string.profile_language), style = MaterialTheme.typography.titleMedium)
         Row {
-            FilterChip(selected = language == "uz", onClick = { viewModel.setLanguage("uz") }, label = { Text("O'zbekcha") })
+            FilterChip(selected = language == "uz", onClick = { viewModel.setLanguage("uz") }, label = { Text(stringResource(R.string.lang_uz)) })
             Spacer(Modifier.width(8.dp))
-            FilterChip(selected = language == "ru", onClick = { viewModel.setLanguage("ru") }, label = { Text("Русский") })
+            FilterChip(selected = language == "ru", onClick = { viewModel.setLanguage("ru") }, label = { Text(stringResource(R.string.lang_ru)) })
         }
 
         Spacer(Modifier.height(16.dp))
@@ -45,6 +48,10 @@ fun ProfileScreen(viewModel: ProfileViewModel, padding: PaddingValues, onLoggedO
         OutlinedTextField(
             value = baseUrlInput,
             onValueChange = { baseUrlInput = it },
+            isError = baseUrlError,
+            supportingText = if (baseUrlError) {
+                { Text(stringResource(R.string.profile_invalid_url)) }
+            } else null,
             modifier = Modifier.fillMaxWidth()
         )
         Button(onClick = { viewModel.setBaseUrl(baseUrlInput) }, modifier = Modifier.padding(top = 8.dp)) {
@@ -53,7 +60,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, padding: PaddingValues, onLoggedO
 
         Spacer(Modifier.weight(1f))
         Button(
-            onClick = { viewModel.logout(); onLoggedOut() },
+            onClick = { scope.launch { viewModel.logout(); onLoggedOut() } },
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
             modifier = Modifier.fillMaxWidth()
         ) {
