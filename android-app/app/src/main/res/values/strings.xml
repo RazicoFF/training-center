@@ -10,4 +10,10 @@
     <string name="register_phone">Telefon raqam</string>
     <string name="register_profession">Kasb</string>
     <string name="register_submit">Yuborish</string>
+    <string name="tab_schedule">Jadval</string>
+    <string name="tab_tests">Testlar</string>
+    <string name="tab_certificates">Sertifikatlar</string>
+    <string name="tab_profile">Profil</string>
+    <string name="schedule_empty">Hozircha dars jadvali yo\'q</string>
+    <string name="schedule_room">Xona: %1$s</string>
 </resources>

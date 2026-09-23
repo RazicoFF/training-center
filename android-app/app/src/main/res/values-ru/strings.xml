@@ -10,4 +10,10 @@
     <string name="register_phone">Номер телефона</string>
     <string name="register_profession">Профессия</string>
     <string name="register_submit">Отправить</string>
+    <string name="tab_schedule">Расписание</string>
+    <string name="tab_tests">Тесты</string>
+    <string name="tab_certificates">Сертификаты</string>
+    <string name="tab_profile">Профиль</string>
+    <string name="schedule_empty">Расписание пока отсутствует</string>
+    <string name="schedule_room">Кабинет: %1$s</string>
 </resources>
