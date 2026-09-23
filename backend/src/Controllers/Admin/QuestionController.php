@@ -26,7 +26,7 @@ final class QuestionController
 
     private function index(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
             return ['redirect' => '/admin/login'];
         }
 
@@ -41,7 +41,7 @@ final class QuestionController
 
     private function store(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
             return ['redirect' => '/admin/login'];
         }
 
@@ -57,17 +57,31 @@ final class QuestionController
         $answerTextsRu = $body['answer_text_ru'] ?? [];
         $correctIndex = (int) ($body['correct_index'] ?? -1);
 
-        if ($textUz === '' || $textRu === '' || count($answerTextsUz) < 2 || $correctIndex < 0 || $correctIndex >= count($answerTextsUz)) {
+        if ($textUz === '' || $textRu === '') {
             return ['redirect' => "/admin/tests/{$testId}/questions", 'flash' => 'Savol va kamida 2 ta javob kiriting'];
         }
 
+        // The view always submits 4 answer_text_uz[]/answer_text_ru[] pairs, but only the
+        // first 2 are marked required — filter out the blank pairs before persisting so a
+        // 2-option question doesn't become 4 DB rows with empty text.
         $answers = [];
         foreach ($answerTextsUz as $i => $textUzAnswer) {
+            $trimmedUz = trim((string) $textUzAnswer);
+            if ($trimmedUz === '') {
+                continue;
+            }
+
             $answers[] = [
-                'text_uz' => (string) $textUzAnswer,
-                'text_ru' => (string) ($answerTextsRu[$i] ?? ''),
+                'text_uz' => $trimmedUz,
+                'text_ru' => trim((string) ($answerTextsRu[$i] ?? '')),
                 'is_correct' => $i === $correctIndex,
             ];
+        }
+
+        $correctSurvived = array_filter($answers, static fn (array $a) => $a['is_correct']) !== [];
+
+        if (count($answers) < 2 || !$correctSurvived) {
+            return ['redirect' => "/admin/tests/{$testId}/questions", 'flash' => 'Savol va kamida 2 ta javob kiriting'];
         }
 
         $this->questions->createWithAnswers($testId, $textUz, $textRu, $answers);
