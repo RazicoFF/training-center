@@ -25,4 +25,6 @@
     <string name="test_result_failed">К сожалению, вы не прошли тест</string>
     <string name="test_result_score">Балл: %1$d%%</string>
     <string name="test_result_back">Вернуться к тестам</string>
+    <string name="certificates_empty">Пока нет сертификатов</string>
+    <string name="certificates_download">Скачать</string>
 </resources>

@@ -20,4 +20,5 @@ object ServiceLocator {
     val professionRepository by lazy { uz.edu.trainingcenter.data.repository.ProfessionRepository(apiService, sessionManager) }
     val scheduleRepository by lazy { uz.edu.trainingcenter.data.repository.ScheduleRepository(apiService, sessionManager) }
     val testRepository by lazy { uz.edu.trainingcenter.data.repository.TestRepository(apiService, sessionManager) }
+    val certificateRepository by lazy { uz.edu.trainingcenter.data.repository.CertificateRepository(apiService, sessionManager) }
 }
