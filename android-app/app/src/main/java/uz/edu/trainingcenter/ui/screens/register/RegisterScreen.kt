@@ -46,9 +46,14 @@ fun RegisterScreen(viewModel: RegisterViewModel, onSubmitted: () -> Unit) {
                 onValueChange = {},
                 readOnly = true,
                 label = { Text(stringResource(R.string.register_profession)) },
-                modifier = Modifier.fillMaxWidth()
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier.menuAnchor().fillMaxWidth()
             )
-            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.exposedDropdownSize()
+            ) {
                 professions.forEach { profession ->
                     DropdownMenuItem(
                         text = { Text(profession.nameUz) },
