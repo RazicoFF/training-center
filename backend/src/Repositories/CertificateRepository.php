@@ -66,4 +66,15 @@ final class CertificateRepository
             'pdf_path' => $pdfPath,
         ];
     }
+
+    public function allWithDetails(): array
+    {
+        $sql = 'SELECT c.id, c.certificate_number, c.issue_date, u.full_name AS student_name, p.name_uz AS profession_name_uz
+                FROM certificates c
+                JOIN users u ON u.id = c.user_id
+                JOIN professions p ON p.id = c.profession_id
+                ORDER BY c.issue_date DESC';
+
+        return Database::pdo()->query($sql)->fetchAll();
+    }
 }
