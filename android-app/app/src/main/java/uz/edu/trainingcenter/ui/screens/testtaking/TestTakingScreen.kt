@@ -31,7 +31,8 @@ fun TestTakingScreen(viewModel: TestTakingViewModel, onSubmitted: (score: Int, p
                 Column(modifier = Modifier.align(Alignment.Center)) {
                     Text(s.error.asString())
                     Spacer(Modifier.height(16.dp))
-                    Button(onClick = { viewModel.submitTest() }) {
+                    val previousState = s.previousState
+                    Button(onClick = { if (previousState != null) viewModel.submitTest() else viewModel.load() }) {
                         Text(stringResource(R.string.test_taking_retry))
                     }
                 }
