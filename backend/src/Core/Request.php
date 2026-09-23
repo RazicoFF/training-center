@@ -15,12 +15,14 @@ final class Request
     /**
      * @param array<string,string> $headers
      * @param array<string,mixed> $body
+     * @param array<string,mixed> $formBody
      */
     public function __construct(
         private readonly string $method,
         private readonly string $path,
         private readonly array $headers = [],
-        private readonly array $body = []
+        private readonly array $body = [],
+        private readonly array $formBody = []
     ) {
     }
 
@@ -41,7 +43,9 @@ final class Request
         $body = json_decode($raw, true);
         $body = is_array($body) ? $body : [];
 
-        return new self($method, $path, $headers, $body);
+        $formBody = $_POST;
+
+        return new self($method, $path, $headers, $body, $formBody);
     }
 
     public function method(): string
@@ -57,6 +61,11 @@ final class Request
     public function jsonBody(): array
     {
         return $this->body;
+    }
+
+    public function formBody(): array
+    {
+        return $this->formBody;
     }
 
     public function header(string $name): ?string
