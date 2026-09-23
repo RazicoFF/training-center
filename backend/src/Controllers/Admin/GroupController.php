@@ -61,7 +61,7 @@ final class GroupController
 
     private function create(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
             return ['redirect' => '/admin/login'];
         }
 
@@ -120,7 +120,7 @@ final class GroupController
 
     private function enroll(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
             return ['redirect' => '/admin/login'];
         }
 

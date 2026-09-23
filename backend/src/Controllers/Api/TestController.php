@@ -74,19 +74,26 @@ final class TestController
         $this->repository->recordAttempt($claims['user_id'], $testId, $result['score'], $result['passed']);
 
         if ($result['passed']) {
-            $alreadyIssuedStmt = Database::pdo()->prepare(
-                'SELECT COUNT(*) FROM certificates c
-                 JOIN tests t ON t.profession_id = c.profession_id
-                 WHERE c.user_id = ? AND t.id = ?'
-            );
-            $alreadyIssuedStmt->execute([$claims['user_id'], $testId]);
+            // Certificate issuance is a side effect of a successful submission, not the
+            // submission itself: the attempt is already recorded and scored above, so a
+            // failure here (PDF generation, DB error) must not turn this into a 500.
+            try {
+                $alreadyIssuedStmt = Database::pdo()->prepare(
+                    'SELECT COUNT(*) FROM certificates c
+                     JOIN tests t ON t.profession_id = c.profession_id
+                     WHERE c.user_id = ? AND t.id = ?'
+                );
+                $alreadyIssuedStmt->execute([$claims['user_id'], $testId]);
 
-            if ((int) $alreadyIssuedStmt->fetchColumn() === 0) {
-                $professionStmt = Database::pdo()->prepare('SELECT profession_id FROM tests WHERE id = ?');
-                $professionStmt->execute([$testId]);
-                $professionId = (int) $professionStmt->fetchColumn();
+                if ((int) $alreadyIssuedStmt->fetchColumn() === 0) {
+                    $professionStmt = Database::pdo()->prepare('SELECT profession_id FROM tests WHERE id = ?');
+                    $professionStmt->execute([$testId]);
+                    $professionId = (int) $professionStmt->fetchColumn();
 
-                (new CertificateRepository())->issue($claims['user_id'], $professionId);
+                    (new CertificateRepository())->issue($claims['user_id'], $professionId);
+                }
+            } catch (\Throwable $e) {
+                error_log('Certificate issuance failed: ' . $e->getMessage());
             }
         }
 

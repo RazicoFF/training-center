@@ -20,4 +20,22 @@ final class AdminAuthMiddleware
             'role' => (string) $_SESSION['admin_role'],
         ];
     }
+
+    /**
+     * Same as authenticate(), but additionally requires the session's role to be 'admin'.
+     * Use this for pages the spec restricts to role=admin (most of the admin panel);
+     * a 'teacher' session gets null (redirected to login) just like an anonymous visitor.
+     *
+     * @return array{user_id:int, role:string}|null
+     */
+    public static function requireAdmin(): ?array
+    {
+        $claims = self::authenticate();
+
+        if ($claims === null || $claims['role'] !== 'admin') {
+            return null;
+        }
+
+        return $claims;
+    }
 }

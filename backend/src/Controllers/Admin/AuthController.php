@@ -57,6 +57,13 @@ final class AuthController
             return ['rendered' => true];
         }
 
+        // Prevent session fixation: rotate the session id across the auth boundary and drop
+        // the pre-login CSRF token so a fresh one is generated for the now-authenticated session.
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_regenerate_id(true);
+        }
+        unset($_SESSION['csrf_token']);
+
         $_SESSION['admin_user_id'] = (int) $user['id'];
         $_SESSION['admin_role'] = $user['role'];
 
@@ -71,7 +78,11 @@ final class AuthController
             return ['redirect' => '/admin/login'];
         }
 
-        unset($_SESSION['admin_user_id'], $_SESSION['admin_role']);
+        $_SESSION = [];
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+
         return ['redirect' => '/admin/login'];
     }
 

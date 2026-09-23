@@ -13,7 +13,7 @@ $envFile = $argv[1] ?? '.env';
 Env::load(dirname(__DIR__, 2), $envFile);
 
 $phone = '+998900000000';
-$password = 'admin12345';
+$password = bin2hex(random_bytes(6));
 
 $existing = (new UserRepository())->findByPhone($phone);
 

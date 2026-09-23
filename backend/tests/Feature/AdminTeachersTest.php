@@ -37,6 +37,26 @@ final class AdminTeachersTest extends TestCase
         $this->assertSame('teacher', $role);
     }
 
+    public function testCreateRedirectsTeacherRoleAwayFromAdminOnlyPage(): void
+    {
+        $_SESSION = ['admin_user_id' => 1, 'admin_role' => 'teacher'];
+
+        $router = new Router();
+        (new TeacherController())->register($router);
+        $token = Csrf::token();
+
+        $result = $router->dispatch(new Request('POST', '/admin/teachers', [], [], [
+            'csrf_token' => $token,
+            'full_name' => 'Blocked Teacher',
+            'phone' => '+998955555555',
+            'password' => 'teachpass1',
+        ]));
+
+        $this->assertSame(['redirect' => '/admin/login'], $result);
+        $exists = Database::pdo()->query("SELECT COUNT(*) FROM users WHERE phone = '+998955555555'")->fetchColumn();
+        $this->assertSame('0', (string) $exists);
+    }
+
     public function testListRendersTeacher(): void
     {
         $pdo = Database::pdo();

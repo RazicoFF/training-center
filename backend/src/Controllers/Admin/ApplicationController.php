@@ -27,7 +27,7 @@ final class ApplicationController
 
     private function index(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
             return ['redirect' => '/admin/login'];
         }
 
@@ -44,7 +44,7 @@ final class ApplicationController
 
     private function approve(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
             return ['redirect' => '/admin/login'];
         }
 
@@ -64,6 +64,10 @@ final class ApplicationController
             $this->repository->approve($id, $password);
         } catch (\RuntimeException) {
             return ['redirect' => '/admin/applications', 'flash' => 'Ariza allaqachon ko\'rib chiqilgan'];
+        } catch (\PDOException) {
+            // Most commonly a UNIQUE constraint violation on users.phone: this applicant's
+            // phone number already has an account (e.g. a duplicate application approved twice).
+            return ['redirect' => '/admin/applications', 'flash' => 'Bu telefon raqami bo\'yicha allaqachon foydalanuvchi mavjud'];
         }
 
         return ['redirect' => '/admin/applications', 'flash' => Lang::t('application_approved')];
@@ -71,7 +75,7 @@ final class ApplicationController
 
     private function reject(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
             return ['redirect' => '/admin/login'];
         }
 

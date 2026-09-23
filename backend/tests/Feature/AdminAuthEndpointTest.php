@@ -53,6 +53,10 @@ final class AdminAuthEndpointTest extends TestCase
 
         $this->assertSame(['redirect' => '/admin'], $result);
         $this->assertSame('admin', $_SESSION['admin_role']);
+        // The pre-login CSRF token must be dropped so a fresh one is issued post-auth
+        // (session_regenerate_id() itself is a no-op here since PHPUnit's CLI process
+        // never has a real session started via session_start()).
+        $this->assertArrayNotHasKey('csrf_token', $_SESSION);
     }
 
     public function testLoginWithWrongPasswordDoesNotSetSession(): void

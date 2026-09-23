@@ -31,7 +31,7 @@ final class TeacherController
 
     private function index(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
             return ['redirect' => '/admin/login'];
         }
 
@@ -41,7 +41,7 @@ final class TeacherController
 
     private function createForm(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
             return ['redirect' => '/admin/login'];
         }
 
@@ -51,7 +51,7 @@ final class TeacherController
 
     private function create(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
             return ['redirect' => '/admin/login'];
         }
 
