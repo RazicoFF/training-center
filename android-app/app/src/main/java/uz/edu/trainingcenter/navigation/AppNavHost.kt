@@ -3,8 +3,10 @@ package uz.edu.trainingcenter.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.lifecycle.viewmodel.compose.viewModel
 import uz.edu.trainingcenter.ServiceLocator
 import uz.edu.trainingcenter.ViewModelFactory
@@ -16,6 +18,9 @@ import uz.edu.trainingcenter.ui.screens.register.RegisterViewModel
 import uz.edu.trainingcenter.ui.screens.schedule.ScheduleScreen
 import uz.edu.trainingcenter.ui.screens.schedule.ScheduleViewModel
 import uz.edu.trainingcenter.ui.screens.splash.SplashScreen
+import uz.edu.trainingcenter.ui.screens.testtaking.TestResultScreen
+import uz.edu.trainingcenter.ui.screens.testtaking.TestTakingScreen
+import uz.edu.trainingcenter.ui.screens.testtaking.TestTakingViewModel
 
 @Composable
 fun AppNavHost(navController: NavHostController) {
@@ -63,6 +68,34 @@ fun AppNavHost(navController: NavHostController) {
                     onTestClick = { testId -> navController.navigate(Routes.testTaking(testId)) }
                 )
             }
+        }
+        composable(
+            Routes.TEST_TAKING,
+            arguments = listOf(navArgument("testId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val testId = backStackEntry.arguments?.getInt("testId") ?: return@composable
+            val viewModel: TestTakingViewModel = viewModel(
+                factory = ViewModelFactory { TestTakingViewModel(testId, ServiceLocator.testRepository) }
+            )
+            TestTakingScreen(
+                viewModel = viewModel,
+                onSubmitted = { score, passed ->
+                    navController.navigate(Routes.testResult(score, passed)) {
+                        popUpTo(Routes.TESTS_LIST)
+                    }
+                }
+            )
+        }
+        composable(
+            Routes.TEST_RESULT,
+            arguments = listOf(
+                navArgument("score") { type = NavType.IntType },
+                navArgument("passed") { type = NavType.BoolType }
+            )
+        ) { backStackEntry ->
+            val score = backStackEntry.arguments?.getInt("score") ?: 0
+            val passed = backStackEntry.arguments?.getBoolean("passed") ?: false
+            TestResultScreen(score = score, passed = passed, onBackToTests = { navController.popBackStack() })
         }
         // Routes.CERTIFICATES, PROFILE and beyond are added by Tasks 10-11.
     }
