@@ -6,6 +6,7 @@
     <application
         android:name=".TrainingCenterApp"
         android:allowBackup="true"
+        android:usesCleartextTraffic="true"
         android:label="@string/app_name"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
         <activity
