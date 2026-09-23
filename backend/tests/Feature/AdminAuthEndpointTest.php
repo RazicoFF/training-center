@@ -81,9 +81,52 @@ final class AdminAuthEndpointTest extends TestCase
         $router = new Router();
         (new AuthController())->register($router);
 
-        $result = $router->dispatch(new Request('POST', '/admin/logout', [], [], []));
+        $csrfToken = \App\Core\Csrf::token();
+
+        $result = $router->dispatch(new Request('POST', '/admin/logout', [], [], [
+            'csrf_token' => $csrfToken,
+        ]));
 
         $this->assertSame(['redirect' => '/admin/login'], $result);
         $this->assertArrayNotHasKey('admin_user_id', $_SESSION);
+    }
+
+    public function testLogoutWithoutCsrfTokenDoesNotClearSession(): void
+    {
+        $_SESSION['admin_user_id'] = 1;
+        $_SESSION['admin_role'] = 'admin';
+
+        $router = new Router();
+        (new AuthController())->register($router);
+
+        $result = $router->dispatch(new Request('POST', '/admin/logout', [], [], []));
+
+        $this->assertSame(['redirect' => '/admin/login'], $result);
+        $this->assertArrayHasKey('admin_user_id', $_SESSION);
+        $this->assertArrayHasKey('admin_role', $_SESSION);
+    }
+
+    public function testSwitchLangRejectsOpenRedirectAndHonorsSameOriginBack(): void
+    {
+        $router = new Router();
+        (new AuthController())->register($router);
+        $csrfToken = \App\Core\Csrf::token();
+
+        $resultEvil = $router->dispatch(new Request('POST', '/admin/lang', [], [], [
+            'csrf_token' => $csrfToken,
+            'locale' => 'ru',
+            'back' => 'https://evil.example',
+        ]));
+
+        $this->assertSame(['redirect' => '/admin'], $resultEvil);
+
+        $csrfToken2 = \App\Core\Csrf::token();
+        $resultSafe = $router->dispatch(new Request('POST', '/admin/lang', [], [], [
+            'csrf_token' => $csrfToken2,
+            'locale' => 'ru',
+            'back' => '/admin/groups',
+        ]));
+
+        $this->assertSame(['redirect' => '/admin/groups'], $resultSafe);
     }
 }
