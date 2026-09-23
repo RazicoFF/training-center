@@ -8,6 +8,7 @@ use App\Core\Env;
 use App\Core\Request;
 use App\Core\Router;
 use App\Controllers\Admin\AuthController;
+use App\Controllers\Admin\DashboardController;
 
 session_start([
     'cookie_httponly' => true,
@@ -18,6 +19,7 @@ Env::load(dirname(__DIR__));
 
 $router = new Router();
 (new AuthController())->register($router);
+(new DashboardController())->register($router);
 
 $request = Request::fromGlobals();
 
