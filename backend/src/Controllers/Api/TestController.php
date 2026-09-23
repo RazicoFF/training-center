@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Controllers\Api;
 
+use App\Core\Database;
 use App\Core\Request;
 use App\Core\Router;
 use App\Middleware\AuthMiddleware;
+use App\Repositories\CertificateRepository;
 use App\Repositories\TestRepository;
 
 final class TestController
@@ -70,6 +72,23 @@ final class TestController
         }
 
         $this->repository->recordAttempt($claims['user_id'], $testId, $result['score'], $result['passed']);
+
+        if ($result['passed']) {
+            $alreadyIssuedStmt = Database::pdo()->prepare(
+                'SELECT COUNT(*) FROM certificates c
+                 JOIN tests t ON t.profession_id = c.profession_id
+                 WHERE c.user_id = ? AND t.id = ?'
+            );
+            $alreadyIssuedStmt->execute([$claims['user_id'], $testId]);
+
+            if ((int) $alreadyIssuedStmt->fetchColumn() === 0) {
+                $professionStmt = Database::pdo()->prepare('SELECT profession_id FROM tests WHERE id = ?');
+                $professionStmt->execute([$testId]);
+                $professionId = (int) $professionStmt->fetchColumn();
+
+                (new CertificateRepository())->issue($claims['user_id'], $professionId);
+            }
+        }
 
         return $result;
     }
