@@ -24,6 +24,11 @@ import uz.edu.trainingcenter.ui.screens.testtaking.TestTakingViewModel
 
 @Composable
 fun AppNavHost(navController: NavHostController) {
+    LaunchedEffect(Unit) {
+        ServiceLocator.sessionManager.loggedOut.collect {
+            navController.navigate(Routes.LOGIN) { popUpTo(0) }
+        }
+    }
     NavHost(navController = navController, startDestination = Routes.SPLASH) {
         composable(Routes.SPLASH) {
             SplashScreen(onDecided = { loggedIn ->
@@ -104,6 +109,18 @@ fun AppNavHost(navController: NavHostController) {
                 uz.edu.trainingcenter.ui.screens.certificates.CertificatesScreen(viewModel = viewModel, padding = padding)
             }
         }
-        // Routes.PROFILE and beyond are added by Task 11.
+        composable(Routes.PROFILE) {
+            HomeScaffold(navController) { padding ->
+                val viewModel: uz.edu.trainingcenter.ui.screens.profile.ProfileViewModel =
+                    viewModel(factory = ViewModelFactory { uz.edu.trainingcenter.ui.screens.profile.ProfileViewModel(ServiceLocator.authRepository, ServiceLocator.dataStore) })
+                uz.edu.trainingcenter.ui.screens.profile.ProfileScreen(
+                    viewModel = viewModel,
+                    padding = padding,
+                    onLoggedOut = {
+                        navController.navigate(Routes.LOGIN) { popUpTo(0) }
+                    }
+                )
+            }
+        }
     }
 }

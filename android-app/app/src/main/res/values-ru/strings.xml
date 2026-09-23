@@ -27,4 +27,12 @@
     <string name="test_result_back">Вернуться к тестам</string>
     <string name="certificates_empty">Пока нет сертификатов</string>
     <string name="certificates_download">Скачать</string>
+    <string name="profile_language">Язык</string>
+    <string name="profile_theme">Тема</string>
+    <string name="profile_theme_light">Светлая</string>
+    <string name="profile_theme_dark">Тёмная</string>
+    <string name="profile_theme_system">Системная</string>
+    <string name="profile_server_url">Адрес сервера</string>
+    <string name="profile_save">Сохранить</string>
+    <string name="profile_logout">Выход</string>
 </resources>
