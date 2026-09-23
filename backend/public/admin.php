@@ -11,7 +11,9 @@ use App\Controllers\Admin\ApplicationController;
 use App\Controllers\Admin\AuthController;
 use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\GroupController;
+use App\Controllers\Admin\QuestionController;
 use App\Controllers\Admin\TeacherController;
+use App\Controllers\Admin\TestController;
 
 session_start([
     'cookie_httponly' => true,
@@ -26,6 +28,8 @@ $router = new Router();
 (new ApplicationController())->register($router);
 (new GroupController())->register($router);
 (new TeacherController())->register($router);
+(new TestController())->register($router);
+(new QuestionController())->register($router);
 
 $request = Request::fromGlobals();
 

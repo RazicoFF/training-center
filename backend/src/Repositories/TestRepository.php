@@ -105,4 +105,24 @@ final class TestRepository
 
         return (int) Database::pdo()->lastInsertId();
     }
+
+    public function create(int $professionId, string $titleUz, string $titleRu, int $passingScore): int
+    {
+        $stmt = Database::pdo()->prepare(
+            'INSERT INTO tests (profession_id, title_uz, title_ru, passing_score) VALUES (?, ?, ?, ?)'
+        );
+        $stmt->execute([$professionId, $titleUz, $titleRu, $passingScore]);
+
+        return (int) Database::pdo()->lastInsertId();
+    }
+
+    public function allWithProfession(): array
+    {
+        $sql = 'SELECT t.*, p.name_uz AS profession_name_uz,
+                       (SELECT COUNT(*) FROM questions q WHERE q.test_id = t.id) AS question_count
+                FROM tests t JOIN professions p ON p.id = t.profession_id
+                ORDER BY p.name_uz, t.id';
+
+        return Database::pdo()->query($sql)->fetchAll();
+    }
 }
