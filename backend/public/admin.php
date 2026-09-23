@@ -9,6 +9,7 @@ use App\Core\Request;
 use App\Core\Router;
 use App\Controllers\Admin\ApplicationController;
 use App\Controllers\Admin\AuthController;
+use App\Controllers\Admin\CertificateController;
 use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\GroupController;
 use App\Controllers\Admin\QuestionController;
@@ -30,6 +31,7 @@ $router = new Router();
 (new TeacherController())->register($router);
 (new TestController())->register($router);
 (new QuestionController())->register($router);
+(new CertificateController())->register($router);
 
 $request = Request::fromGlobals();
 
