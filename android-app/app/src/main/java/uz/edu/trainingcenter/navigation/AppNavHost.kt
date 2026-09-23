@@ -53,6 +53,17 @@ fun AppNavHost(navController: NavHostController) {
                 ScheduleScreen(viewModel = viewModel, padding = padding)
             }
         }
-        // Routes.TESTS_LIST, CERTIFICATES, PROFILE and beyond are added by Tasks 8-11.
+        composable(Routes.TESTS_LIST) {
+            HomeScaffold(navController) { padding ->
+                val viewModel: uz.edu.trainingcenter.ui.screens.tests.TestsListViewModel =
+                    viewModel(factory = ViewModelFactory { uz.edu.trainingcenter.ui.screens.tests.TestsListViewModel(ServiceLocator.testRepository) })
+                uz.edu.trainingcenter.ui.screens.tests.TestsListScreen(
+                    viewModel = viewModel,
+                    padding = padding,
+                    onTestClick = { testId -> navController.navigate(Routes.testTaking(testId)) }
+                )
+            }
+        }
+        // Routes.CERTIFICATES, PROFILE and beyond are added by Tasks 10-11.
     }
 }

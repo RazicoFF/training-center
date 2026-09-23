@@ -16,4 +16,6 @@
     <string name="tab_profile">Profil</string>
     <string name="schedule_empty">Hozircha dars jadvali yo\'q</string>
     <string name="schedule_room">Xona: %1$s</string>
+    <string name="tests_empty">Hozircha mavjud test yo\'q</string>
+    <string name="tests_passing_score">O\'tish balli: %1$d%%</string>
 </resources>
