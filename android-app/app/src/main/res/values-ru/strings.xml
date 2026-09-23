@@ -5,4 +5,9 @@
     <string name="login_password">Пароль</string>
     <string name="login_submit">Войти</string>
     <string name="login_register_link">Подать заявку</string>
+    <string name="register_title">Подать заявку</string>
+    <string name="register_full_name">Ф.И.О</string>
+    <string name="register_phone">Номер телефона</string>
+    <string name="register_profession">Профессия</string>
+    <string name="register_submit">Отправить</string>
 </resources>
