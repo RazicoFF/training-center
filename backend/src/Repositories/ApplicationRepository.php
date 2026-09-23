@@ -66,4 +66,31 @@ final class ApplicationRepository
 
         return ['user_id' => $userId, 'phone' => $application['phone']];
     }
+
+    public function allWithProfession(?string $status = null): array
+    {
+        $sql = 'SELECT a.*, p.name_uz AS profession_name_uz, p.name_ru AS profession_name_ru
+                FROM applications a JOIN professions p ON p.id = a.profession_id';
+        $params = [];
+
+        if ($status !== null) {
+            $sql .= ' WHERE a.status = ?';
+            $params[] = $status;
+        }
+
+        $sql .= ' ORDER BY a.created_at DESC';
+
+        $stmt = Database::pdo()->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll();
+    }
+
+    public function reject(int $id): bool
+    {
+        $stmt = Database::pdo()->prepare("UPDATE applications SET status = 'rejected' WHERE id = ? AND status = 'pending'");
+        $stmt->execute([$id]);
+
+        return $stmt->rowCount() > 0;
+    }
 }
