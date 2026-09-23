@@ -1,5 +1,7 @@
 package uz.edu.trainingcenter.ui.screens.profile
 
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -7,6 +9,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import uz.edu.trainingcenter.data.local.PreferencesDataStore
 import uz.edu.trainingcenter.data.remote.dto.MeDto
 import uz.edu.trainingcenter.data.repository.AuthRepository
@@ -28,6 +31,10 @@ class ProfileViewModel(
     private val _baseUrl = MutableStateFlow(PreferencesDataStore.DEFAULT_BASE_URL)
     val baseUrl: StateFlow<String> = _baseUrl
 
+    /** True when the last setBaseUrl() call was rejected for not being a valid URL. */
+    private val _baseUrlError = MutableStateFlow(false)
+    val baseUrlError: StateFlow<Boolean> = _baseUrlError
+
     init {
         viewModelScope.launch {
             authRepository.getMe().onSuccess { _me.value = it }
@@ -38,7 +45,10 @@ class ProfileViewModel(
     }
 
     fun setLanguage(lang: String) {
-        viewModelScope.launch { dataStore.setLanguage(lang) }
+        viewModelScope.launch {
+            dataStore.setLanguage(lang)
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(lang))
+        }
     }
 
     fun setTheme(theme: String) {
@@ -46,13 +56,24 @@ class ProfileViewModel(
     }
 
     fun setBaseUrl(url: String) {
+        if (url.toHttpUrlOrNull() == null) {
+            _baseUrlError.value = true
+            return
+        }
+        _baseUrlError.value = false
         viewModelScope.launch {
             dataStore.setBaseUrl(url)
             _baseUrl.value = url
         }
     }
 
-    fun logout() {
-        viewModelScope.launch { authRepository.logout() }
+    /**
+     * Suspends until the token is cleared, so the caller (ProfileScreen, from its own
+     * coroutine scope) can navigate away only after logout actually completes -- not
+     * racing a viewModelScope.launch that could get cancelled if the ViewModel is
+     * destroyed by that same navigation.
+     */
+    suspend fun logout() {
+        authRepository.logout()
     }
 }

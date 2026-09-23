@@ -7,11 +7,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import uz.edu.trainingcenter.data.remote.dto.ScheduleItemDto
 import uz.edu.trainingcenter.data.repository.ScheduleRepository
+import uz.edu.trainingcenter.util.UiError
+import uz.edu.trainingcenter.util.toUiError
 
 sealed interface ScheduleUiState {
     data object Loading : ScheduleUiState
     data class Success(val items: List<ScheduleItemDto>) : ScheduleUiState
-    data class Error(val message: String) : ScheduleUiState
+    data class Error(val error: UiError) : ScheduleUiState
 }
 
 class ScheduleViewModel(private val repository: ScheduleRepository) : ViewModel() {
@@ -29,7 +31,7 @@ class ScheduleViewModel(private val repository: ScheduleRepository) : ViewModel(
             val result = repository.getSchedule()
             _uiState.value = result.fold(
                 onSuccess = { ScheduleUiState.Success(it) },
-                onFailure = { ScheduleUiState.Error(it.message ?: "Failed to load schedule") }
+                onFailure = { ScheduleUiState.Error(it.toUiError()) }
             )
         }
     }

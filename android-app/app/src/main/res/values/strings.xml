@@ -35,4 +35,11 @@
     <string name="profile_server_url">Server manzili</string>
     <string name="profile_save">Saqlash</string>
     <string name="profile_logout">Chiqish</string>
+    <string name="error_network">Serverga ulanib bo\'lmadi. Internetni tekshiring.</string>
+    <string name="error_generic">Xatolik yuz berdi</string>
+    <string name="lang_uz">O\'zbekcha</string>
+    <string name="lang_ru">Русский</string>
+    <string name="schedule_when">%1$s  %2$s-%3$s</string>
+    <string name="test_taking_retry">Qayta urinish</string>
+    <string name="profile_invalid_url">Noto\'g\'ri manzil</string>
 </resources>

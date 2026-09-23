@@ -7,7 +7,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.edu.trainingcenter.R
+import uz.edu.trainingcenter.ServiceLocator
 import uz.edu.trainingcenter.data.remote.dto.ProfessionDto
+import uz.edu.trainingcenter.ui.common.asString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -17,6 +19,7 @@ fun RegisterScreen(viewModel: RegisterViewModel, onSubmitted: () -> Unit) {
     var selectedProfession by remember { mutableStateOf<ProfessionDto?>(null) }
     var expanded by remember { mutableStateOf(false) }
     val state by viewModel.uiState.collectAsState()
+    val language by ServiceLocator.dataStore.languageFlow().collectAsState(initial = "uz")
 
     LaunchedEffect(Unit) { viewModel.loadProfessions() }
     LaunchedEffect(state) { if (state is RegisterUiState.Submitted) onSubmitted() }
@@ -41,8 +44,9 @@ fun RegisterScreen(viewModel: RegisterViewModel, onSubmitted: () -> Unit) {
 
         val professions = (state as? RegisterUiState.ProfessionsLoaded)?.professions.orEmpty()
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
+            val selectedName = selectedProfession?.let { if (language == "ru") it.nameRu else it.nameUz } ?: ""
             OutlinedTextField(
-                value = selectedProfession?.nameUz ?: "",
+                value = selectedName,
                 onValueChange = {},
                 readOnly = true,
                 label = { Text(stringResource(R.string.register_profession)) },
@@ -56,7 +60,7 @@ fun RegisterScreen(viewModel: RegisterViewModel, onSubmitted: () -> Unit) {
             ) {
                 professions.forEach { profession ->
                     DropdownMenuItem(
-                        text = { Text(profession.nameUz) },
+                        text = { Text(if (language == "ru") profession.nameRu else profession.nameUz) },
                         onClick = { selectedProfession = profession; expanded = false }
                     )
                 }
@@ -65,7 +69,7 @@ fun RegisterScreen(viewModel: RegisterViewModel, onSubmitted: () -> Unit) {
 
         Spacer(Modifier.height(16.dp))
         if (state is RegisterUiState.Error) {
-            Text((state as RegisterUiState.Error).message, color = MaterialTheme.colorScheme.error)
+            Text((state as RegisterUiState.Error).error.asString(), color = MaterialTheme.colorScheme.error)
             Spacer(Modifier.height(8.dp))
         }
         Button(

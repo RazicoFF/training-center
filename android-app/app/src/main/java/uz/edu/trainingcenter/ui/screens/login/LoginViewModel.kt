@@ -6,12 +6,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import uz.edu.trainingcenter.data.repository.AuthRepository
+import uz.edu.trainingcenter.util.UiError
+import uz.edu.trainingcenter.util.toUiError
 
 sealed interface LoginUiState {
     data object Idle : LoginUiState
     data object Loading : LoginUiState
     data object Success : LoginUiState
-    data class Error(val message: String) : LoginUiState
+    data class Error(val error: UiError) : LoginUiState
 }
 
 class LoginViewModel(private val repository: AuthRepository) : ViewModel() {
@@ -25,7 +27,7 @@ class LoginViewModel(private val repository: AuthRepository) : ViewModel() {
             val result = repository.login(phone, password)
             _uiState.value = result.fold(
                 onSuccess = { LoginUiState.Success },
-                onFailure = { LoginUiState.Error(it.message ?: "Login failed") }
+                onFailure = { LoginUiState.Error(it.toUiError()) }
             )
         }
     }
