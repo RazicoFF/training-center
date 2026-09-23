@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Учебный центр</string>
+    <string name="login_title">Вход в систему</string>
+    <string name="login_phone">Номер телефона</string>
+    <string name="login_password">Пароль</string>
+    <string name="login_submit">Войти</string>
+    <string name="login_register_link">Подать заявку</string>
 </resources>
