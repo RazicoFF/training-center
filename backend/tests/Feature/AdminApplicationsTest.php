@@ -76,7 +76,11 @@ final class AdminApplicationsTest extends TestCase
         ]));
 
         $this->assertSame('/admin/applications', $result['redirect']);
-        $this->assertArrayHasKey('flash', $result);
+        // Must be the duplicate-phone-specific message, not the generic "already processed"
+        // message. \PDOException extends \RuntimeException in PHP 8.0+, so a wrongly ordered
+        // catch (\RuntimeException) before catch (\PDOException) would silently swallow this
+        // into the wrong branch.
+        $this->assertSame('Bu telefon raqami bo\'yicha allaqachon foydalanuvchi mavjud', $result['flash']);
 
         $status = Database::pdo()->query("SELECT status FROM applications WHERE id = {$this->applicationId}")->fetchColumn();
         $this->assertSame('pending', $status);
