@@ -1,6 +1,7 @@
 package uz.edu.trainingcenter.util
 
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import retrofit2.HttpException
 import uz.edu.trainingcenter.data.remote.dto.ErrorResponse
 import java.io.IOException
@@ -29,7 +30,7 @@ fun Throwable.toUserMessageOrNull(): String? {
             val errorBody = response()?.errorBody()?.string()
             if (errorBody != null) {
                 try {
-                    val moshi = Moshi.Builder().build()
+                    val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
                     val parsed = moshi.adapter(ErrorResponse::class.java).fromJson(errorBody)
                     parsed?.error?.message
                 } catch (e: Exception) {
