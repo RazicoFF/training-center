@@ -62,12 +62,15 @@ final class ApplicationController
 
         try {
             $this->repository->approve($id, $password);
-        } catch (\RuntimeException) {
-            return ['redirect' => '/admin/applications', 'flash' => 'Ariza allaqachon ko\'rib chiqilgan'];
         } catch (\PDOException) {
             // Most commonly a UNIQUE constraint violation on users.phone: this applicant's
             // phone number already has an account (e.g. a duplicate application approved twice).
+            // NOTE: \PDOException extends \RuntimeException in PHP 8.0+, so this MORE SPECIFIC
+            // catch block must come first, or it would be unreachable dead code (shadowed by
+            // the \RuntimeException catch below).
             return ['redirect' => '/admin/applications', 'flash' => 'Bu telefon raqami bo\'yicha allaqachon foydalanuvchi mavjud'];
+        } catch (\RuntimeException) {
+            return ['redirect' => '/admin/applications', 'flash' => 'Ariza allaqachon ko\'rib chiqilgan'];
         }
 
         return ['redirect' => '/admin/applications', 'flash' => Lang::t('application_approved')];
