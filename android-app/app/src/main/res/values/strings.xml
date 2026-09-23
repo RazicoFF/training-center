@@ -18,4 +18,11 @@
     <string name="schedule_room">Xona: %1$s</string>
     <string name="tests_empty">Hozircha mavjud test yo\'q</string>
     <string name="tests_passing_score">O\'tish balli: %1$d%%</string>
+    <string name="test_taking_progress">Savol %1$d / %2$d</string>
+    <string name="test_taking_next">Keyingi</string>
+    <string name="test_taking_finish">Yakunlash</string>
+    <string name="test_result_passed">Tabriklaymiz, siz o\'tdingiz!</string>
+    <string name="test_result_failed">Afsuski, siz o\'ta olmadingiz</string>
+    <string name="test_result_score">Ball: %1$d%%</string>
+    <string name="test_result_back">Testlarga qaytish</string>
 </resources>
