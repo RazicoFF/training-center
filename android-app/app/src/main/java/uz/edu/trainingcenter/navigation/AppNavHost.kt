@@ -97,6 +97,13 @@ fun AppNavHost(navController: NavHostController) {
             val passed = backStackEntry.arguments?.getBoolean("passed") ?: false
             TestResultScreen(score = score, passed = passed, onBackToTests = { navController.popBackStack() })
         }
-        // Routes.CERTIFICATES, PROFILE and beyond are added by Tasks 10-11.
+        composable(Routes.CERTIFICATES) {
+            HomeScaffold(navController) { padding ->
+                val viewModel: uz.edu.trainingcenter.ui.screens.certificates.CertificatesViewModel =
+                    viewModel(factory = ViewModelFactory { uz.edu.trainingcenter.ui.screens.certificates.CertificatesViewModel(ServiceLocator.certificateRepository) })
+                uz.edu.trainingcenter.ui.screens.certificates.CertificatesScreen(viewModel = viewModel, padding = padding)
+            }
+        }
+        // Routes.PROFILE and beyond are added by Task 11.
     }
 }
