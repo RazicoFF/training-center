@@ -86,7 +86,7 @@ final class AuthController
         Lang::set((string) ($body['locale'] ?? 'uz'));
         $back = (string) ($body['back'] ?? '/admin');
 
-        if (!str_starts_with($back, '/')) {
+        if (!str_starts_with($back, '/') || str_starts_with($back, '//')) {
             $back = '/admin';
         }
 
