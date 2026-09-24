@@ -12,6 +12,7 @@ use App\Controllers\Api\ProfessionController;
 use App\Controllers\Api\ApplicationController;
 use App\Controllers\Api\AuthController;
 use App\Controllers\Api\MeController;
+use App\Controllers\Api\NewsController;
 use App\Controllers\Api\TestController;
 use App\Controllers\Api\CertificateController;
 
@@ -25,6 +26,7 @@ try {
     (new MeController())->register($router);
     (new TestController())->register($router);
     (new CertificateController())->register($router);
+    (new NewsController())->register($router);
 
     $request = Request::fromGlobals();
     $result = $router->dispatch($request);

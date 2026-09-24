@@ -1,4 +1,27 @@
-/* Public site — extends admin.css's theme variables */
+/* Public site — dark/gold corporate theme (inspired by heavy-industry sites),
+   built on top of admin.css's shared variables. The site defaults to dark
+   theme; overriding --tc-primary/--tc-accent-grad here only affects pages
+   that load this stylesheet (the admin panel keeps its own green theme). */
+
+:root {
+    --tc-primary: #c9a227;
+    --tc-primary-2: #e0c158;
+    --tc-accent-grad: linear-gradient(135deg, #8a6d1a, #c9a227);
+}
+
+[data-bs-theme="dark"] {
+    --tc-bg: #0b0d10;
+    --tc-surface: #14171c;
+    --tc-surface-2: #1b1f26;
+    --tc-border: #2a2f38;
+    --tc-text: #f1efe9;
+    --tc-text-muted: #a9a396;
+    --tc-primary: #d4af37;
+    --tc-primary-2: #e8c765;
+    --tc-accent-grad: linear-gradient(135deg, #7a5f14, #d4af37);
+    --tc-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+    --tc-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.6);
+}
 
 body {
     background: var(--tc-bg);
@@ -15,31 +38,63 @@ body {
     color: var(--tc-text);
     font-weight: 700;
     text-decoration: none;
+    letter-spacing: 0.02em;
 }
 
 .tc-site-nav .nav-link {
     color: var(--tc-text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.82rem;
+    letter-spacing: 0.03em;
+}
+
+.tc-site-nav .nav-link:hover,
+.tc-site-nav .nav-link.fw-bold {
+    color: var(--tc-primary);
 }
 
 .tc-hero {
-    border-radius: 20px;
-    background: var(--tc-accent-grad);
+    border-radius: 4px;
+    background: linear-gradient(160deg, #05060a 0%, #14171c 60%, #1d1206 130%);
+    border: 1px solid var(--tc-border);
     color: #fff;
-    padding: 3rem 2rem;
-    margin-bottom: 2rem;
+    padding: 4rem 2.5rem;
+    margin-bottom: 2.5rem;
 }
 
 .tc-hero h1 {
     font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tc-primary);
+}
+
+.tc-hero p {
+    color: var(--tc-text-muted);
+}
+
+h2.h4 {
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-weight: 800;
+    font-size: 1.15rem;
 }
 
 .tc-price-card {
-    border-radius: 16px;
+    border-radius: 4px;
     overflow: hidden;
     border: 1px solid var(--tc-border);
     background: var(--tc-surface);
     box-shadow: var(--tc-shadow);
     height: 100%;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.tc-price-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--tc-shadow-hover);
+    border-color: var(--tc-primary);
 }
 
 .tc-price-card img {
@@ -56,7 +111,7 @@ body {
 }
 
 .tc-teacher-card {
-    border-radius: 16px;
+    border-radius: 4px;
     border: 1px solid var(--tc-border);
     background: var(--tc-surface);
     box-shadow: var(--tc-shadow);
@@ -76,10 +131,34 @@ body {
     height: 84px;
     border-radius: 50%;
     background: var(--tc-accent-grad);
-    color: #fff;
+    color: #14171c;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
     font-size: 1.4rem;
+}
+
+.btn-primary {
+    background: var(--tc-accent-grad);
+    border: none;
+    color: #14171c;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-radius: 2px;
+}
+
+.btn-outline-primary {
+    color: var(--tc-primary);
+    border-color: var(--tc-primary);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-radius: 2px;
+}
+
+.btn-outline-primary:hover {
+    background: var(--tc-primary);
+    color: #14171c;
 }

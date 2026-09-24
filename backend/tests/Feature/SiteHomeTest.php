@@ -71,6 +71,27 @@ final class SiteHomeTest extends TestCase
         );
     }
 
+    public function testHomeRendersNewsAndProfessionLinksToDetailPage(): void
+    {
+        $pdo = Database::pdo();
+        $pdo->exec("DELETE FROM news WHERE title_uz = 'Smoke Home News'");
+        $pdo->prepare('INSERT INTO news (title_uz, title_ru, body_uz) VALUES (?, ?, ?)')
+            ->execute(['Smoke Home News', 'Тестовая новость', 'Yangilik matni']);
+        $professionId = (int) $pdo->query('SELECT id FROM professions LIMIT 1')->fetchColumn();
+
+        $router = new Router();
+        (new HomeController())->register($router);
+
+        ob_start();
+        $router->dispatch(new Request('GET', '/', [], [], []));
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString('Smoke Home News', $html);
+        $this->assertStringContainsString("/professions/{$professionId}", $html);
+
+        $pdo->exec("DELETE FROM news WHERE title_uz = 'Smoke Home News'");
+    }
+
     public function testApplySubmitsApplicationAndShowsSuccessMessage(): void
     {
         $professionId = (int) Database::pdo()->query('SELECT id FROM professions LIMIT 1')->fetchColumn();

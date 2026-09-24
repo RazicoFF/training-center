@@ -9,7 +9,7 @@ $isLoggedIn = isset($_SESSION['site_user_id']);
 $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 ?>
 <!DOCTYPE html>
-<html lang="<?= htmlspecialchars(Lang::current()) ?>" data-bs-theme="light">
+<html lang="<?= htmlspecialchars(Lang::current()) ?>" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -68,8 +68,8 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
         root.setAttribute('data-bs-theme', theme);
         if (icon) { icon.innerHTML = theme === 'dark' ? moonPath : sunPath; }
     }
-    var saved = 'light';
-    try { saved = localStorage.getItem('tc-site-theme') || 'light'; } catch (e) {}
+    var saved = 'dark';
+    try { saved = localStorage.getItem('tc-site-theme') || 'dark'; } catch (e) {}
     applyTheme(saved);
     var toggle = document.getElementById('tc-site-theme-toggle');
     if (toggle) {

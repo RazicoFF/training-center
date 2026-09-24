@@ -178,6 +178,22 @@ final class TestRepository
         $stmt->execute([$titleUz, $titleRu, $passingScore, $opensAt, $closesAt, $id]);
     }
 
+    /**
+     * Tests belonging to one profession, for the public profession detail page
+     * (informational only - titles and question counts, no answers).
+     */
+    public function forProfession(int $professionId): array
+    {
+        $stmt = Database::pdo()->prepare(
+            'SELECT t.id, t.title_uz, t.title_ru,
+                    (SELECT COUNT(*) FROM questions q WHERE q.test_id = t.id) AS question_count
+             FROM tests t WHERE t.profession_id = ? ORDER BY t.id'
+        );
+        $stmt->execute([$professionId]);
+
+        return $stmt->fetchAll();
+    }
+
     public function allWithProfession(): array
     {
         $sql = 'SELECT t.*, p.name_uz AS profession_name_uz,

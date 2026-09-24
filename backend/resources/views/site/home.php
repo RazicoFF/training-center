@@ -1,6 +1,7 @@
 <?php
 /** @var array $professions */
 /** @var array $settings */
+/** @var array $newsItems */
 use App\Core\Lang;
 
 $isRu = Lang::current() === 'ru';
@@ -16,25 +17,50 @@ $addressText = $isRu ? ($settings['address_ru'] ?? null) : ($settings['address_u
 <div class="row g-4">
     <?php foreach ($professions as $i => $p): ?>
         <div class="col-md-4">
-            <div class="tc-price-card tc-fade-in tc-fade-in-<?= min($i + 1, 4) ?>">
-                <?php if (!empty($p['image_url'])): ?>
-                    <img src="<?= htmlspecialchars($p['image_url']) ?>" alt="<?= htmlspecialchars($p['name_uz']) ?>">
+            <div class="tc-price-card tc-fade-in tc-fade-in-<?= min($i + 1, 4) ?>" style="position:relative;">
+                <?php if (!empty($p['pdf_url'])): ?>
+                    <span class="badge text-bg-secondary" style="position:absolute;top:8px;right:8px;z-index:1;">PDF</span>
                 <?php endif; ?>
-                <div class="p-3">
-                    <h3 class="h5"><?= htmlspecialchars($isRu ? $p['name_ru'] : $p['name_uz']) ?></h3>
-                    <p class="text-muted small mb-2"><?= htmlspecialchars($isRu ? $p['description_ru'] : $p['description_uz']) ?></p>
-                    <p class="tc-price-tag mb-1"><?= number_format((float) $p['price']) ?> UZS</p>
-                    <p class="text-muted small mb-3"><?= (int) $p['duration_days'] ?> <?= htmlspecialchars(Lang::t('profession_days')) ?></p>
-                    <?php $careerInfo = $isRu ? ($p['career_info_ru'] ?? null) : ($p['career_info_uz'] ?? null); ?>
-                    <?php if (!empty($careerInfo)): ?>
-                        <p class="small border-top pt-2"><strong><?= htmlspecialchars(Lang::t('site_career_info_label')) ?>:</strong> <?= htmlspecialchars($careerInfo) ?></p>
+                <a href="/professions/<?= (int) $p['id'] ?>" class="text-decoration-none text-reset">
+                    <?php if (!empty($p['image_url'])): ?>
+                        <img src="<?= htmlspecialchars($p['image_url']) ?>" alt="<?= htmlspecialchars($p['name_uz']) ?>">
                     <?php endif; ?>
+                    <div class="p-3 pb-0">
+                        <h3 class="h5"><?= htmlspecialchars($isRu ? $p['name_ru'] : $p['name_uz']) ?></h3>
+                        <p class="text-muted small mb-2"><?= htmlspecialchars($isRu ? $p['description_ru'] : $p['description_uz']) ?></p>
+                        <p class="tc-price-tag mb-1"><?= number_format((float) $p['price']) ?> UZS</p>
+                        <p class="text-muted small mb-3"><?= (int) $p['duration_days'] ?> <?= htmlspecialchars(Lang::t('profession_days')) ?></p>
+                    </div>
+                </a>
+                <div class="px-3 pb-3">
                     <a href="/apply?profession_id=<?= (int) $p['id'] ?>" class="btn btn-primary w-100"><?= htmlspecialchars(Lang::t('site_nav_apply')) ?></a>
                 </div>
             </div>
         </div>
     <?php endforeach; ?>
 </div>
+
+<?php if ($newsItems !== []): ?>
+    <h2 class="h4 mt-5 mb-3"><?= htmlspecialchars(Lang::t('site_news_title')) ?></h2>
+    <div class="row g-4">
+        <?php foreach ($newsItems as $i => $n): ?>
+            <div class="col-md-4">
+                <div class="tc-price-card h-100 tc-fade-in tc-fade-in-<?= min($i + 1, 4) ?>">
+                    <?php if (!empty($n['image_url'])): ?>
+                        <img src="<?= htmlspecialchars($n['image_url']) ?>" alt="" style="object-fit:cover;">
+                    <?php endif; ?>
+                    <div class="p-3">
+                        <h3 class="h6"><?= htmlspecialchars($isRu ? $n['title_ru'] : $n['title_uz']) ?></h3>
+                        <?php $newsBody = $isRu ? ($n['body_ru'] ?? null) : ($n['body_uz'] ?? null); ?>
+                        <?php if (!empty($newsBody)): ?>
+                            <p class="text-muted small mb-0"><?= htmlspecialchars(mb_strimwidth($newsBody, 0, 160, '...')) ?></p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
 
 <?php if (!empty($aboutText)): ?>
     <h2 class="h4 mt-5 mb-3"><?= htmlspecialchars(Lang::t('site_about_title')) ?></h2>
