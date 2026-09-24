@@ -21,6 +21,7 @@ final class AdminQuestionsTest extends TestCase
         $pdo = Database::pdo();
         $pdo->exec('DELETE FROM answers');
         $pdo->exec('DELETE FROM questions');
+        $pdo->exec('DELETE FROM test_question_selections');
         $pdo->exec('DELETE FROM tests');
 
         $professionId = (int) $pdo->query('SELECT id FROM professions LIMIT 1')->fetchColumn();

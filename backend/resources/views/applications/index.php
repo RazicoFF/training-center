@@ -7,7 +7,7 @@ use App\Core\Lang;
 <h1 class="h4 mb-3"><?= htmlspecialchars(Lang::t('nav_applications')) ?></h1>
 <table class="table table-striped">
     <thead>
-        <tr><th>F.I.Sh</th><th>Telefon</th><th>Kasb</th><th>Status</th><th></th></tr>
+        <tr><th>F.I.Sh</th><th>Telefon</th><th>Kasb</th><th><?= htmlspecialchars(Lang::t('brand_section_title')) ?></th><th>Status</th><th></th></tr>
     </thead>
     <tbody>
     <?php foreach ($applications as $app): ?>
@@ -15,6 +15,7 @@ use App\Core\Lang;
             <td><?= htmlspecialchars($app['full_name']) ?></td>
             <td><?= htmlspecialchars($app['phone']) ?></td>
             <td><?= htmlspecialchars($app['profession_name_uz']) ?></td>
+            <td><?= htmlspecialchars($app['brand_name'] ?? '-') ?></td>
             <td><?= htmlspecialchars(Lang::t('status_' . $app['status'])) ?></td>
             <td>
                 <?php if ($app['status'] === 'pending'): ?>

@@ -87,7 +87,8 @@ final class PortalController
 
         SiteView::render('site/portal/test_show', [
             'testId' => $testId,
-            'questions' => $this->tests->questionsWithAnswers($testId),
+            'questions' => $this->tests->questionsWithAnswers($testId, $claims['user_id']),
+            'timeLimitMinutes' => $test['time_limit_minutes'] ?? null,
         ]);
         return ['rendered' => true];
     }
@@ -114,7 +115,7 @@ final class PortalController
         $answerIds = array_map('intval', array_values($body['answer_id'] ?? []));
 
         try {
-            $result = $this->tests->score($testId, $answerIds);
+            $result = $this->tests->score($testId, $claims['user_id'], $answerIds);
         } catch (\InvalidArgumentException) {
             return ['redirect' => '/portal/tests', 'flash' => 'Test yuborishda xatolik yuz berdi'];
         }

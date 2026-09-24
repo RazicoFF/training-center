@@ -56,7 +56,8 @@ final class StudentStatsRepository
                       WHERE e.user_id = u.id) AS group_names,
                     (SELECT COUNT(*) FROM test_attempts ta WHERE ta.user_id = u.id) AS tests_taken,
                     (SELECT COUNT(*) FROM test_attempts ta WHERE ta.user_id = u.id AND ta.passed = 1) AS tests_passed,
-                    (SELECT COUNT(*) FROM certificates c WHERE c.user_id = u.id) AS certificate_count
+                    (SELECT COUNT(*) FROM certificates c WHERE c.user_id = u.id) AS certificate_count,
+                    (SELECT c2.id FROM certificates c2 WHERE c2.user_id = u.id ORDER BY c2.issue_date DESC LIMIT 1) AS latest_certificate_id
                 FROM users u
                 WHERE u.role = 'student'";
         $params = [];

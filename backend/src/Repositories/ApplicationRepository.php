@@ -13,12 +13,12 @@ final class ApplicationRepository
     {
     }
 
-    public function create(string $fullName, string $phone, int $professionId): int
+    public function create(string $fullName, string $phone, int $professionId, ?int $brandId = null): int
     {
         $stmt = Database::pdo()->prepare(
-            'INSERT INTO applications (full_name, phone, profession_id) VALUES (?, ?, ?)'
+            'INSERT INTO applications (full_name, phone, profession_id, brand_id) VALUES (?, ?, ?, ?)'
         );
-        $stmt->execute([$fullName, $phone, $professionId]);
+        $stmt->execute([$fullName, $phone, $professionId, $brandId]);
 
         return (int) Database::pdo()->lastInsertId();
     }
@@ -69,8 +69,10 @@ final class ApplicationRepository
 
     public function allWithProfession(?string $status = null): array
     {
-        $sql = 'SELECT a.*, p.name_uz AS profession_name_uz, p.name_ru AS profession_name_ru
-                FROM applications a JOIN professions p ON p.id = a.profession_id';
+        $sql = 'SELECT a.*, p.name_uz AS profession_name_uz, p.name_ru AS profession_name_ru, b.name AS brand_name
+                FROM applications a
+                JOIN professions p ON p.id = a.profession_id
+                LEFT JOIN profession_brands b ON b.id = a.brand_id';
         $params = [];
 
         if ($status !== null) {

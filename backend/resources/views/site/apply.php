@@ -1,5 +1,6 @@
 <?php
 /** @var array $professions */
+/** @var array<int, array<int, array{id:int, name:string}>> $brandsByProfession */
 /** @var int $selectedProfessionId */
 /** @var bool $submitted */
 /** @var string|null $error */
@@ -29,7 +30,7 @@ $isRu = Lang::current() === 'ru';
         </div>
         <div class="mb-3">
             <label class="form-label"><?= htmlspecialchars(Lang::t('group_profession')) ?></label>
-            <select name="profession_id" class="form-select" required>
+            <select name="profession_id" id="tc-apply-profession" class="form-select" required>
                 <option value=""></option>
                 <?php foreach ($professions as $p): ?>
                     <option value="<?= (int) $p['id'] ?>" <?= (int) $p['id'] === $selectedProfessionId ? 'selected' : '' ?>>
@@ -38,6 +39,37 @@ $isRu = Lang::current() === 'ru';
                 <?php endforeach; ?>
             </select>
         </div>
+        <div class="mb-3 d-none" id="tc-apply-brand-field">
+            <label class="form-label"><?= htmlspecialchars(Lang::t('brand_field_label')) ?></label>
+            <select name="brand_id" id="tc-apply-brand" class="form-select"></select>
+        </div>
         <button type="submit" class="btn btn-primary"><?= htmlspecialchars(Lang::t('site_apply_submit')) ?></button>
     </form>
+    <script>
+    (function () {
+        var brandsByProfession = <?= json_encode($brandsByProfession, JSON_UNESCAPED_UNICODE) ?>;
+        var professionSelect = document.getElementById('tc-apply-profession');
+        var brandField = document.getElementById('tc-apply-brand-field');
+        var brandSelect = document.getElementById('tc-apply-brand');
+
+        function updateBrands() {
+            var brands = brandsByProfession[professionSelect.value] || [];
+            brandSelect.innerHTML = '';
+            if (brands.length === 0) {
+                brandField.classList.add('d-none');
+                return;
+            }
+            brandField.classList.remove('d-none');
+            brands.forEach(function (b) {
+                var opt = document.createElement('option');
+                opt.value = b.id;
+                opt.textContent = b.name;
+                brandSelect.appendChild(opt);
+            });
+        }
+
+        professionSelect.addEventListener('change', updateBrands);
+        updateBrands();
+    })();
+    </script>
 <?php endif; ?>

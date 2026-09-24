@@ -32,6 +32,7 @@ use App\Core\Lang;
         <div class="col-md-4 mb-3">
             <label class="form-label"><?= htmlspecialchars(Lang::t('teacher_photo')) ?></label>
             <input type="file" name="photo" class="form-control" accept=".jpg,.jpeg,.png,.webp">
+            <div class="form-text"><?= htmlspecialchars(Lang::t('image_size_hint_teacher')) ?></div>
         </div>
     </div>
     <div class="row">

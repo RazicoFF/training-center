@@ -14,6 +14,7 @@ use App\Core\Lang;
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
                     <div class="mb-2">
                         <input type="file" name="image" class="form-control" accept=".jpg,.jpeg,.png,.webp" required>
+                        <div class="form-text"><?= htmlspecialchars(Lang::t('image_size_hint_media')) ?></div>
                     </div>
                     <div class="row">
                         <div class="col mb-2">

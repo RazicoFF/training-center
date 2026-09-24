@@ -62,7 +62,12 @@ $statLabels = [
             <td><?= htmlspecialchars($s['group_names'] ?? '') ?: '-' ?></td>
             <td><?= (int) $s['tests_passed'] ?>/<?= (int) $s['tests_taken'] ?></td>
             <td><?= (int) $s['certificate_count'] ?></td>
-            <td class="text-end"><a href="/admin/students/<?= (int) $s['id'] ?>/edit" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('teacher_edit')) ?></a></td>
+            <td class="text-end">
+                <?php if (!empty($s['latest_certificate_id'])): ?>
+                    <a href="/admin/certificates/<?= (int) $s['latest_certificate_id'] ?>/download" class="btn btn-sm btn-outline-primary"><?= htmlspecialchars(Lang::t('certificate_download')) ?></a>
+                <?php endif; ?>
+                <a href="/admin/students/<?= (int) $s['id'] ?>/edit" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('teacher_edit')) ?></a>
+            </td>
         </tr>
     <?php endforeach; ?>
     </tbody>

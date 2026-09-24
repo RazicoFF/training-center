@@ -28,6 +28,7 @@ use App\Core\Lang;
     <div class="mb-3">
         <label class="form-label"><?= htmlspecialchars(Lang::t('news_image')) ?></label>
         <input type="file" name="image" class="form-control" accept=".jpg,.jpeg,.png,.webp">
+        <div class="form-text"><?= htmlspecialchars(Lang::t('image_size_hint_news')) ?></div>
     </div>
     <button type="submit" class="btn btn-primary"><?= htmlspecialchars(Lang::t('news_create')) ?></button>
 </form>

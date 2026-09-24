@@ -28,6 +28,7 @@ final class ApplicationController
         $fullName = trim((string) ($body['full_name'] ?? ''));
         $phone = trim((string) ($body['phone'] ?? ''));
         $professionId = (int) ($body['profession_id'] ?? 0);
+        $brandId = ($body['brand_id'] ?? null) !== null ? (int) $body['brand_id'] : null;
 
         if ($fullName === '' || $phone === '' || $professionId <= 0) {
             return [
@@ -43,7 +44,7 @@ final class ApplicationController
             ];
         }
 
-        $id = $this->repository->create($fullName, $phone, $professionId);
+        $id = $this->repository->create($fullName, $phone, $professionId, $brandId);
 
         return ['id' => $id, 'status' => 201];
     }
