@@ -6,7 +6,7 @@ namespace App\Core;
 
 final class View
 {
-    public static function render(string $template, array $data = []): void
+    public static function render(string $template, array $data = [], string $layout = 'layout'): void
     {
         $viewsDir = dirname(__DIR__, 2) . '/resources/views';
 
@@ -19,6 +19,6 @@ final class View
 
         $content = $renderFile($viewsDir . '/' . $template . '.php', $data);
 
-        echo $renderFile($viewsDir . '/layout.php', array_merge($data, ['content' => $content]));
+        echo $renderFile($viewsDir . '/' . $layout . '.php', array_merge($data, ['content' => $content]));
     }
 }
