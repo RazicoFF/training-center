@@ -9,9 +9,15 @@ use App\Core\Request;
 use App\Core\Router;
 use App\Core\View;
 use App\Middleware\AdminAuthMiddleware;
+use App\Repositories\StudentStatsRepository;
 
 final class DashboardController
 {
+    public function __construct(
+        private readonly StudentStatsRepository $studentStats = new StudentStatsRepository()
+    ) {
+    }
+
     public function register(Router $router): void
     {
         $router->get('/admin', fn (Request $req) => $this->index($req));
@@ -35,6 +41,7 @@ final class DashboardController
             'pendingApplications' => $pendingApplications,
             'activeGroups' => $activeGroups,
             'certificatesThisMonth' => $certificatesThisMonth,
+            'studentStats' => $this->studentStats->summary(),
         ]);
 
         return ['rendered' => true];

@@ -79,6 +79,11 @@ final class PortalController
         }
 
         $testId = (int) $request->param('id');
+        $test = $this->tests->find($testId);
+
+        if ($test === null || !$this->tests->isOpenNow($test)) {
+            return ['redirect' => '/portal/tests', 'flash' => 'Test hozircha yopiq'];
+        }
 
         SiteView::render('site/portal/test_show', [
             'testId' => $testId,
@@ -100,6 +105,12 @@ final class PortalController
         }
 
         $testId = (int) $request->param('id');
+        $test = $this->tests->find($testId);
+
+        if ($test === null || !$this->tests->isOpenNow($test)) {
+            return ['redirect' => '/portal/tests', 'flash' => 'Test hozircha yopiq'];
+        }
+
         $answerIds = array_map('intval', array_values($body['answer_id'] ?? []));
 
         try {

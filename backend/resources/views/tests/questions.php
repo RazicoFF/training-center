@@ -17,6 +17,39 @@ use App\Core\Lang;
     </div></div>
 <?php endforeach; ?>
 
+<div class="card mb-4">
+    <div class="card-body">
+        <h2 class="h6 mb-2"><?= htmlspecialchars(Lang::t('excel_import_title')) ?></h2>
+        <p class="text-muted small"><?= htmlspecialchars(Lang::t('excel_import_hint')) ?></p>
+        <form method="post" action="/admin/tests/<?= $testId ?>/questions/import" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
+            <div class="mb-3">
+                <label class="form-label"><?= htmlspecialchars(Lang::t('excel_import_uz_file')) ?></label>
+                <input type="file" name="excel_uz" class="form-control" accept=".xlsx,.xls" required>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary mb-3" id="tc-toggle-ru-excel"><?= htmlspecialchars(Lang::t('excel_import_add_ru')) ?></button>
+            <div class="mb-3 d-none" id="tc-ru-excel-field">
+                <label class="form-label"><?= htmlspecialchars(Lang::t('excel_import_ru_file')) ?></label>
+                <input type="file" name="excel_ru" class="form-control" accept=".xlsx,.xls">
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary"><?= htmlspecialchars(Lang::t('excel_import_submit')) ?></button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+(function () {
+    var toggle = document.getElementById('tc-toggle-ru-excel');
+    var field = document.getElementById('tc-ru-excel-field');
+    if (toggle && field) {
+        toggle.addEventListener('click', function () {
+            field.classList.toggle('d-none');
+        });
+    }
+})();
+</script>
+
 <form method="post" action="/admin/tests/<?= $testId ?>/questions" class="mt-4">
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
     <div class="mb-3">

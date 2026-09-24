@@ -5,13 +5,19 @@
 use App\Core\Csrf;
 use App\Core\Lang;
 ?>
-<h1 class="h4 mb-3"><?= htmlspecialchars($group['name']) ?></h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0"><?= htmlspecialchars($group['name']) ?></h1>
+    <a href="/admin/groups/<?= (int) $group['id'] ?>/edit" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('teacher_edit')) ?></a>
+</div>
 <p><?= htmlspecialchars($group['profession_name_uz']) ?> — <?= htmlspecialchars($group['teacher_name'] ?? '-') ?></p>
 
 <h2 class="h6">Talabalar</h2>
 <ul class="list-group mb-4">
     <?php foreach ($students as $s): ?>
-        <li class="list-group-item"><?= htmlspecialchars($s['full_name']) ?> (<?= htmlspecialchars($s['phone']) ?>)</li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <?= htmlspecialchars($s['full_name']) ?> (<?= htmlspecialchars($s['phone']) ?>)
+            <a href="/admin/students/<?= (int) $s['id'] ?>/edit" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('teacher_edit')) ?></a>
+        </li>
     <?php endforeach; ?>
 </ul>
 

@@ -3,6 +3,7 @@
  * @var int $pendingApplications
  * @var int $activeGroups
  * @var int $certificatesThisMonth
+ * @var array{total:int, studying:int, completed:int, dropped:int, inExam:int} $studentStats
  */
 use App\Core\Lang;
 
@@ -25,6 +26,29 @@ $stats = [
                 </div>
                 <h5 class="card-title text-body-secondary"><?= htmlspecialchars($stat['label']) ?></h5>
                 <p class="display-6 mb-0"><?= (int) $stat['value'] ?></p>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+</div>
+
+<h2 class="h5 mt-4 mb-3"><?= htmlspecialchars(Lang::t('dashboard_student_stats')) ?></h2>
+<div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+    <?php
+    $studentStatCards = [
+        ['label' => Lang::t('dashboard_students_total'), 'value' => $studentStats['total']],
+        ['label' => Lang::t('dashboard_students_studying'), 'value' => $studentStats['studying']],
+        ['label' => Lang::t('dashboard_students_completed'), 'value' => $studentStats['completed']],
+        ['label' => Lang::t('dashboard_students_dropped'), 'value' => $studentStats['dropped']],
+        ['label' => Lang::t('dashboard_students_in_exam'), 'value' => $studentStats['inExam']],
+    ];
+    ?>
+    <?php foreach ($studentStatCards as $i => $stat): ?>
+    <div class="col">
+        <div class="card tc-fade-in tc-fade-in-<?= min($i + 1, 4) ?>">
+            <div class="card-body">
+                <h6 class="card-title text-body-secondary small"><?= htmlspecialchars($stat['label']) ?></h6>
+                <p class="h4 mb-0"><?= (int) $stat['value'] ?></p>
             </div>
         </div>
     </div>

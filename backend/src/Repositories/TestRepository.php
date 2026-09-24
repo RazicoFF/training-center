@@ -11,7 +11,7 @@ final class TestRepository
     public function availableForUser(int $userId): array
     {
         $stmt = Database::pdo()->prepare(
-            "SELECT t.id, t.title_uz, t.title_ru, t.passing_score
+            "SELECT t.id, t.title_uz, t.title_ru, t.passing_score, t.opens_at, t.closes_at
              FROM tests t
              JOIN professions p ON p.id = t.profession_id
              JOIN `groups` g ON g.profession_id = p.id
@@ -21,6 +21,39 @@ final class TestRepository
              GROUP BY t.id"
         );
         $stmt->execute([$userId, $userId]);
+
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * A test with no opens_at/closes_at is always open (backward-compatible default
+     * for tests created before scheduling existed).
+     */
+    public function isOpenNow(array $test): bool
+    {
+        $now = new \DateTimeImmutable();
+
+        if (!empty($test['opens_at']) && $now < new \DateTimeImmutable((string) $test['opens_at'])) {
+            return false;
+        }
+
+        if (!empty($test['closes_at']) && $now > new \DateTimeImmutable((string) $test['closes_at'])) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function attemptsForTest(int $testId): array
+    {
+        $stmt = Database::pdo()->prepare(
+            'SELECT ta.id, ta.score, ta.passed, ta.attempted_at, u.full_name, u.phone
+             FROM test_attempts ta
+             JOIN users u ON u.id = ta.user_id
+             WHERE ta.test_id = ?
+             ORDER BY ta.attempted_at DESC'
+        );
+        $stmt->execute([$testId]);
 
         return $stmt->fetchAll();
     }
@@ -106,12 +139,18 @@ final class TestRepository
         return (int) Database::pdo()->lastInsertId();
     }
 
-    public function create(int $professionId, string $titleUz, string $titleRu, int $passingScore): int
-    {
+    public function create(
+        int $professionId,
+        string $titleUz,
+        string $titleRu,
+        int $passingScore,
+        ?string $opensAt = null,
+        ?string $closesAt = null
+    ): int {
         $stmt = Database::pdo()->prepare(
-            'INSERT INTO tests (profession_id, title_uz, title_ru, passing_score) VALUES (?, ?, ?, ?)'
+            'INSERT INTO tests (profession_id, title_uz, title_ru, passing_score, opens_at, closes_at) VALUES (?, ?, ?, ?, ?, ?)'
         );
-        $stmt->execute([$professionId, $titleUz, $titleRu, $passingScore]);
+        $stmt->execute([$professionId, $titleUz, $titleRu, $passingScore, $opensAt, $closesAt]);
 
         return (int) Database::pdo()->lastInsertId();
     }
@@ -125,12 +164,18 @@ final class TestRepository
         return $row === false ? null : $row;
     }
 
-    public function update(int $id, string $titleUz, string $titleRu, int $passingScore): void
-    {
+    public function update(
+        int $id,
+        string $titleUz,
+        string $titleRu,
+        int $passingScore,
+        ?string $opensAt = null,
+        ?string $closesAt = null
+    ): void {
         $stmt = Database::pdo()->prepare(
-            'UPDATE tests SET title_uz = ?, title_ru = ?, passing_score = ? WHERE id = ?'
+            'UPDATE tests SET title_uz = ?, title_ru = ?, passing_score = ?, opens_at = ?, closes_at = ? WHERE id = ?'
         );
-        $stmt->execute([$titleUz, $titleRu, $passingScore, $id]);
+        $stmt->execute([$titleUz, $titleRu, $passingScore, $opensAt, $closesAt, $id]);
     }
 
     public function allWithProfession(): array

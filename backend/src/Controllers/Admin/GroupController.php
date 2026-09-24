@@ -34,6 +34,8 @@ final class GroupController
         $router->post('/admin/groups', fn (Request $req) => $this->create($req));
         $router->get('/admin/groups/{id}', fn (Request $req) => $this->show($req));
         $router->post('/admin/groups/{id}/enroll', fn (Request $req) => $this->enroll($req));
+        $router->get('/admin/groups/{id}/edit', fn (Request $req) => $this->editForm($req));
+        $router->post('/admin/groups/{id}/edit', fn (Request $req) => $this->update($req));
     }
 
     private function index(Request $request): array
@@ -137,5 +139,58 @@ final class GroupController
         }
 
         return ['redirect' => "/admin/groups/{$groupId}", 'flash' => Lang::t('group_enrolled')];
+    }
+
+    private function editForm(Request $request): array
+    {
+        if (AdminAuthMiddleware::authenticate() === null) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $group = $this->groups->find((int) $request->param('id'));
+
+        if ($group === null) {
+            http_response_code(404);
+            echo '<h1>404</h1>';
+            return ['rendered' => true];
+        }
+
+        View::render('groups/edit', [
+            'group' => $group,
+            'teachers' => $this->teachers->all(),
+        ]);
+        return ['rendered' => true];
+    }
+
+    private function update(Request $request): array
+    {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $groupId = (int) $request->param('id');
+        $body = $request->formBody();
+        if (!Csrf::verify($body['csrf_token'] ?? null)) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        if ($this->groups->find($groupId) === null) {
+            http_response_code(404);
+            echo '<h1>404</h1>';
+            return ['rendered' => true];
+        }
+
+        $teacherId = ($body['teacher_id'] ?? '') !== '' ? (int) $body['teacher_id'] : null;
+        $name = trim((string) ($body['name'] ?? ''));
+        $startDate = (string) ($body['start_date'] ?? '');
+        $endDate = (string) ($body['end_date'] ?? '');
+
+        if ($name === '' || $startDate === '' || $endDate === '') {
+            return ['redirect' => "/admin/groups/{$groupId}/edit", 'flash' => 'Barcha maydonlarni to\'ldiring'];
+        }
+
+        $this->groups->update($groupId, $teacherId, $name, $startDate, $endDate);
+
+        return ['redirect' => "/admin/groups/{$groupId}", 'flash' => Lang::t('group_updated')];
     }
 }

@@ -76,4 +76,36 @@ final class GroupRepository
         );
         $stmt->execute([$userId, $groupId]);
     }
+
+    public function enrollmentsForUser(int $userId): array
+    {
+        $stmt = Database::pdo()->prepare(
+            'SELECT e.id, e.status, g.id AS group_id, g.name AS group_name
+             FROM enrollments e
+             JOIN `groups` g ON g.id = e.group_id
+             WHERE e.user_id = ?
+             ORDER BY e.joined_at DESC'
+        );
+        $stmt->execute([$userId]);
+
+        return $stmt->fetchAll();
+    }
+
+    public function updateEnrollmentStatus(int $enrollmentId, string $status): void
+    {
+        if (!in_array($status, ['active', 'completed', 'dropped'], true)) {
+            return;
+        }
+
+        $stmt = Database::pdo()->prepare('UPDATE enrollments SET status = ? WHERE id = ?');
+        $stmt->execute([$status, $enrollmentId]);
+    }
+
+    public function update(int $id, ?int $teacherId, string $name, string $startDate, string $endDate): void
+    {
+        $stmt = Database::pdo()->prepare(
+            'UPDATE `groups` SET teacher_id = ?, name = ?, start_date = ?, end_date = ? WHERE id = ?'
+        );
+        $stmt->execute([$teacherId, $name, $startDate, $endDate, $id]);
+    }
 }
