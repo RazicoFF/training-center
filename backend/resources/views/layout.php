@@ -12,7 +12,9 @@ $navItems = [
     ['href' => '/admin', 'label' => Lang::t('nav_dashboard'), 'match' => '/admin', 'icon' => 'home'],
     ['href' => '/admin/applications', 'label' => Lang::t('nav_applications'), 'match' => '/admin/applications', 'icon' => 'inbox'],
     ['href' => '/admin/groups', 'label' => Lang::t('nav_groups'), 'match' => '/admin/groups', 'icon' => 'users'],
+    ['href' => '/admin/students', 'label' => Lang::t('nav_students'), 'match' => '/admin/students', 'icon' => 'graduation'],
     ['href' => '/admin/teachers', 'label' => Lang::t('nav_teachers'), 'match' => '/admin/teachers', 'icon' => 'user-check'],
+    ['href' => '/admin/professions', 'label' => Lang::t('nav_professions'), 'match' => '/admin/professions', 'icon' => 'briefcase'],
     ['href' => '/admin/tests', 'label' => Lang::t('nav_tests'), 'match' => '/admin/tests', 'icon' => 'clipboard'],
     ['href' => '/admin/certificates', 'label' => Lang::t('nav_certificates'), 'match' => '/admin/certificates', 'icon' => 'award'],
 ];
@@ -24,6 +26,8 @@ $icons = [
     'user-check' => '<circle cx="10" cy="8" r="3"/><path d="M4 19a6 6 0 0 1 12 0"/><path d="m16 11 2 2 4-4"/>',
     'clipboard' => '<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"/><path d="M9 11h6"/><path d="M9 15h6"/>',
     'award' => '<circle cx="12" cy="9" r="5"/><path d="m8 13-1.5 7L12 18l5.5 2L16 13"/>',
+    'graduation' => '<path d="M2 9 12 4l10 5-10 5-10-5Z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/>',
+    'briefcase' => '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
     'sun' => '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.4 1.4M17.6 17.6 19 19M5 19l1.4-1.4M17.6 6.4 19 5"/>',
     'moon' => '<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/>',
 ];
