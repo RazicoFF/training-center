@@ -14,6 +14,13 @@
     <string name="tab_tests">Тесты</string>
     <string name="tab_certificates">Сертификаты</string>
     <string name="tab_profile">Профиль</string>
+    <string name="tab_professions">Профессии</string>
+    <string name="tab_news">Новости</string>
+    <string name="profession_duration_days">%1$d дней</string>
+    <string name="profession_career_info_label">Возможности трудоустройства</string>
+    <string name="profession_open_pdf">Открыть PDF файл</string>
+    <string name="profession_videos_title">Видео</string>
+    <string name="news_empty">Пока нет новостей</string>
     <string name="schedule_empty">Расписание пока отсутствует</string>
     <string name="schedule_room">Кабинет: %1$s</string>
     <string name="tests_empty">Пока нет доступных тестов</string>

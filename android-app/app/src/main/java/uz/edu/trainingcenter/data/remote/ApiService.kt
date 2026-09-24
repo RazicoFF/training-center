@@ -12,6 +12,12 @@ interface ApiService {
     @GET("professions")
     suspend fun getProfessions(): ProfessionsResponse
 
+    @GET("professions/{id}")
+    suspend fun getProfessionDetail(@Path("id") professionId: Int): ProfessionDto
+
+    @GET("news")
+    suspend fun getNews(): NewsResponse
+
     @POST("applications")
     suspend fun submitApplication(@Body request: ApplicationRequest): ApplicationResponse
 
