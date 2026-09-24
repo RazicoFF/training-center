@@ -14,6 +14,10 @@ class ProfessionRepository(
         return safeApiCall(sessionManager) { api.getProfessions() }.map { it.professions }
     }
 
+    suspend fun getProfessionDetail(professionId: Int): Result<ProfessionDto> {
+        return safeApiCall(sessionManager) { api.getProfessionDetail(professionId) }
+    }
+
     suspend fun submitApplication(fullName: String, phone: String, professionId: Int): Result<Unit> {
         return safeApiCall(sessionManager) {
             api.submitApplication(ApplicationRequest(fullName, phone, professionId))

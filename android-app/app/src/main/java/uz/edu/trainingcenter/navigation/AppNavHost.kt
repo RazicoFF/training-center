@@ -13,6 +13,12 @@ import uz.edu.trainingcenter.ViewModelFactory
 import uz.edu.trainingcenter.ui.screens.home.HomeScaffold
 import uz.edu.trainingcenter.ui.screens.login.LoginScreen
 import uz.edu.trainingcenter.ui.screens.login.LoginViewModel
+import uz.edu.trainingcenter.ui.screens.news.NewsListScreen
+import uz.edu.trainingcenter.ui.screens.news.NewsListViewModel
+import uz.edu.trainingcenter.ui.screens.professions.ProfessionDetailScreen
+import uz.edu.trainingcenter.ui.screens.professions.ProfessionDetailViewModel
+import uz.edu.trainingcenter.ui.screens.professions.ProfessionsListScreen
+import uz.edu.trainingcenter.ui.screens.professions.ProfessionsListViewModel
 import uz.edu.trainingcenter.ui.screens.register.RegisterScreen
 import uz.edu.trainingcenter.ui.screens.register.RegisterViewModel
 import uz.edu.trainingcenter.ui.screens.schedule.ScheduleScreen
@@ -101,6 +107,34 @@ fun AppNavHost(navController: NavHostController) {
             val score = backStackEntry.arguments?.getInt("score") ?: 0
             val passed = backStackEntry.arguments?.getBoolean("passed") ?: false
             TestResultScreen(score = score, passed = passed, onBackToTests = { navController.popBackStack() })
+        }
+        composable(Routes.PROFESSIONS_LIST) {
+            HomeScaffold(navController) { padding ->
+                val viewModel: ProfessionsListViewModel =
+                    viewModel(factory = ViewModelFactory { ProfessionsListViewModel(ServiceLocator.professionRepository) })
+                ProfessionsListScreen(
+                    viewModel = viewModel,
+                    padding = padding,
+                    onProfessionClick = { professionId -> navController.navigate(Routes.professionDetail(professionId)) }
+                )
+            }
+        }
+        composable(
+            Routes.PROFESSION_DETAIL,
+            arguments = listOf(navArgument("professionId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val professionId = backStackEntry.arguments?.getInt("professionId") ?: return@composable
+            val viewModel: ProfessionDetailViewModel = viewModel(
+                factory = ViewModelFactory { ProfessionDetailViewModel(professionId, ServiceLocator.professionRepository) }
+            )
+            ProfessionDetailScreen(viewModel = viewModel)
+        }
+        composable(Routes.NEWS_LIST) {
+            HomeScaffold(navController) { padding ->
+                val viewModel: NewsListViewModel =
+                    viewModel(factory = ViewModelFactory { NewsListViewModel(ServiceLocator.newsRepository) })
+                NewsListScreen(viewModel = viewModel, padding = padding)
+            }
         }
         composable(Routes.CERTIFICATES) {
             HomeScaffold(navController) { padding ->

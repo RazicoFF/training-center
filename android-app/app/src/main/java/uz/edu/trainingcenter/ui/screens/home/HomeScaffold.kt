@@ -2,8 +2,10 @@ package uz.edu.trainingcenter.ui.screens.home
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Newspaper
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Quiz
+import androidx.compose.material.icons.filled.Work
 import androidx.compose.material.icons.filled.WorkspacePremium
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -18,8 +20,10 @@ private data class BottomTab(val route: String, val labelRes: Int, val icon: and
 
 private val tabs = listOf(
     BottomTab(Routes.SCHEDULE, R.string.tab_schedule, Icons.Filled.CalendarMonth),
+    BottomTab(Routes.PROFESSIONS_LIST, R.string.tab_professions, Icons.Filled.Work),
     BottomTab(Routes.TESTS_LIST, R.string.tab_tests, Icons.Filled.Quiz),
     BottomTab(Routes.CERTIFICATES, R.string.tab_certificates, Icons.Filled.WorkspacePremium),
+    BottomTab(Routes.NEWS_LIST, R.string.tab_news, Icons.Filled.Newspaper),
     BottomTab(Routes.PROFILE, R.string.tab_profile, Icons.Filled.Person)
 )
 

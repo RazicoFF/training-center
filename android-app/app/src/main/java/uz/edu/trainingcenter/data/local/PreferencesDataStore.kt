@@ -41,6 +41,8 @@ class PreferencesDataStore(private val context: Context) {
         context.dataStore.edit { it[baseUrlKey] = url }
     }
 
+    fun baseUrlFlow(): Flow<String> = context.dataStore.data.map { it[baseUrlKey] ?: DEFAULT_BASE_URL }
+
     fun languageFlow(): Flow<String> = context.dataStore.data.map { it[languageKey] ?: DEFAULT_LANGUAGE }
 
     suspend fun setLanguage(lang: String) {

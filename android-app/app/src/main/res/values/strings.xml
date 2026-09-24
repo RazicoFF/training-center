@@ -14,6 +14,13 @@
     <string name="tab_tests">Testlar</string>
     <string name="tab_certificates">Sertifikatlar</string>
     <string name="tab_profile">Profil</string>
+    <string name="tab_professions">Kasblar</string>
+    <string name="tab_news">Yangiliklar</string>
+    <string name="profession_duration_days">%1$d kun</string>
+    <string name="profession_career_info_label">Ish imkoniyatlari</string>
+    <string name="profession_open_pdf">PDF faylni ochish</string>
+    <string name="profession_videos_title">Videolar</string>
+    <string name="news_empty">Hozircha yangiliklar yo\'q</string>
     <string name="schedule_empty">Hozircha dars jadvali yo\'q</string>
     <string name="schedule_room">Xona: %1$s</string>
     <string name="tests_empty">Hozircha mavjud test yo\'q</string>
