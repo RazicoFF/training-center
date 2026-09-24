@@ -35,4 +35,14 @@ final class UserRepository
 
         return $row === false ? null : $row;
     }
+
+    public function allByRole(string $role): array
+    {
+        $stmt = Database::pdo()->prepare(
+            'SELECT id, full_name, phone, created_at FROM users WHERE role = ? ORDER BY full_name'
+        );
+        $stmt->execute([$role]);
+
+        return $stmt->fetchAll();
+    }
 }
