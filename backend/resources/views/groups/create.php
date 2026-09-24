@@ -13,11 +13,19 @@ use App\Core\Lang;
     </div>
     <div class="mb-3">
         <label class="form-label"><?= htmlspecialchars(Lang::t('group_profession')) ?></label>
-        <select name="profession_id" class="form-select" required>
-            <?php foreach ($professions as $p): ?>
-                <option value="<?= (int) $p['id'] ?>"><?= htmlspecialchars($p['name_uz']) ?></option>
+        <div class="row g-2">
+            <?php foreach ($professions as $i => $p): ?>
+                <div class="col-4">
+                    <label class="tc-profession-card d-block mb-0 tc-fade-in tc-fade-in-<?= min($i + 1, 4) ?>">
+                        <input type="radio" name="profession_id" value="<?= (int) $p['id'] ?>" class="d-none tc-profession-radio" <?= $i === 0 ? 'checked' : '' ?> required>
+                        <?php if (!empty($p['image_url'])): ?>
+                            <img src="<?= htmlspecialchars($p['image_url']) ?>" alt="<?= htmlspecialchars($p['name_uz']) ?>">
+                        <?php endif; ?>
+                        <div class="tc-profession-name"><?= htmlspecialchars($p['name_uz']) ?></div>
+                    </label>
+                </div>
             <?php endforeach; ?>
-        </select>
+        </div>
     </div>
     <div class="mb-3">
         <label class="form-label"><?= htmlspecialchars(Lang::t('group_teacher')) ?></label>
@@ -65,3 +73,21 @@ use App\Core\Lang;
     </div>
     <button type="submit" class="btn btn-primary"><?= htmlspecialchars(Lang::t('group_create')) ?></button>
 </form>
+<script>
+(function () {
+    var cards = document.querySelectorAll('.tc-profession-card');
+    function sync() {
+        cards.forEach(function (card) {
+            var radio = card.querySelector('.tc-profession-radio');
+            card.classList.toggle('selected', radio.checked);
+        });
+    }
+    cards.forEach(function (card) {
+        card.addEventListener('click', function () {
+            card.querySelector('.tc-profession-radio').checked = true;
+            sync();
+        });
+    });
+    sync();
+})();
+</script>

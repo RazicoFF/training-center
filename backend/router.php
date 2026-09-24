@@ -10,6 +10,13 @@ declare(strict_types=1);
 
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
+// Let the built-in server serve real static files (css/js/images) directly
+// instead of routing them through a front controller.
+$staticFile = __DIR__ . '/public' . $path;
+if ($path !== '/' && is_file($staticFile)) {
+    return false;
+}
+
 if ($path === '/' || str_starts_with($path, '/admin')) {
     require __DIR__ . '/public/admin.php';
 } else {

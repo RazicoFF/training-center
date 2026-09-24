@@ -1,0 +1,318 @@
+/* Учебный центр — admin panel visual theme */
+
+:root {
+    --tc-bg: #f4f6f9;
+    --tc-surface: #ffffff;
+    --tc-surface-2: #f8fafc;
+    --tc-border: #e5e9f0;
+    --tc-text: #1f2937;
+    --tc-text-muted: #6b7280;
+    --tc-primary: #2e7d32;
+    --tc-primary-2: #43a047;
+    --tc-accent-grad: linear-gradient(135deg, #2e7d32, #1976d2);
+    --tc-shadow: 0 2px 10px rgba(16, 24, 40, 0.06);
+    --tc-shadow-hover: 0 8px 24px rgba(16, 24, 40, 0.12);
+    --tc-sidebar-width: 240px;
+}
+
+[data-bs-theme="dark"] {
+    --tc-bg: #0f1720;
+    --tc-surface: #16202b;
+    --tc-surface-2: #1c2836;
+    --tc-border: #263241;
+    --tc-text: #e6edf3;
+    --tc-text-muted: #94a3b8;
+    --tc-primary: #66bb6a;
+    --tc-primary-2: #81c784;
+    --tc-accent-grad: linear-gradient(135deg, #2e7d32, #1565c0);
+    --tc-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    --tc-shadow-hover: 0 10px 28px rgba(0, 0, 0, 0.45);
+}
+
+* {
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+body {
+    background: var(--tc-bg);
+    color: var(--tc-text);
+    min-height: 100vh;
+}
+
+/* ---------- layout ---------- */
+
+.tc-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+.tc-sidebar {
+    width: var(--tc-sidebar-width);
+    flex-shrink: 0;
+    background: var(--tc-surface);
+    border-right: 1px solid var(--tc-border);
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem 1rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+.tc-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 700;
+    font-size: 1.05rem;
+    padding: 0.25rem 0.5rem 1.25rem;
+    color: var(--tc-text);
+    text-decoration: none;
+}
+
+.tc-brand-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--tc-accent-grad);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.tc-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    flex: 1;
+}
+
+.tc-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 10px;
+    color: var(--tc-text-muted);
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 500;
+}
+
+.tc-nav-link:hover {
+    background: var(--tc-surface-2);
+    color: var(--tc-text);
+}
+
+.tc-nav-link.active {
+    background: var(--tc-accent-grad);
+    color: #fff;
+}
+
+.tc-nav-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.tc-sidebar-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--tc-border);
+}
+
+.tc-main {
+    flex: 1;
+    min-width: 0;
+    padding: 1.75rem 2rem 3rem;
+}
+
+.tc-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+/* ---------- theme toggle (sun/moon) ---------- */
+
+.tc-theme-toggle {
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    border: 1px solid var(--tc-border);
+    background: var(--tc-surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--tc-text);
+    flex-shrink: 0;
+}
+
+.tc-theme-toggle:hover {
+    box-shadow: var(--tc-shadow-hover);
+    transform: translateY(-1px);
+}
+
+.tc-theme-toggle svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.35s ease;
+}
+
+.tc-theme-toggle:active svg {
+    transform: rotate(25deg);
+}
+
+.tc-icon-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    border: 1px solid var(--tc-border);
+    background: var(--tc-surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--tc-text);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.tc-icon-btn:hover {
+    box-shadow: var(--tc-shadow-hover);
+    transform: translateY(-1px);
+}
+
+/* ---------- cards / surfaces ---------- */
+
+.card {
+    background: var(--tc-surface);
+    border: 1px solid var(--tc-border);
+    border-radius: 14px;
+    box-shadow: var(--tc-shadow);
+}
+
+.card:hover {
+    box-shadow: var(--tc-shadow-hover);
+    transform: translateY(-2px);
+}
+
+.tc-stat-card {
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+}
+
+.tc-stat-card .tc-stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--tc-accent-grad);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    margin-bottom: 0.75rem;
+}
+
+.tc-stat-card .display-6 {
+    font-weight: 700;
+}
+
+/* ---------- tables ---------- */
+
+.table {
+    color: var(--tc-text);
+}
+
+.table > :not(caption) > * > * {
+    border-color: var(--tc-border);
+    background: transparent;
+}
+
+.table thead th {
+    color: var(--tc-text-muted);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-bottom-width: 1px;
+    font-weight: 700;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+    background: var(--tc-surface-2);
+}
+
+/* ---------- profession image cards ---------- */
+
+.tc-profession-card {
+    display: block;
+    width: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--tc-border);
+    background: var(--tc-surface);
+    cursor: pointer;
+    height: 100%;
+}
+
+.tc-profession-card img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: 120px;
+    object-fit: cover;
+    object-position: center;
+}
+
+.tc-profession-card.selected {
+    outline: 2px solid var(--tc-primary);
+    outline-offset: -2px;
+}
+
+.tc-profession-card .tc-profession-name {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* ---------- buttons ---------- */
+
+.btn {
+    border-radius: 10px;
+}
+
+.btn-primary {
+    background: var(--tc-accent-grad);
+    border: none;
+}
+
+/* ---------- animations ---------- */
+
+@keyframes tc-fade-in-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tc-fade-in {
+    animation: tc-fade-in-up 0.35s ease both;
+}
+
+.tc-fade-in-1 { animation-delay: 0.03s; }
+.tc-fade-in-2 { animation-delay: 0.08s; }
+.tc-fade-in-3 { animation-delay: 0.13s; }
+.tc-fade-in-4 { animation-delay: 0.18s; }
+
+.tc-alert {
+    border-radius: 12px;
+    border: none;
+    animation: tc-fade-in-up 0.3s ease both;
+}
