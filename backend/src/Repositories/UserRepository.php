@@ -45,4 +45,16 @@ final class UserRepository
 
         return $stmt->fetchAll();
     }
+
+    public function updateProfile(int $id, string $fullName, string $phone): void
+    {
+        $stmt = Database::pdo()->prepare('UPDATE users SET full_name = ?, phone = ? WHERE id = ?');
+        $stmt->execute([$fullName, $phone, $id]);
+    }
+
+    public function updatePassword(int $id, string $passwordHash): void
+    {
+        $stmt = Database::pdo()->prepare('UPDATE users SET password_hash = ? WHERE id = ?');
+        $stmt->execute([$passwordHash, $id]);
+    }
 }

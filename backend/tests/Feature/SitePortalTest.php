@@ -87,4 +87,39 @@ final class SitePortalTest extends TestCase
         $this->assertSame(['rendered' => true], $result);
         $this->assertArrayNotHasKey('site_user_id', $_SESSION);
     }
+
+    public function testClosedTestCannotBeOpenedOrSubmitted(): void
+    {
+        $pdo = Database::pdo();
+        $professionId = (int) $pdo->query('SELECT id FROM professions LIMIT 1')->fetchColumn();
+        $pdo->prepare('INSERT INTO `groups` (profession_id, name, start_date, end_date) VALUES (?, "Portal Test Group", "2026-01-01", "2026-12-31")')
+            ->execute([$professionId]);
+        $groupId = (int) $pdo->lastInsertId();
+        $pdo->prepare('INSERT INTO enrollments (user_id, group_id, status) VALUES (?, ?, "active")')
+            ->execute([$this->studentId, $groupId]);
+
+        $closesAt = (new \DateTimeImmutable('-1 day'))->format('Y-m-d H:i:s');
+        $pdo->prepare('INSERT INTO tests (profession_id, title_uz, title_ru, passing_score, closes_at) VALUES (?, "Closed Test", "Закрытый тест", 70, ?)')
+            ->execute([$professionId, $closesAt]);
+        $testId = (int) $pdo->lastInsertId();
+
+        $_SESSION = ['site_user_id' => $this->studentId, 'site_role' => 'student'];
+
+        $router = new Router();
+        (new PortalController())->register($router);
+
+        ob_start();
+        $showResult = $router->dispatch(new Request('GET', "/portal/tests/{$testId}", [], [], []));
+        ob_end_clean();
+        $this->assertSame(['redirect' => '/portal/tests', 'flash' => 'Test hozircha yopiq'], $showResult);
+
+        $token = Csrf::token();
+        $submitResult = $router->dispatch(new Request('POST', "/portal/tests/{$testId}/submit", [], [], [
+            'csrf_token' => $token,
+        ]));
+        $this->assertSame(['redirect' => '/portal/tests', 'flash' => 'Test hozircha yopiq'], $submitResult);
+
+        $attemptCount = $pdo->query("SELECT COUNT(*) FROM test_attempts WHERE test_id = {$testId}")->fetchColumn();
+        $this->assertSame('0', (string) $attemptCount);
+    }
 }

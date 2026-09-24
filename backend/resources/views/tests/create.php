@@ -26,5 +26,16 @@ use App\Core\Lang;
         <label class="form-label"><?= htmlspecialchars(Lang::t('test_passing_score')) ?></label>
         <input type="number" name="passing_score" class="form-control" min="1" max="100" value="70" required>
     </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label"><?= htmlspecialchars(Lang::t('test_opens_at')) ?></label>
+            <input type="datetime-local" name="opens_at" class="form-control">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label"><?= htmlspecialchars(Lang::t('test_closes_at')) ?></label>
+            <input type="datetime-local" name="closes_at" class="form-control">
+        </div>
+    </div>
+    <p class="text-muted small"><?= htmlspecialchars(Lang::t('test_schedule_hint')) ?></p>
     <button type="submit" class="btn btn-primary"><?= htmlspecialchars(Lang::t('test_create')) ?></button>
 </form>
