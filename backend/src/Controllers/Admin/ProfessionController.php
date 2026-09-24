@@ -10,6 +10,7 @@ use App\Core\Request;
 use App\Core\Router;
 use App\Core\View;
 use App\Middleware\AdminAuthMiddleware;
+use App\Repositories\ProfessionBrandRepository;
 use App\Repositories\ProfessionRepository;
 use App\Repositories\ProfessionVideoRepository;
 
@@ -17,7 +18,8 @@ final class ProfessionController
 {
     public function __construct(
         private readonly ProfessionRepository $professions = new ProfessionRepository(),
-        private readonly ProfessionVideoRepository $videos = new ProfessionVideoRepository()
+        private readonly ProfessionVideoRepository $videos = new ProfessionVideoRepository(),
+        private readonly ProfessionBrandRepository $brands = new ProfessionBrandRepository()
     ) {
     }
 
@@ -30,6 +32,8 @@ final class ProfessionController
         $router->post('/admin/professions/{id}', fn (Request $req) => $this->update($req));
         $router->post('/admin/professions/{id}/videos', fn (Request $req) => $this->addVideo($req));
         $router->post('/admin/professions/{id}/videos/{videoId}/delete', fn (Request $req) => $this->deleteVideo($req));
+        $router->post('/admin/professions/{id}/brands', fn (Request $req) => $this->addBrand($req));
+        $router->post('/admin/professions/{id}/brands/{brandId}/delete', fn (Request $req) => $this->deleteBrand($req));
     }
 
     private function index(Request $request): array
@@ -120,6 +124,7 @@ final class ProfessionController
         View::render('professions/edit', [
             'profession' => $profession,
             'videos' => $this->videos->forProfession($professionId),
+            'brands' => $this->brands->forProfession($professionId),
         ]);
         return ['rendered' => true];
     }
@@ -226,6 +231,45 @@ final class ProfessionController
         $this->videos->delete((int) $request->param('videoId'));
 
         return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('video_deleted')];
+    }
+
+    private function addBrand(Request $request): array
+    {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $professionId = (int) $request->param('id');
+        $body = $request->formBody();
+        if (!Csrf::verify($body['csrf_token'] ?? null)) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $name = trim((string) ($body['name'] ?? ''));
+        if ($name === '') {
+            return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('brand_name_required')];
+        }
+
+        $this->brands->create($professionId, $name);
+
+        return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('brand_added')];
+    }
+
+    private function deleteBrand(Request $request): array
+    {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $professionId = (int) $request->param('id');
+        $body = $request->formBody();
+        if (!Csrf::verify($body['csrf_token'] ?? null)) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $this->brands->delete((int) $request->param('brandId'));
+
+        return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('brand_deleted')];
     }
 
     private function handlePdfUpload(int $professionId): ?string

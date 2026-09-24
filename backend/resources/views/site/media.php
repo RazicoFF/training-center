@@ -21,8 +21,9 @@ $isRu = Lang::current() === 'ru';
                         <?php $youtubeId = ProfessionVideoRepository::extractYoutubeId($m['youtube_url']); ?>
                         <?php if ($youtubeId !== null): ?>
                             <div class="ratio ratio-16x9">
-                                <iframe src="https://www.youtube.com/embed/<?= htmlspecialchars($youtubeId) ?>" title="video" allowfullscreen loading="lazy"></iframe>
+                                <iframe src="https://www.youtube.com/embed/<?= htmlspecialchars($youtubeId) ?>?rel=0&modestbranding=1" title="video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
                             </div>
+                            <a href="<?= htmlspecialchars($m['youtube_url']) ?>" target="_blank" rel="noopener" class="small d-block px-3 pt-2"><?= htmlspecialchars(Lang::t('site_video_open_youtube')) ?></a>
                         <?php endif; ?>
                     <?php endif; ?>
                     <?php $title = $isRu ? ($m['title_ru'] ?? null) : ($m['title_uz'] ?? null); ?>

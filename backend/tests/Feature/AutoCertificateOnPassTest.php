@@ -21,6 +21,7 @@ final class AutoCertificateOnPassTest extends TestCase
         $pdo->exec('DELETE FROM test_attempts');
         $pdo->exec('DELETE FROM answers');
         $pdo->exec('DELETE FROM questions');
+        $pdo->exec('DELETE FROM test_question_selections');
         $pdo->exec('DELETE FROM tests');
         $pdo->exec("DELETE FROM users WHERE phone = '+998977777777'");
 

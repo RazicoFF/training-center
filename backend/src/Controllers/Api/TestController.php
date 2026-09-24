@@ -43,7 +43,7 @@ final class TestController
 
         $testId = (int) $request->param('id');
 
-        return ['questions' => $this->repository->questionsWithAnswers($testId)];
+        return ['questions' => $this->repository->questionsWithAnswers($testId, $claims['user_id'])];
     }
 
     private function submit(Request $request): array
@@ -66,7 +66,7 @@ final class TestController
         $answerIds = array_map('intval', $answers);
 
         try {
-            $result = $this->repository->score($testId, $answerIds);
+            $result = $this->repository->score($testId, $claims['user_id'], $answerIds);
         } catch (\InvalidArgumentException $e) {
             return ['error' => ['code' => 'VALIDATION_ERROR', 'message' => $e->getMessage()], 'status' => 422];
         }

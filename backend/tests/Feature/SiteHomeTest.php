@@ -118,6 +118,40 @@ final class SiteHomeTest extends TestCase
         $this->assertSame('1', (string) $count);
     }
 
+    public function testApplyFormShowsBrandsAsJsonAndSubmitStoresSelectedBrand(): void
+    {
+        $pdo = Database::pdo();
+        $professionId = (int) $pdo->query('SELECT id FROM professions LIMIT 1')->fetchColumn();
+        $pdo->exec("DELETE FROM profession_brands WHERE profession_id = {$professionId} AND name = 'Caterpillar Test Brand'");
+        $pdo->prepare('INSERT INTO profession_brands (profession_id, name) VALUES (?, ?)')->execute([$professionId, 'Caterpillar Test Brand']);
+        $brandId = (int) $pdo->lastInsertId();
+
+        $router = new Router();
+        (new HomeController())->register($router);
+
+        ob_start();
+        $router->dispatch(new Request('GET', '/apply', [], [], []));
+        $formHtml = ob_get_clean();
+        $this->assertStringContainsString('Caterpillar Test Brand', $formHtml);
+
+        $token = Csrf::token();
+        ob_start();
+        $router->dispatch(new Request('POST', '/apply', [], [], [
+            'csrf_token' => $token,
+            'full_name' => 'Brand Applicant',
+            'phone' => '+998987770031',
+            'profession_id' => (string) $professionId,
+            'brand_id' => (string) $brandId,
+        ]));
+        ob_end_clean();
+
+        $storedBrandId = $pdo->query("SELECT brand_id FROM applications WHERE phone = '+998987770031'")->fetchColumn();
+        $this->assertSame($brandId, (int) $storedBrandId);
+
+        $pdo->exec("DELETE FROM applications WHERE phone = '+998987770031'");
+        $pdo->exec("DELETE FROM profession_brands WHERE id = {$brandId}");
+    }
+
     public function testApplyRejectsMissingCsrfToken(): void
     {
         $router = new Router();

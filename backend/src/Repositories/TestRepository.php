@@ -72,19 +72,75 @@ final class TestRepository
         return $stmt->fetchAll();
     }
 
-    public function questionsWithAnswers(int $testId): array
+    /**
+     * Picks the questions to show for one attempt: a random subset of size
+     * random_question_count (or all questions, in random order, if that's not set),
+     * each with its answers in random order too. When $userId is given, the exact
+     * set of question ids shown is persisted (keyed by user+test) so score() can
+     * later grade against exactly what this user was shown - regardless of whether
+     * that call comes from the website (session-based) or the JWT-authenticated
+     * mobile API (stateless), since both funnel through the same user id.
+     */
+    public function questionsWithAnswers(int $testId, ?int $userId = null): array
     {
-        $stmt = Database::pdo()->prepare('SELECT id, text_uz, text_ru FROM questions WHERE test_id = ?');
-        $stmt->execute([$testId]);
+        $test = $this->find($testId);
+        $randomCount = ($test['random_question_count'] ?? null) !== null ? (int) $test['random_question_count'] : null;
+
+        $pdo = Database::pdo();
+
+        if ($randomCount !== null && $randomCount > 0) {
+            $stmt = $pdo->prepare("SELECT id, text_uz, text_ru FROM questions WHERE test_id = ? ORDER BY RAND() LIMIT {$randomCount}");
+            $stmt->execute([$testId]);
+        } else {
+            $stmt = $pdo->prepare('SELECT id, text_uz, text_ru FROM questions WHERE test_id = ?');
+            $stmt->execute([$testId]);
+        }
         $questions = $stmt->fetchAll();
+        shuffle($questions);
 
         foreach ($questions as &$question) {
-            $answerStmt = Database::pdo()->prepare('SELECT id, text_uz, text_ru FROM answers WHERE question_id = ?');
+            $answerStmt = $pdo->prepare('SELECT id, text_uz, text_ru FROM answers WHERE question_id = ?');
             $answerStmt->execute([$question['id']]);
-            $question['answers'] = $answerStmt->fetchAll();
+            $answers = $answerStmt->fetchAll();
+            shuffle($answers);
+            $question['answers'] = $answers;
+        }
+        unset($question);
+
+        if ($userId !== null) {
+            $this->persistQuestionSelection($userId, $testId, array_column($questions, 'id'));
         }
 
         return $questions;
+    }
+
+    private function persistQuestionSelection(int $userId, int $testId, array $questionIds): void
+    {
+        $stmt = Database::pdo()->prepare(
+            'INSERT INTO test_question_selections (user_id, test_id, question_ids) VALUES (?, ?, ?)
+             ON DUPLICATE KEY UPDATE question_ids = VALUES(question_ids), created_at = CURRENT_TIMESTAMP'
+        );
+        $stmt->execute([$userId, $testId, implode(',', $questionIds)]);
+    }
+
+    /**
+     * @return int[]|null the exact question ids this user was last shown for this test,
+     *                     or null if none was ever recorded (e.g. a test taken before this
+     *                     feature existed)
+     */
+    private function shownQuestionIds(int $userId, int $testId): ?array
+    {
+        $stmt = Database::pdo()->prepare(
+            'SELECT question_ids FROM test_question_selections WHERE user_id = ? AND test_id = ?'
+        );
+        $stmt->execute([$userId, $testId]);
+        $value = $stmt->fetchColumn();
+
+        if ($value === false || $value === '') {
+            return null;
+        }
+
+        return array_map('intval', explode(',', $value));
     }
 
     /**
@@ -93,13 +149,19 @@ final class TestRepository
      * @throws \InvalidArgumentException when a submitted answer does not belong to this test's
      *                                    questions, or two submitted answers belong to the same question
      */
-    public function score(int $testId, array $submittedAnswerIds): array
+    public function score(int $testId, int $userId, array $submittedAnswerIds): array
     {
         $pdo = Database::pdo();
 
-        $totalStmt = $pdo->prepare('SELECT COUNT(*) FROM questions WHERE test_id = ?');
-        $totalStmt->execute([$testId]);
-        $total = (int) $totalStmt->fetchColumn();
+        $shownQuestionIds = $this->shownQuestionIds($userId, $testId);
+
+        if ($shownQuestionIds !== null) {
+            $total = count($shownQuestionIds);
+        } else {
+            $totalStmt = $pdo->prepare('SELECT COUNT(*) FROM questions WHERE test_id = ?');
+            $totalStmt->execute([$testId]);
+            $total = (int) $totalStmt->fetchColumn();
+        }
 
         if ($total === 0 || $submittedAnswerIds === []) {
             return ['score' => 0, 'passed' => false];
@@ -124,6 +186,10 @@ final class TestRepository
         $questionIds = array_map(static fn (array $row): int => (int) $row['question_id'], $rows);
         if (count($questionIds) !== count(array_unique($questionIds))) {
             throw new \InvalidArgumentException('Only one answer per question may be submitted');
+        }
+
+        if ($shownQuestionIds !== null && array_diff($questionIds, $shownQuestionIds) !== []) {
+            throw new \InvalidArgumentException('Submitted answers reference questions that were not shown to this user');
         }
 
         $correct = 0;
@@ -159,12 +225,15 @@ final class TestRepository
         string $titleRu,
         int $passingScore,
         ?string $opensAt = null,
-        ?string $closesAt = null
+        ?string $closesAt = null,
+        ?int $randomQuestionCount = null,
+        ?int $timeLimitMinutes = null
     ): int {
         $stmt = Database::pdo()->prepare(
-            'INSERT INTO tests (profession_id, title_uz, title_ru, passing_score, opens_at, closes_at) VALUES (?, ?, ?, ?, ?, ?)'
+            'INSERT INTO tests (profession_id, title_uz, title_ru, passing_score, opens_at, closes_at, random_question_count, time_limit_minutes)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
         );
-        $stmt->execute([$professionId, $titleUz, $titleRu, $passingScore, $opensAt, $closesAt]);
+        $stmt->execute([$professionId, $titleUz, $titleRu, $passingScore, $opensAt, $closesAt, $randomQuestionCount, $timeLimitMinutes]);
 
         return (int) Database::pdo()->lastInsertId();
     }
@@ -184,12 +253,14 @@ final class TestRepository
         string $titleRu,
         int $passingScore,
         ?string $opensAt = null,
-        ?string $closesAt = null
+        ?string $closesAt = null,
+        ?int $randomQuestionCount = null,
+        ?int $timeLimitMinutes = null
     ): void {
         $stmt = Database::pdo()->prepare(
-            'UPDATE tests SET title_uz = ?, title_ru = ?, passing_score = ?, opens_at = ?, closes_at = ? WHERE id = ?'
+            'UPDATE tests SET title_uz = ?, title_ru = ?, passing_score = ?, opens_at = ?, closes_at = ?, random_question_count = ?, time_limit_minutes = ? WHERE id = ?'
         );
-        $stmt->execute([$titleUz, $titleRu, $passingScore, $opensAt, $closesAt, $id]);
+        $stmt->execute([$titleUz, $titleRu, $passingScore, $opensAt, $closesAt, $randomQuestionCount, $timeLimitMinutes, $id]);
     }
 
     /**

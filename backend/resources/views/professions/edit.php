@@ -1,6 +1,7 @@
 <?php
 /** @var array $profession */
 /** @var array $videos */
+/** @var array $brands */
 use App\Core\Csrf;
 use App\Core\Lang;
 ?>
@@ -45,6 +46,7 @@ use App\Core\Lang;
         <div class="col-md-4 mb-3">
             <label class="form-label"><?= htmlspecialchars(Lang::t('profession_image')) ?></label>
             <input type="file" name="image" class="form-control" accept=".jpg,.jpeg,.png,.webp">
+            <div class="form-text"><?= htmlspecialchars(Lang::t('image_size_hint_profession')) ?></div>
         </div>
     </div>
     <div class="mb-3">
@@ -91,4 +93,25 @@ use App\Core\Lang;
         </div>
     </div>
     <button type="submit" class="btn btn-outline-primary btn-sm"><?= htmlspecialchars(Lang::t('video_add')) ?></button>
+</form>
+
+<h2 class="h6 mt-4 mb-3"><?= htmlspecialchars(Lang::t('brand_section_title')) ?></h2>
+<p class="text-muted small"><?= htmlspecialchars(Lang::t('brand_section_hint')) ?></p>
+<?php if ($brands !== []): ?>
+    <ul class="list-group mb-3 col-md-6">
+        <?php foreach ($brands as $b): ?>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <?= htmlspecialchars($b['name']) ?>
+                <form method="post" action="/admin/professions/<?= (int) $profession['id'] ?>/brands/<?= (int) $b['id'] ?>/delete">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
+                    <button type="submit" class="btn btn-sm btn-outline-danger"><?= htmlspecialchars(Lang::t('video_delete')) ?></button>
+                </form>
+            </li>
+        <?php endforeach; ?>
+    </ul>
+<?php endif; ?>
+<form method="post" action="/admin/professions/<?= (int) $profession['id'] ?>/brands" class="col-md-6 d-flex gap-2">
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
+    <input type="text" name="name" class="form-control" placeholder="<?= htmlspecialchars(Lang::t('brand_name_placeholder')) ?>">
+    <button type="submit" class="btn btn-outline-primary btn-sm text-nowrap"><?= htmlspecialchars(Lang::t('brand_add')) ?></button>
 </form>

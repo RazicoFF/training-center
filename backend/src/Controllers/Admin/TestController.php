@@ -12,12 +12,14 @@ use App\Core\View;
 use App\Middleware\AdminAuthMiddleware;
 use App\Repositories\ProfessionRepository;
 use App\Repositories\TestRepository;
+use App\Services\TestExcelImporter;
 
 final class TestController
 {
     public function __construct(
         private readonly TestRepository $tests = new TestRepository(),
-        private readonly ProfessionRepository $professions = new ProfessionRepository()
+        private readonly ProfessionRepository $professions = new ProfessionRepository(),
+        private readonly TestExcelImporter $excelImporter = new TestExcelImporter()
     ) {
     }
 
@@ -73,10 +75,26 @@ final class TestController
 
         $opensAt = $this->parseSchedule((string) ($body['opens_at'] ?? ''));
         $closesAt = $this->parseSchedule((string) ($body['closes_at'] ?? ''));
+        $randomQuestionCount = ($body['random_question_count'] ?? '') !== '' ? (int) $body['random_question_count'] : null;
+        $timeLimitMinutes = ($body['time_limit_minutes'] ?? '') !== '' ? (int) $body['time_limit_minutes'] : null;
 
-        $testId = $this->tests->create($professionId, $titleUz, $titleRu, $passingScore, $opensAt, $closesAt);
+        $testId = $this->tests->create(
+            $professionId,
+            $titleUz,
+            $titleRu,
+            $passingScore,
+            $opensAt,
+            $closesAt,
+            $randomQuestionCount,
+            $timeLimitMinutes
+        );
 
-        return ['redirect' => "/admin/tests/{$testId}/questions", 'flash' => Lang::t('test_created')];
+        $importedCount = $this->importExcelIfProvided($testId);
+        $flash = $importedCount !== null
+            ? sprintf(Lang::t('excel_import_success'), $importedCount)
+            : Lang::t('test_created');
+
+        return ['redirect' => "/admin/tests/{$testId}/questions", 'flash' => $flash];
     }
 
     private function editForm(Request $request): array
@@ -125,10 +143,50 @@ final class TestController
 
         $opensAt = $this->parseSchedule((string) ($body['opens_at'] ?? ''));
         $closesAt = $this->parseSchedule((string) ($body['closes_at'] ?? ''));
+        $randomQuestionCount = ($body['random_question_count'] ?? '') !== '' ? (int) $body['random_question_count'] : null;
+        $timeLimitMinutes = ($body['time_limit_minutes'] ?? '') !== '' ? (int) $body['time_limit_minutes'] : null;
 
-        $this->tests->update($testId, $titleUz, $titleRu, $passingScore, $opensAt, $closesAt);
+        $this->tests->update(
+            $testId,
+            $titleUz,
+            $titleRu,
+            $passingScore,
+            $opensAt,
+            $closesAt,
+            $randomQuestionCount,
+            $timeLimitMinutes
+        );
 
-        return ['redirect' => '/admin/tests', 'flash' => Lang::t('test_updated')];
+        $importedCount = $this->importExcelIfProvided($testId);
+        $flash = $importedCount !== null
+            ? sprintf(Lang::t('excel_import_success'), $importedCount)
+            : Lang::t('test_updated');
+
+        return ['redirect' => '/admin/tests', 'flash' => $flash];
+    }
+
+    /**
+     * Both the create and edit forms carry the same optional Excel-upload fields
+     * (excel_uz required to trigger an import, excel_ru optional). Returns the
+     * imported question count, or null if no file was uploaded at all.
+     */
+    private function importExcelIfProvided(int $testId): ?int
+    {
+        $uzFile = $_FILES['excel_uz'] ?? null;
+        if (!is_array($uzFile) || ($uzFile['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            return null;
+        }
+
+        $ruFile = $_FILES['excel_ru'] ?? null;
+        $ruPath = (is_array($ruFile) && ($ruFile['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK)
+            ? (string) $ruFile['tmp_name']
+            : null;
+
+        try {
+            return $this->excelImporter->importFromFiles($testId, (string) $uzFile['tmp_name'], $ruPath);
+        } catch (\Throwable) {
+            return 0;
+        }
     }
 
     private function attempts(Request $request): array

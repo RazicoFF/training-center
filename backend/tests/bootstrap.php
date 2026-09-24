@@ -27,6 +27,8 @@ $tablesToClear = [
     'teacher_profiles',
     'profession_videos',
     'media_items',
+    'profession_brands',
+    'test_question_selections',
     'news',
     'users',
 ];

@@ -11,6 +11,7 @@ use App\Core\Router;
 use App\Core\SiteView;
 use App\Repositories\ApplicationRepository;
 use App\Repositories\NewsRepository;
+use App\Repositories\ProfessionBrandRepository;
 use App\Repositories\ProfessionRepository;
 use App\Repositories\SiteSettingsRepository;
 
@@ -20,7 +21,8 @@ final class HomeController
         private readonly ProfessionRepository $professions = new ProfessionRepository(),
         private readonly ApplicationRepository $applications = new ApplicationRepository(),
         private readonly SiteSettingsRepository $settings = new SiteSettingsRepository(),
-        private readonly NewsRepository $news = new NewsRepository()
+        private readonly NewsRepository $news = new NewsRepository(),
+        private readonly ProfessionBrandRepository $brands = new ProfessionBrandRepository()
     ) {
     }
 
@@ -45,6 +47,7 @@ final class HomeController
     {
         SiteView::render('site/apply', [
             'professions' => $this->professions->all(),
+            'brandsByProfession' => $this->brands->allGroupedByProfession(),
             'selectedProfessionId' => (int) ($_GET['profession_id'] ?? 0),
             'submitted' => false,
         ]);
@@ -61,10 +64,12 @@ final class HomeController
         $fullName = trim((string) ($body['full_name'] ?? ''));
         $phone = trim((string) ($body['phone'] ?? ''));
         $professionId = (int) ($body['profession_id'] ?? 0);
+        $brandId = ($body['brand_id'] ?? '') !== '' ? (int) $body['brand_id'] : null;
 
         if ($fullName === '' || $phone === '' || $professionId <= 0) {
             SiteView::render('site/apply', [
                 'professions' => $this->professions->all(),
+                'brandsByProfession' => $this->brands->allGroupedByProfession(),
                 'selectedProfessionId' => $professionId,
                 'submitted' => false,
                 'error' => Lang::t('apply_error'),
@@ -72,10 +77,11 @@ final class HomeController
             return ['rendered' => true];
         }
 
-        $this->applications->create($fullName, $phone, $professionId);
+        $this->applications->create($fullName, $phone, $professionId, $brandId);
 
         SiteView::render('site/apply', [
             'professions' => $this->professions->all(),
+            'brandsByProfession' => $this->brands->allGroupedByProfession(),
             'selectedProfessionId' => 0,
             'submitted' => true,
         ]);

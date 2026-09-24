@@ -61,4 +61,19 @@ final class AdminStudentDetailTest extends TestCase
         $this->assertStringContainsString('85%', $html);
         $this->assertStringContainsString('CERT-DETAIL-TEST', $html);
     }
+
+    public function testStudentsIndexShowsCertificateDownloadButton(): void
+    {
+        $certificateId = (int) Database::pdo()->query("SELECT id FROM certificates WHERE certificate_number = 'CERT-DETAIL-TEST'")->fetchColumn();
+
+        $router = new Router();
+        (new StudentController())->register($router);
+
+        ob_start();
+        $result = $router->dispatch(new Request('GET', '/admin/students', [], [], []));
+        $html = ob_get_clean();
+
+        $this->assertSame(['rendered' => true], $result);
+        $this->assertStringContainsString("/admin/certificates/{$certificateId}/download", $html);
+    }
 }

@@ -43,8 +43,9 @@ $isRu = Lang::current() === 'ru';
                     <?php $videoTitle = $isRu ? ($v['title_ru'] ?? null) : ($v['title_uz'] ?? null); ?>
                     <?php if (!empty($videoTitle)): ?><p class="fw-semibold"><?= htmlspecialchars($videoTitle) ?></p><?php endif; ?>
                     <div class="ratio ratio-16x9">
-                        <iframe src="https://www.youtube.com/embed/<?= htmlspecialchars($youtubeId) ?>" title="video" allowfullscreen loading="lazy"></iframe>
+                        <iframe src="https://www.youtube.com/embed/<?= htmlspecialchars($youtubeId) ?>?rel=0&modestbranding=1" title="video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
                     </div>
+                    <a href="<?= htmlspecialchars($v['youtube_url']) ?>" target="_blank" rel="noopener" class="small"><?= htmlspecialchars(Lang::t('site_video_open_youtube')) ?></a>
                 </div>
             <?php endif; ?>
         <?php endforeach; ?>
