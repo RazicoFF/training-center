@@ -80,6 +80,56 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
         });
     }
 })();
+(function () {
+    var elements = document.querySelectorAll('.tc-reveal');
+    if (!('IntersectionObserver' in window) || elements.length === 0) {
+        elements.forEach(function (el) { el.classList.add('tc-revealed'); });
+        return;
+    }
+    var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('tc-revealed');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.15 });
+    elements.forEach(function (el) { observer.observe(el); });
+})();
+(function () {
+    var counters = document.querySelectorAll('.tc-counter');
+    if (counters.length === 0) return;
+
+    function animateCounter(el) {
+        var target = parseInt(el.getAttribute('data-counter-target'), 10) || 0;
+        var suffix = el.getAttribute('data-counter-suffix') || '';
+        var duration = 1200;
+        var start = null;
+
+        function step(timestamp) {
+            if (!start) start = timestamp;
+            var progress = Math.min((timestamp - start) / duration, 1);
+            el.textContent = Math.floor(progress * target) + suffix;
+            if (progress < 1) requestAnimationFrame(step);
+            else el.textContent = target + suffix;
+        }
+        requestAnimationFrame(step);
+    }
+
+    if (!('IntersectionObserver' in window)) {
+        counters.forEach(animateCounter);
+        return;
+    }
+    var counterObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+                animateCounter(entry.target);
+                counterObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.4 });
+    counters.forEach(function (el) { counterObserver.observe(el); });
+})();
 </script>
 </body>
 </html>

@@ -100,8 +100,11 @@ final class AdminProfessionsTest extends TestCase
 
         $this->assertArrayHasKey('redirect', $result);
 
-        $count = Database::pdo()->query("SELECT COUNT(*) FROM professions WHERE name_uz = 'Smoke Profession'")->fetchColumn();
-        $this->assertSame('1', (string) $count);
+        $newId = (int) Database::pdo()->query("SELECT id FROM professions WHERE name_uz = 'Smoke Profession'")->fetchColumn();
+        $this->assertGreaterThan(0, $newId);
+
+        // Redirects to the edit page (not the index) so the admin can add videos/PDF right away.
+        $this->assertSame("/admin/professions/{$newId}/edit", $result['redirect']);
     }
 
     public function testCreateRejectsMissingCsrfToken(): void

@@ -99,7 +99,7 @@ final class ProfessionController
             $this->professions->updatePdf($professionId, $pdfUrl);
         }
 
-        return ['redirect' => '/admin/professions', 'flash' => Lang::t('profession_created')];
+        return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('profession_created')];
     }
 
     private function editForm(Request $request): array

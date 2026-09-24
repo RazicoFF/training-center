@@ -16,7 +16,9 @@ final class AdminTeachersTest extends TestCase
     protected function setUp(): void
     {
         $_SESSION = ['admin_user_id' => 1, 'admin_role' => 'admin'];
-        Database::pdo()->exec("DELETE FROM users WHERE phone = '+998955555555'");
+        $pdo = Database::pdo();
+        $pdo->exec("DELETE FROM teacher_profiles WHERE user_id IN (SELECT id FROM users WHERE phone = '+998955555555')");
+        $pdo->exec("DELETE FROM users WHERE phone = '+998955555555'");
     }
 
     public function testCreateAddsTeacherAndRedirects(): void

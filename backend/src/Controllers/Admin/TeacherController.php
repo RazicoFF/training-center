@@ -72,7 +72,8 @@ final class TeacherController
             return ['redirect' => '/admin/teachers/create', 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring'];
         }
 
-        $this->users->create($fullName, $phone, Auth::hashPassword($password), 'teacher');
+        $teacherId = $this->users->create($fullName, $phone, Auth::hashPassword($password), 'teacher');
+        $this->profiles->upsert($teacherId, $this->buildProfileFields($teacherId, $body, null));
 
         return ['redirect' => '/admin/teachers', 'flash' => Lang::t('teacher_created')];
     }
@@ -118,6 +119,21 @@ final class TeacherController
             return ['rendered' => true];
         }
 
+        $existing = $this->profiles->findByUserId($teacherId);
+        $this->profiles->upsert($teacherId, $this->buildProfileFields($teacherId, $body, $existing));
+
+        return ['redirect' => '/admin/teachers', 'flash' => Lang::t('teacher_updated')];
+    }
+
+    /**
+     * @param array<string,mixed> $body
+     * @param array<string,mixed>|null $existingProfile the teacher's current profile row
+     *        (for photo_url fallback when this request doesn't upload a new one), or null
+     *        for a brand-new teacher who has no profile row yet
+     * @return array<string,mixed>
+     */
+    private function buildProfileFields(int $teacherId, array $body, ?array $existingProfile): array
+    {
         $fields = [
             'age' => ($body['age'] ?? '') !== '' ? (int) $body['age'] : null,
             'experience_years' => ($body['experience_years'] ?? '') !== '' ? (int) $body['experience_years'] : null,
@@ -129,8 +145,7 @@ final class TeacherController
             'email' => ($body['email'] ?? '') !== '' ? trim((string) $body['email']) : null,
         ];
 
-        $existing = $this->profiles->findByUserId($teacherId);
-        $fields['photo_url'] = $existing['photo_url'] ?? null;
+        $fields['photo_url'] = $existingProfile['photo_url'] ?? null;
 
         $uploadedPhoto = $_FILES['photo'] ?? null;
         if (is_array($uploadedPhoto) && ($uploadedPhoto['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
@@ -149,8 +164,6 @@ final class TeacherController
             }
         }
 
-        $this->profiles->upsert($teacherId, $fields);
-
-        return ['redirect' => '/admin/teachers', 'flash' => Lang::t('teacher_updated')];
+        return $fields;
     }
 }
