@@ -1,0 +1,84 @@
+/* Public site — extends admin.css's theme variables */
+
+body {
+    background: var(--tc-bg);
+    color: var(--tc-text);
+}
+
+.tc-site-nav {
+    background: var(--tc-surface);
+    border-bottom: 1px solid var(--tc-border);
+    padding: 0.75rem 0;
+}
+
+.tc-site-nav .navbar-brand {
+    color: var(--tc-text);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.tc-site-nav .nav-link {
+    color: var(--tc-text-muted);
+}
+
+.tc-hero {
+    border-radius: 20px;
+    background: var(--tc-accent-grad);
+    color: #fff;
+    padding: 3rem 2rem;
+    margin-bottom: 2rem;
+}
+
+.tc-hero h1 {
+    font-weight: 800;
+}
+
+.tc-price-card {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--tc-border);
+    background: var(--tc-surface);
+    box-shadow: var(--tc-shadow);
+    height: 100%;
+}
+
+.tc-price-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+}
+
+.tc-price-card .tc-price-tag {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--tc-primary);
+}
+
+.tc-teacher-card {
+    border-radius: 16px;
+    border: 1px solid var(--tc-border);
+    background: var(--tc-surface);
+    box-shadow: var(--tc-shadow);
+    padding: 1.25rem;
+    height: 100%;
+}
+
+.tc-teacher-photo {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.tc-teacher-photo-placeholder {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: var(--tc-accent-grad);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.4rem;
+}

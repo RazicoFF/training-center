@@ -18,6 +18,26 @@ final class TeacherProfileRepository
     }
 
     /**
+     * All teachers (users.role = 'teacher') left-joined with their optional profile,
+     * for the public "our teachers" page. Fields the teacher never filled in come back
+     * as null so the view can skip rendering them.
+     */
+    public function allTeachersWithProfiles(): array
+    {
+        $stmt = Database::pdo()->query(
+            'SELECT u.id AS user_id, u.full_name,
+                    tp.age, tp.experience_years, tp.skills_uz, tp.skills_ru,
+                    tp.education_uz, tp.education_ru, tp.telegram, tp.email, tp.photo_url
+             FROM users u
+             LEFT JOIN teacher_profiles tp ON tp.user_id = u.id
+             WHERE u.role = \'teacher\'
+             ORDER BY u.full_name'
+        );
+
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Creates or updates the profile row for a teacher. All fields besides
      * user_id are optional (nullable), matching the requirement that teachers
      * are never forced to fill in age/experience/skills/education/contacts.
