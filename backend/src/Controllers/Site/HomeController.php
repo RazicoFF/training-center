@@ -11,12 +11,14 @@ use App\Core\Router;
 use App\Core\SiteView;
 use App\Repositories\ApplicationRepository;
 use App\Repositories\ProfessionRepository;
+use App\Repositories\SiteSettingsRepository;
 
 final class HomeController
 {
     public function __construct(
         private readonly ProfessionRepository $professions = new ProfessionRepository(),
-        private readonly ApplicationRepository $applications = new ApplicationRepository()
+        private readonly ApplicationRepository $applications = new ApplicationRepository(),
+        private readonly SiteSettingsRepository $settings = new SiteSettingsRepository()
     ) {
     }
 
@@ -29,7 +31,10 @@ final class HomeController
 
     private function home(Request $request): array
     {
-        SiteView::render('site/home', ['professions' => $this->professions->all()]);
+        SiteView::render('site/home', [
+            'professions' => $this->professions->all(),
+            'settings' => $this->settings->get(),
+        ]);
         return ['rendered' => true];
     }
 
