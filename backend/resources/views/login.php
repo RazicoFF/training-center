@@ -8,7 +8,7 @@ use App\Core\Lang;
         <div class="card tc-fade-in">
             <div class="card-body p-4">
                 <div class="text-center mb-3">
-                    <span class="tc-brand-mark d-inline-flex" style="width:48px;height:48px;font-size:0.95rem;"><?= Lang::current() === 'ru' ? 'УЦ' : 'OM' ?></span>
+                    <img src="/images/brand/logo.png" alt="" class="tc-brand-logo" style="width:64px;height:64px;">
                 </div>
                 <h1 class="h4 mb-3 text-center"><?= htmlspecialchars(Lang::t('login_title')) ?></h1>
                 <?php if ($error !== null): ?>

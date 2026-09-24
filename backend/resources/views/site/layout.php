@@ -22,7 +22,7 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 <nav class="navbar navbar-expand-lg tc-site-nav">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center gap-2" href="/">
-            <span class="tc-brand-mark"><?= Lang::current() === 'ru' ? 'УЦ' : 'OM' ?></span>
+            <img src="/images/brand/logo.png" alt="" class="tc-brand-logo">
             <span><?= htmlspecialchars(Lang::t('site_app_title')) ?></span>
         </a>
         <div class="d-flex align-items-center gap-2 ms-auto">

@@ -7,6 +7,9 @@ use App\Core\Lang;
     <div class="col-md-4">
         <div class="card tc-fade-in">
             <div class="card-body p-4">
+                <div class="text-center mb-3">
+                    <img src="/images/brand/logo.png" alt="" class="tc-brand-logo" style="width:64px;height:64px;">
+                </div>
                 <h1 class="h4 mb-3 text-center"><?= htmlspecialchars(Lang::t('site_nav_portal')) ?></h1>
                 <?php if ($error !== null): ?>
                     <div class="alert alert-danger tc-alert"><?= htmlspecialchars($error) ?></div>

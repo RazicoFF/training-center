@@ -116,6 +116,23 @@ final class TestRepository
         return (int) Database::pdo()->lastInsertId();
     }
 
+    public function find(int $id): ?array
+    {
+        $stmt = Database::pdo()->prepare('SELECT * FROM tests WHERE id = ?');
+        $stmt->execute([$id]);
+        $row = $stmt->fetch();
+
+        return $row === false ? null : $row;
+    }
+
+    public function update(int $id, string $titleUz, string $titleRu, int $passingScore): void
+    {
+        $stmt = Database::pdo()->prepare(
+            'UPDATE tests SET title_uz = ?, title_ru = ?, passing_score = ? WHERE id = ?'
+        );
+        $stmt->execute([$titleUz, $titleRu, $passingScore, $id]);
+    }
+
     public function allWithProfession(): array
     {
         $sql = 'SELECT t.*, p.name_uz AS profession_name_uz,

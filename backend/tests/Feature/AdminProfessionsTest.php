@@ -18,7 +18,12 @@ final class AdminProfessionsTest extends TestCase
     protected function setUp(): void
     {
         $_SESSION = ['admin_user_id' => 1, 'admin_role' => 'admin'];
-        $this->professionId = (int) Database::pdo()->query('SELECT id FROM professions LIMIT 1')->fetchColumn();
+        $pdo = Database::pdo();
+        $pdo->exec("DELETE FROM professions WHERE name_uz IN ('Smoke Profession', 'Editable Fixture Profession')");
+        $pdo->prepare(
+            'INSERT INTO professions (name_uz, name_ru, description_uz, description_ru, duration_days, price) VALUES (?, ?, ?, ?, ?, ?)'
+        )->execute(['Editable Fixture Profession', 'Тестовая профессия для правки', 'Tavsif', 'Описание', 10, 500000]);
+        $this->professionId = (int) $pdo->lastInsertId();
     }
 
     public function testIndexRendersProfessionName(): void
@@ -34,7 +39,7 @@ final class AdminProfessionsTest extends TestCase
         $this->assertStringContainsString('Ekskavator', $html);
     }
 
-    public function testUpdateSavesCareerInfo(): void
+    public function testUpdateSavesAllFieldsIncludingPriceAndCareerInfo(): void
     {
         $router = new Router();
         (new ProfessionController())->register($router);
@@ -42,16 +47,25 @@ final class AdminProfessionsTest extends TestCase
 
         $result = $router->dispatch(new Request('POST', "/admin/professions/{$this->professionId}", [], [], [
             'csrf_token' => $token,
+            'name_uz' => 'Yangilangan kasb',
+            'name_ru' => 'Обновлённая профессия',
+            'description_uz' => 'Tavsif',
+            'description_ru' => 'Описание',
+            'duration_days' => '25',
+            'price' => '2000000',
             'career_info_uz' => 'Yangi karyera matni',
             'career_info_ru' => 'Новый текст о карьере',
         ]));
 
         $this->assertArrayHasKey('redirect', $result);
 
-        $stmt = Database::pdo()->prepare('SELECT career_info_uz, career_info_ru FROM professions WHERE id = ?');
+        $stmt = Database::pdo()->prepare('SELECT * FROM professions WHERE id = ?');
         $stmt->execute([$this->professionId]);
         $row = $stmt->fetch();
 
+        $this->assertSame('Yangilangan kasb', $row['name_uz']);
+        $this->assertSame(25, (int) $row['duration_days']);
+        $this->assertSame(2000000, (int) $row['price']);
         $this->assertSame('Yangi karyera matni', $row['career_info_uz']);
         $this->assertSame('Новый текст о карьере', $row['career_info_ru']);
     }
@@ -66,5 +80,44 @@ final class AdminProfessionsTest extends TestCase
         ]));
 
         $this->assertSame(['redirect' => '/admin/login'], $result);
+    }
+
+    public function testCreateAddsNewProfession(): void
+    {
+        $router = new Router();
+        (new ProfessionController())->register($router);
+        $token = Csrf::token();
+
+        $result = $router->dispatch(new Request('POST', '/admin/professions', [], [], [
+            'csrf_token' => $token,
+            'name_uz' => 'Smoke Profession',
+            'name_ru' => 'Тестовая профессия',
+            'description_uz' => 'Tavsif',
+            'description_ru' => 'Описание',
+            'duration_days' => '15',
+            'price' => '900000',
+        ]));
+
+        $this->assertArrayHasKey('redirect', $result);
+
+        $count = Database::pdo()->query("SELECT COUNT(*) FROM professions WHERE name_uz = 'Smoke Profession'")->fetchColumn();
+        $this->assertSame('1', (string) $count);
+    }
+
+    public function testCreateRejectsMissingCsrfToken(): void
+    {
+        $router = new Router();
+        (new ProfessionController())->register($router);
+
+        $result = $router->dispatch(new Request('POST', '/admin/professions', [], [], [
+            'name_uz' => 'Smoke Profession',
+            'name_ru' => 'Тестовая профессия',
+            'duration_days' => '15',
+            'price' => '900000',
+        ]));
+
+        $this->assertSame(['redirect' => '/admin/login'], $result);
+        $count = Database::pdo()->query("SELECT COUNT(*) FROM professions WHERE name_uz = 'Smoke Profession'")->fetchColumn();
+        $this->assertSame('0', (string) $count);
     }
 }

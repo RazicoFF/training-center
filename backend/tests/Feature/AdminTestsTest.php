@@ -63,4 +63,36 @@ final class AdminTestsTest extends TestCase
         $this->assertSame(1, (int) $answers[0]['is_correct']);
         $this->assertSame(0, (int) $answers[1]['is_correct']);
     }
+
+    public function testEditFormRendersExistingValuesAndUpdateSavesChanges(): void
+    {
+        $pdo = Database::pdo();
+        $pdo->prepare('INSERT INTO tests (profession_id, title_uz, title_ru, passing_score) VALUES (?, ?, ?, ?)')
+            ->execute([$this->professionId, 'Original Title', 'Оригинал', 70]);
+        $testId = (int) $pdo->lastInsertId();
+
+        $router = new Router();
+        (new TestController())->register($router);
+
+        ob_start();
+        $editResult = $router->dispatch(new Request('GET', "/admin/tests/{$testId}/edit", [], [], []));
+        $html = ob_get_clean();
+
+        $this->assertSame(['rendered' => true], $editResult);
+        $this->assertStringContainsString('Original Title', $html);
+
+        $token = Csrf::token();
+        $updateResult = $router->dispatch(new Request('POST', "/admin/tests/{$testId}/edit", [], [], [
+            'csrf_token' => $token,
+            'title_uz' => 'Updated Title',
+            'title_ru' => 'Обновлённый',
+            'passing_score' => '80',
+        ]));
+
+        $this->assertArrayHasKey('redirect', $updateResult);
+
+        $row = $pdo->query("SELECT title_uz, passing_score FROM tests WHERE id = {$testId}")->fetch();
+        $this->assertSame('Updated Title', $row['title_uz']);
+        $this->assertSame(80, (int) $row['passing_score']);
+    }
 }

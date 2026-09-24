@@ -2,13 +2,16 @@
 /** @var array $professions */
 use App\Core\Lang;
 ?>
-<h1 class="h4 mb-3"><?= htmlspecialchars(Lang::t('nav_professions')) ?></h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4"><?= htmlspecialchars(Lang::t('nav_professions')) ?></h1>
+    <a href="/admin/professions/create" class="btn btn-primary btn-sm"><?= htmlspecialchars(Lang::t('profession_create')) ?></a>
+</div>
 <div class="row g-3">
     <?php foreach ($professions as $i => $p): ?>
         <div class="col-md-4">
             <div class="card tc-fade-in tc-fade-in-<?= min($i + 1, 4) ?> h-100">
                 <?php if (!empty($p['image_url'])): ?>
-                    <img src="<?= htmlspecialchars($p['image_url']) ?>" alt="" style="width:100%;height:140px;object-fit:cover;">
+                    <img src="<?= htmlspecialchars($p['image_url']) ?>" alt="" style="width:100%;height:140px;object-fit:contain;background:var(--tc-surface-2);">
                 <?php endif; ?>
                 <div class="card-body">
                     <h2 class="h6"><?= htmlspecialchars($p['name_uz']) ?></h2>
