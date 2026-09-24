@@ -22,6 +22,8 @@ final class ProfessionController
     public function register(Router $router): void
     {
         $router->get('/admin/professions', fn (Request $req) => $this->index($req));
+        $router->get('/admin/professions/create', fn (Request $req) => $this->createForm($req));
+        $router->post('/admin/professions', fn (Request $req) => $this->create($req));
         $router->get('/admin/professions/{id}/edit', fn (Request $req) => $this->editForm($req));
         $router->post('/admin/professions/{id}', fn (Request $req) => $this->update($req));
     }
@@ -34,6 +36,61 @@ final class ProfessionController
 
         View::render('professions/index', ['professions' => $this->professions->all()]);
         return ['rendered' => true];
+    }
+
+    private function createForm(Request $request): array
+    {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        View::render('professions/create', []);
+        return ['rendered' => true];
+    }
+
+    private function create(Request $request): array
+    {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $body = $request->formBody();
+        if (!Csrf::verify($body['csrf_token'] ?? null)) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $nameUz = trim((string) ($body['name_uz'] ?? ''));
+        $nameRu = trim((string) ($body['name_ru'] ?? ''));
+        $descriptionUz = trim((string) ($body['description_uz'] ?? ''));
+        $descriptionRu = trim((string) ($body['description_ru'] ?? ''));
+        $durationDays = (int) ($body['duration_days'] ?? 0);
+        $price = (float) ($body['price'] ?? 0);
+
+        if ($nameUz === '' || $nameRu === '' || $durationDays <= 0 || $price <= 0) {
+            return ['redirect' => '/admin/professions/create', 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring'];
+        }
+
+        $careerInfoUz = trim((string) ($body['career_info_uz'] ?? ''));
+        $careerInfoRu = trim((string) ($body['career_info_ru'] ?? ''));
+
+        $professionId = $this->professions->create(
+            $nameUz,
+            $nameRu,
+            $descriptionUz,
+            $descriptionRu,
+            $durationDays,
+            $price,
+            null,
+            $careerInfoUz !== '' ? $careerInfoUz : null,
+            $careerInfoRu !== '' ? $careerInfoRu : null
+        );
+
+        $imageUrl = $this->handleImageUpload($professionId);
+        if ($imageUrl !== null) {
+            $this->professions->updateImage($professionId, $imageUrl);
+        }
+
+        return ['redirect' => '/admin/professions', 'flash' => Lang::t('profession_created')];
     }
 
     private function editForm(Request $request): array
@@ -72,15 +129,63 @@ final class ProfessionController
             return ['rendered' => true];
         }
 
+        $nameUz = trim((string) ($body['name_uz'] ?? ''));
+        $nameRu = trim((string) ($body['name_ru'] ?? ''));
+        $descriptionUz = trim((string) ($body['description_uz'] ?? ''));
+        $descriptionRu = trim((string) ($body['description_ru'] ?? ''));
+        $durationDays = (int) ($body['duration_days'] ?? 0);
+        $price = (float) ($body['price'] ?? 0);
+
+        if ($nameUz === '' || $nameRu === '' || $durationDays <= 0 || $price <= 0) {
+            return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring'];
+        }
+
         $careerInfoUz = trim((string) ($body['career_info_uz'] ?? ''));
         $careerInfoRu = trim((string) ($body['career_info_ru'] ?? ''));
 
-        $this->professions->updateCareerInfo(
+        $this->professions->update(
             $professionId,
+            $nameUz,
+            $nameRu,
+            $descriptionUz,
+            $descriptionRu,
+            $durationDays,
+            $price,
             $careerInfoUz !== '' ? $careerInfoUz : null,
             $careerInfoRu !== '' ? $careerInfoRu : null
         );
 
+        $imageUrl = $this->handleImageUpload($professionId);
+        if ($imageUrl !== null) {
+            $this->professions->updateImage($professionId, $imageUrl);
+        }
+
         return ['redirect' => '/admin/professions', 'flash' => Lang::t('profession_updated')];
+    }
+
+    private function handleImageUpload(int $professionId): ?string
+    {
+        $uploadedImage = $_FILES['image'] ?? null;
+        if (!is_array($uploadedImage) || ($uploadedImage['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            return null;
+        }
+
+        $extension = strtolower((string) pathinfo((string) $uploadedImage['name'], PATHINFO_EXTENSION));
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+        if (!in_array($extension, $allowedExtensions, true)) {
+            return null;
+        }
+
+        $uploadDir = dirname(__DIR__, 3) . '/public/uploads/professions';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0775, true);
+        }
+
+        $filename = 'profession-' . $professionId . '-' . bin2hex(random_bytes(8)) . '.' . $extension;
+        if (!move_uploaded_file((string) $uploadedImage['tmp_name'], $uploadDir . '/' . $filename)) {
+            return null;
+        }
+
+        return '/uploads/professions/' . $filename;
     }
 }

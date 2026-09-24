@@ -83,6 +83,13 @@ body {
     flex-shrink: 0;
 }
 
+.tc-brand-logo {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
 .tc-nav {
     display: flex;
     flex-direction: column;

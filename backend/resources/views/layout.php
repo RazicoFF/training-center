@@ -54,7 +54,7 @@ if (!function_exists('tc_icon')) {
 <div class="tc-shell">
     <aside class="tc-sidebar">
         <a class="tc-brand" href="/admin">
-            <span class="tc-brand-mark"><?= Lang::current() === 'ru' ? 'УЦ' : 'OM' ?></span>
+            <img src="/images/brand/logo.png" alt="" class="tc-brand-logo">
             <span><?= htmlspecialchars(Lang::t('app_title')) ?></span>
         </a>
         <nav class="tc-nav">
