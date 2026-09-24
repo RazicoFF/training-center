@@ -13,6 +13,7 @@ use App\Controllers\Admin\AuthController;
 use App\Controllers\Admin\CertificateController;
 use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\GroupController;
+use App\Controllers\Admin\MediaController;
 use App\Controllers\Admin\NewsController;
 use App\Controllers\Admin\ProfessionController;
 use App\Controllers\Admin\QuestionController;
@@ -43,6 +44,7 @@ $router = new Router();
 (new CertificateController())->register($router);
 (new SiteSettingsController())->register($router);
 (new NewsController())->register($router);
+(new MediaController())->register($router);
 
 $request = Request::fromGlobals();
 

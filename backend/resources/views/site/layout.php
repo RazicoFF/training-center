@@ -28,6 +28,7 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
         <div class="d-flex align-items-center gap-2 ms-auto">
             <a href="/" class="nav-link d-inline <?= $currentPath === '/' ? 'fw-bold' : '' ?>"><?= htmlspecialchars(Lang::t('site_nav_home')) ?></a>
             <a href="/teachers" class="nav-link d-inline <?= str_starts_with($currentPath, '/teachers') ? 'fw-bold' : '' ?>"><?= htmlspecialchars(Lang::t('site_nav_teachers')) ?></a>
+            <a href="/media" class="nav-link d-inline <?= str_starts_with($currentPath, '/media') ? 'fw-bold' : '' ?>"><?= htmlspecialchars(Lang::t('nav_media')) ?></a>
             <a href="/apply" class="nav-link d-inline <?= str_starts_with($currentPath, '/apply') ? 'fw-bold' : '' ?>"><?= htmlspecialchars(Lang::t('site_nav_apply')) ?></a>
             <?php if ($isLoggedIn): ?>
                 <a href="/portal" class="nav-link d-inline <?= str_starts_with($currentPath, '/portal') ? 'fw-bold' : '' ?>"><?= htmlspecialchars(Lang::t('site_nav_portal')) ?></a>

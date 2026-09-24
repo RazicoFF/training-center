@@ -9,6 +9,7 @@ use App\Core\Request;
 use App\Core\Router;
 use App\Controllers\Site\AuthController;
 use App\Controllers\Site\HomeController;
+use App\Controllers\Site\MediaController;
 use App\Controllers\Site\PortalController;
 use App\Controllers\Site\ProfessionController;
 use App\Controllers\Site\TeacherController;
@@ -27,6 +28,7 @@ $router = new Router();
 (new TeacherController())->register($router);
 (new PortalController())->register($router);
 (new ProfessionController())->register($router);
+(new MediaController())->register($router);
 
 $request = Request::fromGlobals();
 

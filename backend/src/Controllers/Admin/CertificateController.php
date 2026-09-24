@@ -9,11 +9,14 @@ use App\Core\Router;
 use App\Core\View;
 use App\Middleware\AdminAuthMiddleware;
 use App\Repositories\CertificateRepository;
+use App\Repositories\ProfessionRepository;
 
 final class CertificateController
 {
-    public function __construct(private readonly CertificateRepository $repository = new CertificateRepository())
-    {
+    public function __construct(
+        private readonly CertificateRepository $repository = new CertificateRepository(),
+        private readonly ProfessionRepository $professions = new ProfessionRepository()
+    ) {
     }
 
     public function register(Router $router): void
@@ -28,7 +31,18 @@ final class CertificateController
             return ['redirect' => '/admin/login'];
         }
 
-        View::render('certificates/index', ['certificates' => $this->repository->allWithDetails()]);
+        $q = trim((string) ($_GET['q'] ?? ''));
+        $professionId = ($_GET['profession_id'] ?? '') !== '' ? (int) $_GET['profession_id'] : null;
+        $year = ($_GET['year'] ?? '') !== '' ? (int) $_GET['year'] : null;
+
+        View::render('certificates/index', [
+            'certificates' => $this->repository->allWithDetails($q !== '' ? $q : null, $professionId, $year),
+            'professions' => $this->professions->all(),
+            'years' => $this->repository->distinctYears(),
+            'q' => $q,
+            'professionId' => $professionId,
+            'year' => $year,
+        ]);
         return ['rendered' => true];
     }
 

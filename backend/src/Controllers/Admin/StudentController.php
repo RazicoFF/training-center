@@ -11,14 +11,20 @@ use App\Core\Request;
 use App\Core\Router;
 use App\Core\View;
 use App\Middleware\AdminAuthMiddleware;
+use App\Repositories\CertificateRepository;
 use App\Repositories\GroupRepository;
+use App\Repositories\StudentStatsRepository;
+use App\Repositories\TestRepository;
 use App\Repositories\UserRepository;
 
 final class StudentController
 {
     public function __construct(
         private readonly UserRepository $users = new UserRepository(),
-        private readonly GroupRepository $groups = new GroupRepository()
+        private readonly GroupRepository $groups = new GroupRepository(),
+        private readonly StudentStatsRepository $studentStats = new StudentStatsRepository(),
+        private readonly TestRepository $tests = new TestRepository(),
+        private readonly CertificateRepository $certificates = new CertificateRepository()
     ) {
     }
 
@@ -38,7 +44,17 @@ final class StudentController
             return ['redirect' => '/admin/login'];
         }
 
-        View::render('students/index', ['students' => $this->users->allByRole('student')]);
+        $q = trim((string) ($_GET['q'] ?? ''));
+        $groupId = ($_GET['group_id'] ?? '') !== '' ? (int) $_GET['group_id'] : null;
+        $stat = ($_GET['stat'] ?? '') !== '' ? (string) $_GET['stat'] : null;
+
+        View::render('students/index', [
+            'students' => $this->studentStats->list($q !== '' ? $q : null, $groupId, $stat),
+            'groups' => $this->groups->all(),
+            'q' => $q,
+            'groupId' => $groupId,
+            'stat' => $stat,
+        ]);
         return ['rendered' => true];
     }
 
@@ -94,6 +110,8 @@ final class StudentController
         View::render('students/edit', [
             'student' => $student,
             'enrollments' => $this->groups->enrollmentsForUser($studentId),
+            'testAttempts' => $this->tests->attemptsForUser($studentId),
+            'certificates' => $this->certificates->forUser($studentId),
         ]);
         return ['rendered' => true];
     }

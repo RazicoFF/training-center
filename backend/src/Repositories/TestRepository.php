@@ -58,6 +58,20 @@ final class TestRepository
         return $stmt->fetchAll();
     }
 
+    public function attemptsForUser(int $userId): array
+    {
+        $stmt = Database::pdo()->prepare(
+            'SELECT ta.id, ta.score, ta.passed, ta.attempted_at, t.title_uz, t.title_ru
+             FROM test_attempts ta
+             JOIN tests t ON t.id = ta.test_id
+             WHERE ta.user_id = ?
+             ORDER BY ta.attempted_at DESC'
+        );
+        $stmt->execute([$userId]);
+
+        return $stmt->fetchAll();
+    }
+
     public function questionsWithAnswers(int $testId): array
     {
         $stmt = Database::pdo()->prepare('SELECT id, text_uz, text_ru FROM questions WHERE test_id = ?');

@@ -18,7 +18,7 @@ if ($path !== '/' && is_file($staticFile)) {
     return false;
 }
 
-$sitePaths = ['/', '/login', '/logout', '/lang', '/teachers', '/apply', '/portal'];
+$sitePaths = ['/', '/login', '/logout', '/lang', '/teachers', '/apply', '/portal', '/media'];
 $isSitePath = in_array($path, $sitePaths, true)
     || str_starts_with($path, '/teachers/')
     || str_starts_with($path, '/apply/')

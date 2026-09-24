@@ -78,7 +78,7 @@ final class ApplicationRepository
             $params[] = $status;
         }
 
-        $sql .= ' ORDER BY a.created_at DESC';
+        $sql .= " ORDER BY (a.status = 'pending') DESC, a.created_at DESC";
 
         $stmt = Database::pdo()->prepare($sql);
         $stmt->execute($params);

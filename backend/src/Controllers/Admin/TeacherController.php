@@ -39,7 +39,12 @@ final class TeacherController
             return ['redirect' => '/admin/login'];
         }
 
-        View::render('teachers/index', ['teachers' => $this->teachers->all()]);
+        $q = trim((string) ($_GET['q'] ?? ''));
+
+        View::render('teachers/index', [
+            'teachers' => $this->teachers->search($q !== '' ? $q : null),
+            'q' => $q,
+        ]);
         return ['rendered' => true];
     }
 
