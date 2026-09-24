@@ -14,6 +14,7 @@ use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\GroupController;
 use App\Controllers\Admin\ProfessionController;
 use App\Controllers\Admin\QuestionController;
+use App\Controllers\Admin\SiteSettingsController;
 use App\Controllers\Admin\StudentController;
 use App\Controllers\Admin\TeacherController;
 use App\Controllers\Admin\TestController;
@@ -37,6 +38,7 @@ $router = new Router();
 (new TestController())->register($router);
 (new QuestionController())->register($router);
 (new CertificateController())->register($router);
+(new SiteSettingsController())->register($router);
 
 $request = Request::fromGlobals();
 

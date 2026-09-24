@@ -52,3 +52,10 @@ if ($professionCount === 0) {
         $stmt->execute($p);
     }
 }
+
+// site_settings is a singleton row (id=1); ensure it exists without wiping any values
+// admin-panel/site tests may have already left there.
+$settingsCount = (int) $pdo->query('SELECT COUNT(*) FROM site_settings WHERE id = 1')->fetchColumn();
+if ($settingsCount === 0) {
+    $pdo->exec('INSERT INTO site_settings (id) VALUES (1)');
+}

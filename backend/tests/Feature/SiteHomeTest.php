@@ -33,6 +33,44 @@ final class SiteHomeTest extends TestCase
         $this->assertStringContainsString('1,500,000', $html);
     }
 
+    public function testHomeRendersAboutAddressContactsAndStatsWhenSet(): void
+    {
+        Database::pdo()->exec(
+            "UPDATE site_settings SET
+                address_uz = 'Toshkent shahri, Chilonzor tumani',
+                map_embed_url = 'https://www.google.com/maps/embed?pb=test',
+                telegram = '@omuquvmarkazi',
+                email = 'info@example.uz',
+                phone = '+998901234567',
+                about_uz = 'Bizning oquv markazimiz haqida matn',
+                stat_graduates = 500,
+                stat_years = 10,
+                stat_employment_percent = 85
+             WHERE id = 1"
+        );
+
+        $router = new Router();
+        (new HomeController())->register($router);
+
+        ob_start();
+        $router->dispatch(new Request('GET', '/', [], [], []));
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString('Bizning oquv markazimiz haqida matn', $html);
+        $this->assertStringContainsString('Toshkent shahri, Chilonzor tumani', $html);
+        $this->assertStringContainsString('maps/embed?pb=test', $html);
+        $this->assertStringContainsString('@omuquvmarkazi', $html);
+        $this->assertStringContainsString('info@example.uz', $html);
+        $this->assertStringContainsString('500+', $html);
+        $this->assertStringContainsString('85%', $html);
+
+        Database::pdo()->exec(
+            "UPDATE site_settings SET address_uz = NULL, map_embed_url = NULL, telegram = NULL, email = NULL,
+             phone = NULL, about_uz = NULL, stat_graduates = NULL, stat_years = NULL, stat_employment_percent = NULL
+             WHERE id = 1"
+        );
+    }
+
     public function testApplySubmitsApplicationAndShowsSuccessMessage(): void
     {
         $professionId = (int) Database::pdo()->query('SELECT id FROM professions LIMIT 1')->fetchColumn();
