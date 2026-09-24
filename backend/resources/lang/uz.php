@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'app_title' => 'Учебный центр — Boshqaruv paneli',
+    'app_title' => 'O\'quv markazi — Boshqaruv paneli',
     'nav_dashboard' => 'Boshqaruv paneli',
     'nav_applications' => 'Arizalar',
     'nav_groups' => 'Guruhlar',
