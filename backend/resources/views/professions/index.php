@@ -9,7 +9,10 @@ use App\Core\Lang;
 <div class="row g-3">
     <?php foreach ($professions as $i => $p): ?>
         <div class="col-md-4">
-            <div class="card tc-fade-in tc-fade-in-<?= min($i + 1, 4) ?> h-100">
+            <div class="card tc-fade-in tc-fade-in-<?= min($i + 1, 4) ?> h-100" style="position:relative;">
+                <?php if (!empty($p['pdf_url'])): ?>
+                    <span class="badge text-bg-secondary" style="position:absolute;top:8px;right:8px;">PDF</span>
+                <?php endif; ?>
                 <?php if (!empty($p['image_url'])): ?>
                     <img src="<?= htmlspecialchars($p['image_url']) ?>" alt="" style="width:100%;height:140px;object-fit:contain;background:var(--tc-surface-2);">
                 <?php endif; ?>

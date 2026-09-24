@@ -25,6 +25,8 @@ $tablesToClear = [
     'groups',
     'applications',
     'teacher_profiles',
+    'profession_videos',
+    'news',
     'users',
 ];
 

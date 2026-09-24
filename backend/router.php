@@ -22,7 +22,8 @@ $sitePaths = ['/', '/login', '/logout', '/lang', '/teachers', '/apply', '/portal
 $isSitePath = in_array($path, $sitePaths, true)
     || str_starts_with($path, '/teachers/')
     || str_starts_with($path, '/apply/')
-    || str_starts_with($path, '/portal/');
+    || str_starts_with($path, '/portal/')
+    || str_starts_with($path, '/professions/');
 
 if (str_starts_with($path, '/admin')) {
     require __DIR__ . '/public/admin.php';

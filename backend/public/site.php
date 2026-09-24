@@ -10,6 +10,7 @@ use App\Core\Router;
 use App\Controllers\Site\AuthController;
 use App\Controllers\Site\HomeController;
 use App\Controllers\Site\PortalController;
+use App\Controllers\Site\ProfessionController;
 use App\Controllers\Site\TeacherController;
 
 session_start([
@@ -25,6 +26,7 @@ $router = new Router();
 (new AuthController())->register($router);
 (new TeacherController())->register($router);
 (new PortalController())->register($router);
+(new ProfessionController())->register($router);
 
 $request = Request::fromGlobals();
 

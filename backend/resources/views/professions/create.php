@@ -40,6 +40,10 @@ use App\Core\Lang;
         </div>
     </div>
     <div class="mb-3">
+        <label class="form-label"><?= htmlspecialchars(Lang::t('profession_pdf')) ?></label>
+        <input type="file" name="pdf" class="form-control" accept=".pdf">
+    </div>
+    <div class="mb-3">
         <label class="form-label"><?= htmlspecialchars(Lang::t('profession_career_info_uz')) ?></label>
         <textarea name="career_info_uz" class="form-control" rows="4"></textarea>
     </div>

@@ -11,7 +11,7 @@ final class ProfessionRepository
     public function all(): array
     {
         $stmt = Database::pdo()->query(
-            'SELECT id, name_uz, name_ru, description_uz, description_ru, duration_days, price, image_url, career_info_uz, career_info_ru FROM professions ORDER BY id'
+            'SELECT id, name_uz, name_ru, description_uz, description_ru, duration_days, price, image_url, pdf_url, career_info_uz, career_info_ru FROM professions ORDER BY id'
         );
 
         return $stmt->fetchAll();
@@ -20,7 +20,7 @@ final class ProfessionRepository
     public function find(int $id): ?array
     {
         $stmt = Database::pdo()->prepare(
-            'SELECT id, name_uz, name_ru, description_uz, description_ru, duration_days, price, image_url, career_info_uz, career_info_ru FROM professions WHERE id = ?'
+            'SELECT id, name_uz, name_ru, description_uz, description_ru, duration_days, price, image_url, pdf_url, career_info_uz, career_info_ru FROM professions WHERE id = ?'
         );
         $stmt->execute([$id]);
         $row = $stmt->fetch();
@@ -79,5 +79,11 @@ final class ProfessionRepository
     {
         $stmt = Database::pdo()->prepare('UPDATE professions SET image_url = ? WHERE id = ?');
         $stmt->execute([$imageUrl, $id]);
+    }
+
+    public function updatePdf(int $id, string $pdfUrl): void
+    {
+        $stmt = Database::pdo()->prepare('UPDATE professions SET pdf_url = ? WHERE id = ?');
+        $stmt->execute([$pdfUrl, $id]);
     }
 }

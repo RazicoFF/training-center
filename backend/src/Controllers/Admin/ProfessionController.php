@@ -11,11 +11,13 @@ use App\Core\Router;
 use App\Core\View;
 use App\Middleware\AdminAuthMiddleware;
 use App\Repositories\ProfessionRepository;
+use App\Repositories\ProfessionVideoRepository;
 
 final class ProfessionController
 {
     public function __construct(
-        private readonly ProfessionRepository $professions = new ProfessionRepository()
+        private readonly ProfessionRepository $professions = new ProfessionRepository(),
+        private readonly ProfessionVideoRepository $videos = new ProfessionVideoRepository()
     ) {
     }
 
@@ -26,6 +28,8 @@ final class ProfessionController
         $router->post('/admin/professions', fn (Request $req) => $this->create($req));
         $router->get('/admin/professions/{id}/edit', fn (Request $req) => $this->editForm($req));
         $router->post('/admin/professions/{id}', fn (Request $req) => $this->update($req));
+        $router->post('/admin/professions/{id}/videos', fn (Request $req) => $this->addVideo($req));
+        $router->post('/admin/professions/{id}/videos/{videoId}/delete', fn (Request $req) => $this->deleteVideo($req));
     }
 
     private function index(Request $request): array
@@ -90,6 +94,11 @@ final class ProfessionController
             $this->professions->updateImage($professionId, $imageUrl);
         }
 
+        $pdfUrl = $this->handlePdfUpload($professionId);
+        if ($pdfUrl !== null) {
+            $this->professions->updatePdf($professionId, $pdfUrl);
+        }
+
         return ['redirect' => '/admin/professions', 'flash' => Lang::t('profession_created')];
     }
 
@@ -99,7 +108,8 @@ final class ProfessionController
             return ['redirect' => '/admin/login'];
         }
 
-        $profession = $this->professions->find((int) $request->param('id'));
+        $professionId = (int) $request->param('id');
+        $profession = $this->professions->find($professionId);
 
         if ($profession === null) {
             http_response_code(404);
@@ -107,7 +117,10 @@ final class ProfessionController
             return ['rendered' => true];
         }
 
-        View::render('professions/edit', ['profession' => $profession]);
+        View::render('professions/edit', [
+            'profession' => $profession,
+            'videos' => $this->videos->forProfession($professionId),
+        ]);
         return ['rendered' => true];
     }
 
@@ -160,7 +173,84 @@ final class ProfessionController
             $this->professions->updateImage($professionId, $imageUrl);
         }
 
+        $pdfUrl = $this->handlePdfUpload($professionId);
+        if ($pdfUrl !== null) {
+            $this->professions->updatePdf($professionId, $pdfUrl);
+        }
+
         return ['redirect' => '/admin/professions', 'flash' => Lang::t('profession_updated')];
+    }
+
+    private function addVideo(Request $request): array
+    {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $professionId = (int) $request->param('id');
+        $body = $request->formBody();
+        if (!Csrf::verify($body['csrf_token'] ?? null)) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $youtubeUrl = trim((string) ($body['youtube_url'] ?? ''));
+        if ($youtubeUrl === '' || ProfessionVideoRepository::extractYoutubeId($youtubeUrl) === null) {
+            return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('video_invalid_url')];
+        }
+
+        $titleUz = trim((string) ($body['title_uz'] ?? ''));
+        $titleRu = trim((string) ($body['title_ru'] ?? ''));
+
+        $this->videos->create(
+            $professionId,
+            $youtubeUrl,
+            $titleUz !== '' ? $titleUz : null,
+            $titleRu !== '' ? $titleRu : null
+        );
+
+        return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('video_added')];
+    }
+
+    private function deleteVideo(Request $request): array
+    {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $professionId = (int) $request->param('id');
+        $body = $request->formBody();
+        if (!Csrf::verify($body['csrf_token'] ?? null)) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $this->videos->delete((int) $request->param('videoId'));
+
+        return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('video_deleted')];
+    }
+
+    private function handlePdfUpload(int $professionId): ?string
+    {
+        $uploadedPdf = $_FILES['pdf'] ?? null;
+        if (!is_array($uploadedPdf) || ($uploadedPdf['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            return null;
+        }
+
+        $extension = strtolower((string) pathinfo((string) $uploadedPdf['name'], PATHINFO_EXTENSION));
+        if ($extension !== 'pdf') {
+            return null;
+        }
+
+        $uploadDir = dirname(__DIR__, 3) . '/public/uploads/professions';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0775, true);
+        }
+
+        $filename = 'profession-' . $professionId . '-' . bin2hex(random_bytes(8)) . '.pdf';
+        if (!move_uploaded_file((string) $uploadedPdf['tmp_name'], $uploadDir . '/' . $filename)) {
+            return null;
+        }
+
+        return '/uploads/professions/' . $filename;
     }
 
     private function handleImageUpload(int $professionId): ?string

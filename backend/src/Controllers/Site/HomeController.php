@@ -10,6 +10,7 @@ use App\Core\Request;
 use App\Core\Router;
 use App\Core\SiteView;
 use App\Repositories\ApplicationRepository;
+use App\Repositories\NewsRepository;
 use App\Repositories\ProfessionRepository;
 use App\Repositories\SiteSettingsRepository;
 
@@ -18,7 +19,8 @@ final class HomeController
     public function __construct(
         private readonly ProfessionRepository $professions = new ProfessionRepository(),
         private readonly ApplicationRepository $applications = new ApplicationRepository(),
-        private readonly SiteSettingsRepository $settings = new SiteSettingsRepository()
+        private readonly SiteSettingsRepository $settings = new SiteSettingsRepository(),
+        private readonly NewsRepository $news = new NewsRepository()
     ) {
     }
 
@@ -34,6 +36,7 @@ final class HomeController
         SiteView::render('site/home', [
             'professions' => $this->professions->all(),
             'settings' => $this->settings->get(),
+            'newsItems' => $this->news->latest(),
         ]);
         return ['rendered' => true];
     }
