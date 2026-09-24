@@ -61,8 +61,10 @@ final class SiteHomeTest extends TestCase
         $this->assertStringContainsString('maps/embed?pb=test', $html);
         $this->assertStringContainsString('@omuquvmarkazi', $html);
         $this->assertStringContainsString('info@example.uz', $html);
-        $this->assertStringContainsString('500+', $html);
-        $this->assertStringContainsString('85%', $html);
+        $this->assertStringContainsString('data-counter-target="500"', $html);
+        $this->assertStringContainsString('data-counter-suffix="+"', $html);
+        $this->assertStringContainsString('data-counter-target="85"', $html);
+        $this->assertStringContainsString('data-counter-suffix="%"', $html);
 
         Database::pdo()->exec(
             "UPDATE site_settings SET address_uz = NULL, map_embed_url = NULL, telegram = NULL, email = NULL,

@@ -17,7 +17,7 @@ if (!function_exists('tc_initials')) {
 <div class="row g-4">
     <?php foreach ($teachers as $i => $t): ?>
         <div class="col-md-6 col-lg-4">
-            <div class="tc-teacher-card tc-fade-in tc-fade-in-<?= min($i + 1, 4) ?>">
+            <div class="tc-teacher-card tc-reveal" style="transition-delay:<?= min($i, 5) * 0.06 ?>s;">
                 <div class="d-flex align-items-center gap-3 mb-3">
                     <?php if (!empty($t['photo_url'])): ?>
                         <img src="<?= htmlspecialchars($t['photo_url']) ?>" alt="" class="tc-teacher-photo">

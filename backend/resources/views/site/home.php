@@ -8,16 +8,18 @@ $isRu = Lang::current() === 'ru';
 $aboutText = $isRu ? ($settings['about_ru'] ?? null) : ($settings['about_uz'] ?? null);
 $addressText = $isRu ? ($settings['address_ru'] ?? null) : ($settings['address_uz'] ?? null);
 ?>
-<div class="tc-hero tc-fade-in">
-    <h1 class="display-6"><?= htmlspecialchars(Lang::t('site_app_title')) ?></h1>
-    <p class="mb-0 fs-5"><?= htmlspecialchars(Lang::t('site_home_tagline')) ?></p>
+<div class="tc-hero" style="background-image:url('/images/professions/excavator.jpg');">
+    <div class="tc-hero-overlay">
+        <h1 class="display-5"><?= htmlspecialchars(Lang::t('site_app_title')) ?></h1>
+        <p class="mb-0 fs-5"><?= htmlspecialchars(Lang::t('site_home_tagline')) ?></p>
+    </div>
 </div>
 
-<h2 class="h4 mb-3"><?= htmlspecialchars(Lang::t('site_home_professions')) ?></h2>
+<h2 class="h4 mb-3 tc-reveal"><?= htmlspecialchars(Lang::t('site_home_professions')) ?></h2>
 <div class="row g-4">
     <?php foreach ($professions as $i => $p): ?>
         <div class="col-md-4">
-            <div class="tc-price-card tc-fade-in tc-fade-in-<?= min($i + 1, 4) ?>" style="position:relative;">
+            <div class="tc-price-card tc-reveal" style="position:relative;transition-delay:<?= min($i, 3) * 0.08 ?>s;">
                 <?php if (!empty($p['pdf_url'])): ?>
                     <span class="badge text-bg-secondary" style="position:absolute;top:8px;right:8px;z-index:1;">PDF</span>
                 <?php endif; ?>
@@ -41,11 +43,11 @@ $addressText = $isRu ? ($settings['address_ru'] ?? null) : ($settings['address_u
 </div>
 
 <?php if ($newsItems !== []): ?>
-    <h2 class="h4 mt-5 mb-3"><?= htmlspecialchars(Lang::t('site_news_title')) ?></h2>
+    <h2 class="h4 mt-5 mb-3 tc-reveal"><?= htmlspecialchars(Lang::t('site_news_title')) ?></h2>
     <div class="row g-4">
         <?php foreach ($newsItems as $i => $n): ?>
             <div class="col-md-4">
-                <div class="tc-price-card h-100 tc-fade-in tc-fade-in-<?= min($i + 1, 4) ?>">
+                <div class="tc-price-card h-100 tc-reveal" style="transition-delay:<?= min($i, 3) * 0.08 ?>s;">
                     <?php if (!empty($n['image_url'])): ?>
                         <img src="<?= htmlspecialchars($n['image_url']) ?>" alt="" style="object-fit:cover;">
                     <?php endif; ?>
@@ -63,32 +65,32 @@ $addressText = $isRu ? ($settings['address_ru'] ?? null) : ($settings['address_u
 <?php endif; ?>
 
 <?php if (!empty($aboutText)): ?>
-    <h2 class="h4 mt-5 mb-3"><?= htmlspecialchars(Lang::t('site_about_title')) ?></h2>
-    <p class="tc-fade-in"><?= nl2br(htmlspecialchars($aboutText)) ?></p>
+    <h2 class="h4 mt-5 mb-3 tc-reveal"><?= htmlspecialchars(Lang::t('site_about_title')) ?></h2>
+    <p class="tc-reveal"><?= nl2br(htmlspecialchars($aboutText)) ?></p>
 <?php endif; ?>
 
 <?php if (!empty($settings['stat_graduates']) || !empty($settings['stat_years']) || !empty($settings['stat_employment_percent'])): ?>
     <div class="row g-3 my-4 text-center">
         <?php if (!empty($settings['stat_graduates'])): ?>
             <div class="col-md-4">
-                <div class="tc-price-card p-4 tc-fade-in">
-                    <div class="tc-price-tag"><?= (int) $settings['stat_graduates'] ?>+</div>
+                <div class="tc-price-card p-4 tc-reveal">
+                    <div class="tc-price-tag tc-counter" data-counter-target="<?= (int) $settings['stat_graduates'] ?>" data-counter-suffix="+">0</div>
                     <div class="text-muted small"><?= htmlspecialchars(Lang::t('site_stat_graduates')) ?></div>
                 </div>
             </div>
         <?php endif; ?>
         <?php if (!empty($settings['stat_years'])): ?>
             <div class="col-md-4">
-                <div class="tc-price-card p-4 tc-fade-in tc-fade-in-2">
-                    <div class="tc-price-tag"><?= (int) $settings['stat_years'] ?></div>
+                <div class="tc-price-card p-4 tc-reveal" style="transition-delay:0.08s;">
+                    <div class="tc-price-tag tc-counter" data-counter-target="<?= (int) $settings['stat_years'] ?>" data-counter-suffix="">0</div>
                     <div class="text-muted small"><?= htmlspecialchars(Lang::t('site_stat_years')) ?></div>
                 </div>
             </div>
         <?php endif; ?>
         <?php if (!empty($settings['stat_employment_percent'])): ?>
             <div class="col-md-4">
-                <div class="tc-price-card p-4 tc-fade-in tc-fade-in-3">
-                    <div class="tc-price-tag"><?= (int) $settings['stat_employment_percent'] ?>%</div>
+                <div class="tc-price-card p-4 tc-reveal" style="transition-delay:0.16s;">
+                    <div class="tc-price-tag tc-counter" data-counter-target="<?= (int) $settings['stat_employment_percent'] ?>" data-counter-suffix="%">0</div>
                     <div class="text-muted small"><?= htmlspecialchars(Lang::t('site_stat_employment')) ?></div>
                 </div>
             </div>
@@ -97,15 +99,15 @@ $addressText = $isRu ? ($settings['address_ru'] ?? null) : ($settings['address_u
 <?php endif; ?>
 
 <?php if (!empty($addressText) || !empty($settings['map_embed_url'])): ?>
-    <h2 class="h4 mt-5 mb-3"><?= htmlspecialchars(Lang::t('site_address_title')) ?></h2>
+    <h2 class="h4 mt-5 mb-3 tc-reveal"><?= htmlspecialchars(Lang::t('site_address_title')) ?></h2>
     <div class="row g-4 align-items-start">
         <?php if (!empty($addressText)): ?>
-            <div class="col-md-4">
+            <div class="col-md-4 tc-reveal">
                 <p><?= nl2br(htmlspecialchars($addressText)) ?></p>
             </div>
         <?php endif; ?>
         <?php if (!empty($settings['map_embed_url'])): ?>
-            <div class="col-md-8">
+            <div class="col-md-8 tc-reveal" style="transition-delay:0.1s;">
                 <iframe src="<?= htmlspecialchars($settings['map_embed_url']) ?>" width="100%" height="320" style="border:0;border-radius:12px;" allowfullscreen loading="lazy"></iframe>
             </div>
         <?php endif; ?>
@@ -113,8 +115,8 @@ $addressText = $isRu ? ($settings['address_ru'] ?? null) : ($settings['address_u
 <?php endif; ?>
 
 <?php if (!empty($settings['telegram']) || !empty($settings['email']) || !empty($settings['phone'])): ?>
-    <h2 class="h4 mt-5 mb-3"><?= htmlspecialchars(Lang::t('site_contacts_title')) ?></h2>
-    <ul class="list-unstyled">
+    <h2 class="h4 mt-5 mb-3 tc-reveal"><?= htmlspecialchars(Lang::t('site_contacts_title')) ?></h2>
+    <ul class="list-unstyled tc-reveal">
         <?php if (!empty($settings['phone'])): ?><li class="mb-1"><?= htmlspecialchars(Lang::t('settings_phone')) ?>: <?= htmlspecialchars($settings['phone']) ?></li><?php endif; ?>
         <?php if (!empty($settings['telegram'])): ?><li class="mb-1">Telegram: <?= htmlspecialchars($settings['telegram']) ?></li><?php endif; ?>
         <?php if (!empty($settings['email'])): ?><li class="mb-1">Email: <?= htmlspecialchars($settings['email']) ?></li><?php endif; ?>
