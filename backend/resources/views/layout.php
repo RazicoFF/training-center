@@ -16,6 +16,7 @@ $navItems = [
     ['href' => '/admin/teachers', 'label' => Lang::t('nav_teachers'), 'match' => '/admin/teachers', 'icon' => 'user-check'],
     ['href' => '/admin/professions', 'label' => Lang::t('nav_professions'), 'match' => '/admin/professions', 'icon' => 'briefcase'],
     ['href' => '/admin/news', 'label' => Lang::t('nav_news'), 'match' => '/admin/news', 'icon' => 'inbox'],
+    ['href' => '/admin/media', 'label' => Lang::t('nav_media'), 'match' => '/admin/media', 'icon' => 'award'],
     ['href' => '/admin/tests', 'label' => Lang::t('nav_tests'), 'match' => '/admin/tests', 'icon' => 'clipboard'],
     ['href' => '/admin/certificates', 'label' => Lang::t('nav_certificates'), 'match' => '/admin/certificates', 'icon' => 'award'],
     ['href' => '/admin/settings', 'label' => Lang::t('nav_settings'), 'match' => '/admin/settings', 'icon' => 'settings'],

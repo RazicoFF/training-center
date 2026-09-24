@@ -1,11 +1,20 @@
 <?php
 /** @var array $teachers */
+/** @var string $q */
 use App\Core\Lang;
 ?>
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h4"><?= htmlspecialchars(Lang::t('nav_teachers')) ?></h1>
     <a href="/admin/teachers/create" class="btn btn-primary btn-sm"><?= htmlspecialchars(Lang::t('teacher_create')) ?></a>
 </div>
+<form method="get" action="/admin/teachers" class="row g-2 mb-3">
+    <div class="col-md-5">
+        <input type="text" name="q" class="form-control" placeholder="<?= htmlspecialchars(Lang::t('search_by_name_phone')) ?>" value="<?= htmlspecialchars($q) ?>">
+    </div>
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-outline-primary w-100"><?= htmlspecialchars(Lang::t('search_submit')) ?></button>
+    </div>
+</form>
 <table class="table table-striped">
     <thead><tr><th><?= htmlspecialchars(Lang::t('teacher_name')) ?></th><th><?= htmlspecialchars(Lang::t('teacher_phone')) ?></th><th></th></tr></thead>
     <tbody>

@@ -36,21 +36,21 @@ $stats = [
 <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
     <?php
     $studentStatCards = [
-        ['label' => Lang::t('dashboard_students_total'), 'value' => $studentStats['total']],
-        ['label' => Lang::t('dashboard_students_studying'), 'value' => $studentStats['studying']],
-        ['label' => Lang::t('dashboard_students_completed'), 'value' => $studentStats['completed']],
-        ['label' => Lang::t('dashboard_students_dropped'), 'value' => $studentStats['dropped']],
-        ['label' => Lang::t('dashboard_students_in_exam'), 'value' => $studentStats['inExam']],
+        ['label' => Lang::t('dashboard_students_total'), 'value' => $studentStats['total'], 'href' => '/admin/students'],
+        ['label' => Lang::t('dashboard_students_studying'), 'value' => $studentStats['studying'], 'href' => '/admin/students?stat=studying'],
+        ['label' => Lang::t('dashboard_students_completed'), 'value' => $studentStats['completed'], 'href' => '/admin/students?stat=completed'],
+        ['label' => Lang::t('dashboard_students_dropped'), 'value' => $studentStats['dropped'], 'href' => '/admin/students?stat=dropped'],
+        ['label' => Lang::t('dashboard_students_in_exam'), 'value' => $studentStats['inExam'], 'href' => '/admin/students?stat=in_exam'],
     ];
     ?>
     <?php foreach ($studentStatCards as $i => $stat): ?>
     <div class="col">
-        <div class="card tc-fade-in tc-fade-in-<?= min($i + 1, 4) ?>">
+        <a href="<?= htmlspecialchars($stat['href']) ?>" class="card tc-fade-in tc-fade-in-<?= min($i + 1, 4) ?> text-decoration-none text-reset d-block">
             <div class="card-body">
                 <h6 class="card-title text-body-secondary small"><?= htmlspecialchars($stat['label']) ?></h6>
                 <p class="h4 mb-0"><?= (int) $stat['value'] ?></p>
             </div>
-        </div>
+        </a>
     </div>
     <?php endforeach; ?>
 </div>

@@ -67,14 +67,44 @@ final class CertificateRepository
         ];
     }
 
-    public function allWithDetails(): array
+    public function allWithDetails(?string $q = null, ?int $professionId = null, ?int $year = null): array
     {
-        $sql = 'SELECT c.id, c.certificate_number, c.issue_date, u.full_name AS student_name, p.name_uz AS profession_name_uz
+        $sql = 'SELECT c.id, c.certificate_number, c.issue_date, u.full_name AS student_name, p.id AS profession_id, p.name_uz AS profession_name_uz
                 FROM certificates c
                 JOIN users u ON u.id = c.user_id
                 JOIN professions p ON p.id = c.profession_id
-                ORDER BY c.issue_date DESC';
+                WHERE 1 = 1';
+        $params = [];
 
-        return Database::pdo()->query($sql)->fetchAll();
+        if ($q !== null && $q !== '') {
+            $sql .= ' AND (u.full_name LIKE ? OR c.certificate_number LIKE ?)';
+            $like = '%' . $q . '%';
+            $params[] = $like;
+            $params[] = $like;
+        }
+
+        if ($professionId !== null) {
+            $sql .= ' AND c.profession_id = ?';
+            $params[] = $professionId;
+        }
+
+        if ($year !== null) {
+            $sql .= ' AND YEAR(c.issue_date) = ?';
+            $params[] = $year;
+        }
+
+        $sql .= ' ORDER BY c.issue_date DESC';
+
+        $stmt = Database::pdo()->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll();
+    }
+
+    public function distinctYears(): array
+    {
+        $stmt = Database::pdo()->query('SELECT DISTINCT YEAR(issue_date) AS y FROM certificates ORDER BY y DESC');
+
+        return array_map('intval', $stmt->fetchAll(\PDO::FETCH_COLUMN));
     }
 }

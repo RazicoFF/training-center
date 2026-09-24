@@ -1,6 +1,8 @@
 <?php
 /** @var array $student */
 /** @var array $enrollments */
+/** @var array $testAttempts */
+/** @var array $certificates */
 use App\Core\Csrf;
 use App\Core\Lang;
 ?>
@@ -45,6 +47,55 @@ use App\Core\Lang;
                         <button type="submit" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('teacher_save')) ?></button>
                     </form>
                 </td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+<?php endif; ?>
+
+<h2 class="h6 mb-3 mt-4"><?= htmlspecialchars(Lang::t('test_attempts_title')) ?></h2>
+<?php if ($testAttempts === []): ?>
+    <p class="text-muted"><?= htmlspecialchars(Lang::t('test_attempts_empty')) ?></p>
+<?php else: ?>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th><?= htmlspecialchars(Lang::t('nav_tests')) ?></th>
+                <th><?= htmlspecialchars(Lang::t('test_attempt_score')) ?></th>
+                <th><?= htmlspecialchars(Lang::t('test_attempt_status')) ?></th>
+                <th><?= htmlspecialchars(Lang::t('test_attempt_datetime')) ?></th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($testAttempts as $a): ?>
+            <tr>
+                <td><?= htmlspecialchars($a['title_uz']) ?></td>
+                <td><?= (int) $a['score'] ?>%</td>
+                <td>
+                    <?php if ((int) $a['passed'] === 1): ?>
+                        <span class="badge text-bg-success"><?= htmlspecialchars(Lang::t('test_attempt_passed')) ?></span>
+                    <?php else: ?>
+                        <span class="badge text-bg-danger"><?= htmlspecialchars(Lang::t('test_attempt_failed')) ?></span>
+                    <?php endif; ?>
+                </td>
+                <td><?= htmlspecialchars($a['attempted_at']) ?></td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+<?php endif; ?>
+
+<h2 class="h6 mb-3 mt-4"><?= htmlspecialchars(Lang::t('nav_certificates')) ?></h2>
+<?php if ($certificates === []): ?>
+    <p class="text-muted"><?= htmlspecialchars(Lang::t('student_no_certificates')) ?></p>
+<?php else: ?>
+    <table class="table table-striped">
+        <thead><tr><th><?= htmlspecialchars(Lang::t('certificate_number')) ?></th><th></th></tr></thead>
+        <tbody>
+        <?php foreach ($certificates as $c): ?>
+            <tr>
+                <td><?= htmlspecialchars($c['certificate_number']) ?> (<?= htmlspecialchars($c['issue_date']) ?>)</td>
+                <td class="text-end"><a href="/admin/certificates/<?= (int) $c['id'] ?>/download" class="btn btn-sm btn-outline-primary"><?= htmlspecialchars(Lang::t('certificate_download')) ?></a></td>
             </tr>
         <?php endforeach; ?>
         </tbody>
