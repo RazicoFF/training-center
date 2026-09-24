@@ -24,6 +24,7 @@ $tablesToClear = [
     'schedule',
     'groups',
     'applications',
+    'teacher_profiles',
     'users',
 ];
 
