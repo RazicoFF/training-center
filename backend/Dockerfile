@@ -9,6 +9,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends libzip-dev libpng-dev libonig-dev \
     && docker-php-ext-install pdo_mysql gd zip mbstring \
     && a2enmod rewrite \
+    && a2dismod mpm_event mpm_worker 2>/dev/null; a2enmod mpm_prefork \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /var/www/html
