@@ -16,6 +16,12 @@
     <string name="tab_profile">Profil</string>
     <string name="tab_professions">Kasblar</string>
     <string name="tab_news">Yangiliklar</string>
+    <string name="tab_media">Media</string>
+    <string name="media_empty">Hozircha media fayllar yo\'q</string>
+    <string name="register_brand">Texnika markasi</string>
+    <string name="register_photo">3x4 rasm</string>
+    <string name="register_photo_pick">Rasm tanlash</string>
+    <string name="register_photo_selected">Rasm tanlandi</string>
     <string name="profession_duration_days">%1$d kun</string>
     <string name="profession_career_info_label">Ish imkoniyatlari</string>
     <string name="profession_open_pdf">PDF faylni ochish</string>

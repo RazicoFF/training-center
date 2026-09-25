@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import uz.edu.trainingcenter.data.remote.dto.ProfessionBrandDto
 import uz.edu.trainingcenter.data.remote.dto.ProfessionDto
 import uz.edu.trainingcenter.data.repository.ProfessionRepository
 import uz.edu.trainingcenter.util.UiError
@@ -24,6 +25,11 @@ class RegisterViewModel(private val repository: ProfessionRepository) : ViewMode
     private val _uiState = MutableStateFlow<RegisterUiState>(RegisterUiState.Idle)
     val uiState: StateFlow<RegisterUiState> = _uiState
 
+    // Brands for the currently selected profession - the professions list endpoint doesn't
+    // include them (only the detail endpoint does), so this is fetched separately on selection.
+    private val _brands = MutableStateFlow<List<ProfessionBrandDto>>(emptyList())
+    val brands: StateFlow<List<ProfessionBrandDto>> = _brands
+
     fun loadProfessions() {
         viewModelScope.launch {
             _uiState.value = RegisterUiState.LoadingProfessions
@@ -35,10 +41,18 @@ class RegisterViewModel(private val repository: ProfessionRepository) : ViewMode
         }
     }
 
-    fun submit(fullName: String, phone: String, professionId: Int) {
+    fun onProfessionSelected(professionId: Int) {
+        _brands.value = emptyList()
+        viewModelScope.launch {
+            val result = repository.getProfessionDetail(professionId)
+            result.onSuccess { _brands.value = it.brands.orEmpty() }
+        }
+    }
+
+    fun submit(fullName: String, phone: String, professionId: Int, brandId: Int?, photoBase64: String?) {
         viewModelScope.launch {
             _uiState.value = RegisterUiState.Submitting
-            val result = repository.submitApplication(fullName, phone, professionId)
+            val result = repository.submitApplication(fullName, phone, professionId, brandId, photoBase64)
             _uiState.value = result.fold(
                 onSuccess = { RegisterUiState.Submitted },
                 onFailure = { RegisterUiState.Error(it.toUiError()) }

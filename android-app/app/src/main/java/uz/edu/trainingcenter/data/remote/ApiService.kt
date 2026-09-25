@@ -18,6 +18,9 @@ interface ApiService {
     @GET("news")
     suspend fun getNews(): NewsResponse
 
+    @GET("media")
+    suspend fun getMedia(): MediaResponse
+
     @POST("applications")
     suspend fun submitApplication(@Body request: ApplicationRequest): ApplicationResponse
 

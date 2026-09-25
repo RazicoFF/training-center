@@ -16,6 +16,12 @@
     <string name="tab_profile">Профиль</string>
     <string name="tab_professions">Профессии</string>
     <string name="tab_news">Новости</string>
+    <string name="tab_media">Медиа</string>
+    <string name="media_empty">Пока нет медиафайлов</string>
+    <string name="register_brand">Марка техники</string>
+    <string name="register_photo">Фото 3x4</string>
+    <string name="register_photo_pick">Выбрать фото</string>
+    <string name="register_photo_selected">Фото выбрано</string>
     <string name="profession_duration_days">%1$d дней</string>
     <string name="profession_career_info_label">Возможности трудоустройства</string>
     <string name="profession_open_pdf">Открыть PDF файл</string>

@@ -13,6 +13,8 @@ import uz.edu.trainingcenter.ViewModelFactory
 import uz.edu.trainingcenter.ui.screens.home.HomeScaffold
 import uz.edu.trainingcenter.ui.screens.login.LoginScreen
 import uz.edu.trainingcenter.ui.screens.login.LoginViewModel
+import uz.edu.trainingcenter.ui.screens.media.MediaListScreen
+import uz.edu.trainingcenter.ui.screens.media.MediaListViewModel
 import uz.edu.trainingcenter.ui.screens.news.NewsListScreen
 import uz.edu.trainingcenter.ui.screens.news.NewsListViewModel
 import uz.edu.trainingcenter.ui.screens.professions.ProfessionDetailScreen
@@ -134,6 +136,13 @@ fun AppNavHost(navController: NavHostController) {
                 val viewModel: NewsListViewModel =
                     viewModel(factory = ViewModelFactory { NewsListViewModel(ServiceLocator.newsRepository) })
                 NewsListScreen(viewModel = viewModel, padding = padding)
+            }
+        }
+        composable(Routes.MEDIA_LIST) {
+            HomeScaffold(navController) { padding ->
+                val viewModel: MediaListViewModel =
+                    viewModel(factory = ViewModelFactory { MediaListViewModel(ServiceLocator.mediaRepository) })
+                MediaListScreen(viewModel = viewModel, padding = padding)
             }
         }
         composable(Routes.CERTIFICATES) {
