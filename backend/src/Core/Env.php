@@ -8,9 +8,13 @@ use Dotenv\Dotenv;
 
 final class Env
 {
+    /**
+     * safeLoad (not load) so a production deployment that sets real environment
+     * variables (Railway, etc.) instead of shipping a .env file doesn't crash here.
+     */
     public static function load(string $rootPath, string $file = '.env'): void
     {
-        Dotenv::createImmutable($rootPath, $file)->load();
+        Dotenv::createImmutable($rootPath, $file)->safeLoad();
     }
 
     public static function get(string $key, ?string $default = null): ?string

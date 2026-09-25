@@ -1,0 +1,16 @@
+# Production equivalent of ../router.php (the dev-server-only router). This backend
+# serves three front controllers from one docroot: admin.php (/admin/...), site.php
+# (the public site + student portal), and index.php (the JSON API, everything else).
+RewriteEngine On
+
+# Serve real static files (css/js/images/uploads) directly.
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+RewriteRule ^admin(/.*)?$ admin.php [L]
+
+RewriteRule ^(login|logout|lang|teachers|apply|portal|media)(/.*)?$ site.php [L]
+RewriteRule ^professions/.*$ site.php [L]
+RewriteRule ^$ site.php [L]
+
+RewriteRule ^ index.php [L]
