@@ -155,7 +155,7 @@ return [
     'profession_deleted' => 'Профессия удалена',
     'profession_delete' => 'Удалить',
     'profession_delete_confirm' => 'Удалить эту профессию?',
-    'profession_has_dependents' => 'У этой профессии есть связанные группы, тесты, заявки или сертификаты - сначала удалите их.',
+    'profession_has_dependents' => 'У этой профессии есть связанные группы, тесты или сертификаты - сначала удалите их.',
     'brand_deleted' => 'Марка удалена',
     'brand_name_required' => 'Введите название марки',
     'brand_field_label' => 'Марка техники',

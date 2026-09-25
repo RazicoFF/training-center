@@ -89,9 +89,9 @@ final class ProfessionRepository
 
     /**
      * True if this profession has real learner-history records attached (groups, tests,
-     * applications, certificates) that would be silently orphaned by a delete. Brand and
-     * video rows don't count - they're pure profession metadata and are cleaned up
-     * automatically by delete().
+     * certificates) that would be silently orphaned by a delete. Applications aren't
+     * checked - they're not yet committed learner records and are cleaned up
+     * automatically by delete(), same as brand and video rows.
      */
     public function hasDependents(int $id): bool
     {
@@ -99,7 +99,6 @@ final class ProfessionRepository
         $checks = [
             'SELECT COUNT(*) FROM `groups` WHERE profession_id = ?',
             'SELECT COUNT(*) FROM tests WHERE profession_id = ?',
-            'SELECT COUNT(*) FROM applications WHERE profession_id = ?',
             'SELECT COUNT(*) FROM certificates WHERE profession_id = ?',
         ];
 
@@ -117,6 +116,9 @@ final class ProfessionRepository
     public function delete(int $id): void
     {
         $pdo = Database::pdo();
+        // applications.profession_id is NOT NULL and applications.brand_id references
+        // profession_brands, so applications must be cleared before either of those.
+        $pdo->prepare('DELETE FROM applications WHERE profession_id = ?')->execute([$id]);
         $pdo->prepare('DELETE FROM profession_videos WHERE profession_id = ?')->execute([$id]);
         $pdo->prepare('DELETE FROM profession_brands WHERE profession_id = ?')->execute([$id]);
         $pdo->prepare('DELETE FROM professions WHERE id = ?')->execute([$id]);
