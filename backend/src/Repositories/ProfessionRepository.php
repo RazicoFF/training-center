@@ -86,4 +86,39 @@ final class ProfessionRepository
         $stmt = Database::pdo()->prepare('UPDATE professions SET pdf_url = ? WHERE id = ?');
         $stmt->execute([$pdfUrl, $id]);
     }
+
+    /**
+     * True if this profession has real learner-history records attached (groups, tests,
+     * applications, certificates) that would be silently orphaned by a delete. Brand and
+     * video rows don't count - they're pure profession metadata and are cleaned up
+     * automatically by delete().
+     */
+    public function hasDependents(int $id): bool
+    {
+        $pdo = Database::pdo();
+        $checks = [
+            'SELECT COUNT(*) FROM `groups` WHERE profession_id = ?',
+            'SELECT COUNT(*) FROM tests WHERE profession_id = ?',
+            'SELECT COUNT(*) FROM applications WHERE profession_id = ?',
+            'SELECT COUNT(*) FROM certificates WHERE profession_id = ?',
+        ];
+
+        foreach ($checks as $sql) {
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$id]);
+            if ((int) $stmt->fetchColumn() > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function delete(int $id): void
+    {
+        $pdo = Database::pdo();
+        $pdo->prepare('DELETE FROM profession_videos WHERE profession_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM profession_brands WHERE profession_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM professions WHERE id = ?')->execute([$id]);
+    }
 }

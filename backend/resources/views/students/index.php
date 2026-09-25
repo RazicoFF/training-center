@@ -8,6 +8,7 @@
 /** @var int|null $professionId */
 /** @var int|null $brandId */
 /** @var string|null $stat */
+use App\Core\Csrf;
 use App\Core\Lang;
 
 $statLabels = [
@@ -93,6 +94,10 @@ $statLabels = [
                     <a href="/admin/certificates/<?= (int) $s['latest_certificate_id'] ?>/download" class="btn btn-sm btn-outline-primary"><?= htmlspecialchars(Lang::t('certificate_download')) ?></a>
                 <?php endif; ?>
                 <a href="/admin/students/<?= (int) $s['id'] ?>/edit" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('teacher_edit')) ?></a>
+                <form method="post" action="/admin/students/<?= (int) $s['id'] ?>/delete" class="d-inline" onsubmit="return confirm('<?= htmlspecialchars(Lang::t('student_delete_confirm')) ?>');">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
+                    <button type="submit" class="btn btn-sm btn-outline-danger"><?= htmlspecialchars(Lang::t('student_delete')) ?></button>
+                </form>
             </td>
         </tr>
     <?php endforeach; ?>

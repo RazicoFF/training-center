@@ -39,6 +39,7 @@ final class StudentController
         $router->post('/admin/students', fn (Request $req) => $this->create($req));
         $router->get('/admin/students/{id}/edit', fn (Request $req) => $this->editForm($req));
         $router->post('/admin/students/{id}', fn (Request $req) => $this->update($req));
+        $router->post('/admin/students/{id}/delete', fn (Request $req) => $this->delete($req));
         $router->post('/admin/students/{id}/enrollments/{enrollmentId}', fn (Request $req) => $this->updateEnrollmentStatus($req));
     }
 
@@ -204,6 +205,30 @@ final class StudentController
         $this->groups->updateEnrollmentStatus($enrollmentId, $status);
 
         return ['redirect' => "/admin/students/{$studentId}/edit", 'flash' => Lang::t('student_updated')];
+    }
+
+    private function delete(Request $request): array
+    {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $studentId = (int) $request->param('id');
+        $body = $request->formBody();
+        if (!Csrf::verify($body['csrf_token'] ?? null)) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $student = $this->users->find($studentId);
+        if ($student === null || $student['role'] !== 'student') {
+            http_response_code(404);
+            echo '<h1>404</h1>';
+            return ['rendered' => true];
+        }
+
+        $this->users->deleteStudentCascade($studentId);
+
+        return ['redirect' => '/admin/students', 'flash' => Lang::t('student_deleted')];
     }
 
     private function uploadPhoto(int $studentId): ?string

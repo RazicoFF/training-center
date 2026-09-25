@@ -107,4 +107,16 @@ final class CertificateRepository
 
         return array_map('intval', $stmt->fetchAll(\PDO::FETCH_COLUMN));
     }
+
+    public function delete(int $id): void
+    {
+        $certificate = $this->find($id);
+
+        $stmt = Database::pdo()->prepare('DELETE FROM certificates WHERE id = ?');
+        $stmt->execute([$id]);
+
+        if ($certificate !== null && is_file((string) $certificate['pdf_path'])) {
+            @unlink((string) $certificate['pdf_path']);
+        }
+    }
 }

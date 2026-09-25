@@ -69,4 +69,21 @@ final class UserRepository
         $stmt = Database::pdo()->prepare('DELETE FROM users WHERE id = ?');
         $stmt->execute([$id]);
     }
+
+    /**
+     * Removing a student also erases their learning history (enrollments, test attempts,
+     * the exact questions they were shown, and certificates) since none of it means
+     * anything once the account is gone. Their original application record is kept for
+     * the admin's records, just detached from the now-deleted user.
+     */
+    public function deleteStudentCascade(int $id): void
+    {
+        $pdo = Database::pdo();
+        $pdo->prepare('UPDATE applications SET created_user_id = NULL WHERE created_user_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM certificates WHERE user_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM test_attempts WHERE user_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM test_question_selections WHERE user_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM enrollments WHERE user_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM users WHERE id = ?')->execute([$id]);
+    }
 }
