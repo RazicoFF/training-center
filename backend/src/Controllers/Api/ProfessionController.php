@@ -6,6 +6,7 @@ namespace App\Controllers\Api;
 
 use App\Core\Request;
 use App\Core\Router;
+use App\Repositories\ProfessionBrandRepository;
 use App\Repositories\ProfessionRepository;
 use App\Repositories\ProfessionVideoRepository;
 use App\Repositories\TestRepository;
@@ -15,7 +16,8 @@ final class ProfessionController
     public function __construct(
         private readonly ProfessionRepository $repository = new ProfessionRepository(),
         private readonly ProfessionVideoRepository $videos = new ProfessionVideoRepository(),
-        private readonly TestRepository $tests = new TestRepository()
+        private readonly TestRepository $tests = new TestRepository(),
+        private readonly ProfessionBrandRepository $brands = new ProfessionBrandRepository()
     ) {
     }
 
@@ -41,6 +43,7 @@ final class ProfessionController
 
         $profession['videos'] = $this->videos->forProfession($professionId);
         $profession['tests'] = $this->tests->forProfession($professionId);
+        $profession['brands'] = $this->brands->forProfession($professionId);
 
         return $profession;
     }

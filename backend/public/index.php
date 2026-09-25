@@ -15,6 +15,7 @@ use App\Controllers\Api\MeController;
 use App\Controllers\Api\NewsController;
 use App\Controllers\Api\TestController;
 use App\Controllers\Api\CertificateController;
+use App\Controllers\Api\MediaController;
 
 Env::load(dirname(__DIR__));
 
@@ -27,6 +28,7 @@ try {
     (new TestController())->register($router);
     (new CertificateController())->register($router);
     (new NewsController())->register($router);
+    (new MediaController())->register($router);
 
     $request = Request::fromGlobals();
     $result = $router->dispatch($request);
