@@ -5,4 +5,8 @@ set -e
 # is safe to run on every container start/restart, not just the first deploy.
 php /var/www/html/database/migrate.php .env
 
+# php-fpm daemonizes itself (-D) and returns immediately; nginx (passed in as "$@")
+# then runs in the foreground as this container's main process.
+php-fpm -D
+
 exec "$@"
