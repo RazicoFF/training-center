@@ -8,6 +8,7 @@ use App\Core\Env;
 use App\Core\Request;
 use App\Core\Router;
 use App\Controllers\Admin\AccountController;
+use App\Controllers\Admin\AdminUserController;
 use App\Controllers\Admin\ApplicationController;
 use App\Controllers\Admin\AuthController;
 use App\Controllers\Admin\CertificateController;
@@ -45,6 +46,7 @@ $router = new Router();
 (new SiteSettingsController())->register($router);
 (new NewsController())->register($router);
 (new MediaController())->register($router);
+(new AdminUserController())->register($router);
 
 $request = Request::fromGlobals();
 

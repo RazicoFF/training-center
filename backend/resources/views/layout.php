@@ -23,6 +23,7 @@ $navItems = $isTeacherSession
         ['href' => '/admin/groups', 'label' => Lang::t('nav_groups'), 'match' => '/admin/groups', 'icon' => 'users'],
         ['href' => '/admin/students', 'label' => Lang::t('nav_students'), 'match' => '/admin/students', 'icon' => 'graduation'],
         ['href' => '/admin/teachers', 'label' => Lang::t('nav_teachers'), 'match' => '/admin/teachers', 'icon' => 'user-check'],
+        ['href' => '/admin/admins', 'label' => Lang::t('nav_admins'), 'match' => '/admin/admins', 'icon' => 'user-check'],
         ['href' => '/admin/professions', 'label' => Lang::t('nav_professions'), 'match' => '/admin/professions', 'icon' => 'briefcase'],
         ['href' => '/admin/news', 'label' => Lang::t('nav_news'), 'match' => '/admin/news', 'icon' => 'inbox'],
         ['href' => '/admin/media', 'label' => Lang::t('nav_media'), 'match' => '/admin/media', 'icon' => 'award'],

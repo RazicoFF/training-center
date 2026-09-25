@@ -63,4 +63,10 @@ final class UserRepository
         $stmt = Database::pdo()->prepare('UPDATE users SET password_hash = ? WHERE id = ?');
         $stmt->execute([$passwordHash, $id]);
     }
+
+    public function delete(int $id): void
+    {
+        $stmt = Database::pdo()->prepare('DELETE FROM users WHERE id = ?');
+        $stmt->execute([$id]);
+    }
 }

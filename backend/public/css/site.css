@@ -47,6 +47,42 @@ body {
     background-attachment: fixed, fixed, fixed;
 }
 
+.tc-bg-fx {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+        radial-gradient(ellipse 60% 45% at 20% 15%, rgba(212, 175, 55, 0.16), transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 75%, rgba(212, 175, 55, 0.10), transparent 60%);
+    background-repeat: no-repeat;
+    animation: tc-bg-drift 22s ease-in-out infinite alternate;
+}
+
+.tc-bg-fx::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+[data-bs-theme="light"] .tc-bg-fx {
+    background-image:
+        radial-gradient(ellipse 60% 45% at 20% 15%, rgba(201, 162, 39, 0.10), transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 75%, rgba(201, 162, 39, 0.07), transparent 60%);
+}
+
+@keyframes tc-bg-drift {
+    from { background-position: 0% 0%, 100% 100%; }
+    to { background-position: 6% 4%, 94% 96%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tc-bg-fx { animation: none; }
+}
+
 .tc-site-nav {
     background: var(--tc-surface);
     border-bottom: 1px solid var(--tc-border);

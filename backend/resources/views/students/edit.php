@@ -10,7 +10,7 @@ use App\Core\Lang;
 <?php if (!empty($student['photo_url'])): ?>
     <img src="<?= htmlspecialchars($student['photo_url']) ?>" alt="" style="width:96px;height:128px;object-fit:cover;border-radius:8px;" class="mb-3">
 <?php endif; ?>
-<form method="post" action="/admin/students/<?= (int) $student['id'] ?>" class="mb-4">
+<form method="post" action="/admin/students/<?= (int) $student['id'] ?>" class="mb-4" enctype="multipart/form-data">
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
     <div class="row">
         <div class="col-md-6 mb-3">
@@ -21,6 +21,11 @@ use App\Core\Lang;
             <label class="form-label"><?= htmlspecialchars(Lang::t('student_phone')) ?></label>
             <input type="text" name="phone" class="form-control" value="<?= htmlspecialchars($student['phone']) ?>" required>
         </div>
+    </div>
+    <div class="mb-3">
+        <label class="form-label"><?= htmlspecialchars(Lang::t('apply_photo_label')) ?></label>
+        <input type="file" name="photo" class="form-control" accept="image/jpeg,image/png,image/webp">
+        <div class="form-text"><?= htmlspecialchars(Lang::t('apply_photo_hint')) ?></div>
     </div>
     <div class="mb-3">
         <label class="form-label"><?= htmlspecialchars(Lang::t('student_new_password')) ?></label>

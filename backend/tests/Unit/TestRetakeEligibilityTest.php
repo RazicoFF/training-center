@@ -67,8 +67,9 @@ final class TestRetakeEligibilityTest extends TestCase
         $this->assertTrue($result['eligible']);
     }
 
-    public function testExpiredThirtyDaysAfterFirstFailedAttempt(): void
+    public function testStillEligibleThirtyDaysAfterFirstFailedAttempt(): void
     {
+        // No expiry on the retake window - only the 14-day minimum wait and the 2-attempt cap.
         $pdo = Database::pdo();
         $thirtyDaysAgo = (new \DateTimeImmutable('-30 days'))->format('Y-m-d H:i:s');
         $pdo->prepare('INSERT INTO test_attempts (user_id, test_id, score, passed, attempted_at) VALUES (?, ?, 40, 0, ?)')
@@ -77,8 +78,7 @@ final class TestRetakeEligibilityTest extends TestCase
         $repo = new TestRepository();
         $result = $repo->retakeEligibility($this->userId, $this->testId);
 
-        $this->assertFalse($result['eligible']);
-        $this->assertSame('expired', $result['reason']);
+        $this->assertTrue($result['eligible']);
     }
 
     public function testNotEligibleAfterTwoAttempts(): void
