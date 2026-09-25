@@ -7,6 +7,9 @@ use App\Core\Csrf;
 use App\Core\Lang;
 ?>
 <h1 class="h4 mb-3"><?= htmlspecialchars($student['full_name']) ?></h1>
+<?php if (!empty($student['photo_url'])): ?>
+    <img src="<?= htmlspecialchars($student['photo_url']) ?>" alt="" style="width:96px;height:128px;object-fit:cover;border-radius:8px;" class="mb-3">
+<?php endif; ?>
 <form method="post" action="/admin/students/<?= (int) $student['id'] ?>" class="mb-4">
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
     <div class="row">

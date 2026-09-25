@@ -10,23 +10,42 @@ final class GroupRepository
 {
     public function all(): array
     {
-        $sql = 'SELECT g.*, p.name_uz AS profession_name_uz, t.full_name AS teacher_name,
+        $sql = 'SELECT g.*, p.name_uz AS profession_name_uz, t.full_name AS teacher_name, b.name AS brand_name,
                        (SELECT COUNT(*) FROM enrollments e WHERE e.group_id = g.id AND e.status = "active") AS student_count
                 FROM `groups` g
                 JOIN professions p ON p.id = g.profession_id
                 LEFT JOIN users t ON t.id = g.teacher_id
+                LEFT JOIN profession_brands b ON b.id = g.brand_id
                 ORDER BY g.start_date DESC';
 
         return Database::pdo()->query($sql)->fetchAll();
     }
 
+    public function allForTeacher(int $teacherId): array
+    {
+        $sql = 'SELECT g.*, p.name_uz AS profession_name_uz, t.full_name AS teacher_name, b.name AS brand_name,
+                       (SELECT COUNT(*) FROM enrollments e WHERE e.group_id = g.id AND e.status = "active") AS student_count
+                FROM `groups` g
+                JOIN professions p ON p.id = g.profession_id
+                LEFT JOIN users t ON t.id = g.teacher_id
+                LEFT JOIN profession_brands b ON b.id = g.brand_id
+                WHERE g.teacher_id = ?
+                ORDER BY g.start_date DESC';
+
+        $stmt = Database::pdo()->prepare($sql);
+        $stmt->execute([$teacherId]);
+
+        return $stmt->fetchAll();
+    }
+
     public function find(int $id): ?array
     {
         $stmt = Database::pdo()->prepare(
-            'SELECT g.*, p.name_uz AS profession_name_uz, t.full_name AS teacher_name
+            'SELECT g.*, p.name_uz AS profession_name_uz, t.full_name AS teacher_name, b.name AS brand_name
              FROM `groups` g
              JOIN professions p ON p.id = g.profession_id
              LEFT JOIN users t ON t.id = g.teacher_id
+             LEFT JOIN profession_brands b ON b.id = g.brand_id
              WHERE g.id = ?'
         );
         $stmt->execute([$id]);
@@ -35,12 +54,12 @@ final class GroupRepository
         return $row === false ? null : $row;
     }
 
-    public function create(int $professionId, ?int $teacherId, string $name, string $startDate, string $endDate): int
+    public function create(int $professionId, ?int $teacherId, string $name, string $startDate, string $endDate, ?int $brandId = null): int
     {
         $stmt = Database::pdo()->prepare(
-            'INSERT INTO `groups` (profession_id, teacher_id, name, start_date, end_date) VALUES (?, ?, ?, ?, ?)'
+            'INSERT INTO `groups` (profession_id, teacher_id, name, start_date, end_date, brand_id) VALUES (?, ?, ?, ?, ?, ?)'
         );
-        $stmt->execute([$professionId, $teacherId, $name, $startDate, $endDate]);
+        $stmt->execute([$professionId, $teacherId, $name, $startDate, $endDate, $brandId]);
 
         return (int) Database::pdo()->lastInsertId();
     }
@@ -101,11 +120,38 @@ final class GroupRepository
         $stmt->execute([$status, $enrollmentId]);
     }
 
-    public function update(int $id, ?int $teacherId, string $name, string $startDate, string $endDate): void
+    /**
+     * Marks every active enrollment this user has in a group for the given profession as
+     * completed - used when a student has passed every test for their profession.
+     */
+    public function completeEnrollmentsForProfession(int $userId, int $professionId): void
     {
         $stmt = Database::pdo()->prepare(
-            'UPDATE `groups` SET teacher_id = ?, name = ?, start_date = ?, end_date = ? WHERE id = ?'
+            "UPDATE enrollments e
+             JOIN `groups` g ON g.id = e.group_id
+             SET e.status = 'completed'
+             WHERE e.user_id = ? AND g.profession_id = ? AND e.status = 'active'"
         );
-        $stmt->execute([$teacherId, $name, $startDate, $endDate, $id]);
+        $stmt->execute([$userId, $professionId]);
+    }
+
+    public function update(int $id, ?int $teacherId, string $name, string $startDate, string $endDate, ?int $brandId = null): void
+    {
+        $stmt = Database::pdo()->prepare(
+            'UPDATE `groups` SET teacher_id = ?, name = ?, start_date = ?, end_date = ?, brand_id = ? WHERE id = ?'
+        );
+        $stmt->execute([$teacherId, $name, $startDate, $endDate, $brandId, $id]);
+    }
+
+    public function isStudentTaughtByTeacher(int $studentId, int $teacherId): bool
+    {
+        $stmt = Database::pdo()->prepare(
+            'SELECT COUNT(*) FROM enrollments e
+             JOIN `groups` g ON g.id = e.group_id
+             WHERE e.user_id = ? AND g.teacher_id = ?'
+        );
+        $stmt->execute([$studentId, $teacherId]);
+
+        return (int) $stmt->fetchColumn() > 0;
     }
 }

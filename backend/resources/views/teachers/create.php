@@ -26,6 +26,10 @@ use App\Core\Lang;
             <input type="number" name="age" class="form-control" min="0">
         </div>
         <div class="col-md-4 mb-3">
+            <label class="form-label"><?= htmlspecialchars(Lang::t('teacher_birth_date')) ?></label>
+            <input type="date" name="birth_date" class="form-control">
+        </div>
+        <div class="col-md-4 mb-3">
             <label class="form-label"><?= htmlspecialchars(Lang::t('teacher_experience')) ?></label>
             <input type="number" name="experience_years" class="form-control" min="0">
         </div>

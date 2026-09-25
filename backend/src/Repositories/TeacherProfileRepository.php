@@ -8,6 +8,19 @@ use App\Core\Database;
 
 final class TeacherProfileRepository
 {
+    private const COLUMNS = [
+        'age',
+        'birth_date',
+        'experience_years',
+        'skills_uz',
+        'skills_ru',
+        'education_uz',
+        'education_ru',
+        'telegram',
+        'email',
+        'photo_url',
+    ];
+
     public function findByUserId(int $userId): ?array
     {
         $stmt = Database::pdo()->prepare('SELECT * FROM teacher_profiles WHERE user_id = ?');
@@ -26,7 +39,7 @@ final class TeacherProfileRepository
     {
         $stmt = Database::pdo()->query(
             'SELECT u.id AS user_id, u.full_name,
-                    tp.age, tp.experience_years, tp.skills_uz, tp.skills_ru,
+                    tp.age, tp.birth_date, tp.experience_years, tp.skills_uz, tp.skills_ru,
                     tp.education_uz, tp.education_ru, tp.telegram, tp.email, tp.photo_url
              FROM users u
              LEFT JOIN teacher_profiles tp ON tp.user_id = u.id
@@ -44,20 +57,8 @@ final class TeacherProfileRepository
      */
     public function upsert(int $userId, array $fields): void
     {
-        $columns = [
-            'age',
-            'experience_years',
-            'skills_uz',
-            'skills_ru',
-            'education_uz',
-            'education_ru',
-            'telegram',
-            'email',
-            'photo_url',
-        ];
-
         $values = [];
-        foreach ($columns as $column) {
+        foreach (self::COLUMNS as $column) {
             $values[$column] = $fields[$column] ?? null;
         }
 
@@ -65,12 +66,13 @@ final class TeacherProfileRepository
 
         if ($existing === null) {
             $stmt = Database::pdo()->prepare(
-                'INSERT INTO teacher_profiles (user_id, age, experience_years, skills_uz, skills_ru, education_uz, education_ru, telegram, email, photo_url)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+                'INSERT INTO teacher_profiles (user_id, age, birth_date, experience_years, skills_uz, skills_ru, education_uz, education_ru, telegram, email, photo_url)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
             );
             $stmt->execute([
                 $userId,
                 $values['age'],
+                $values['birth_date'],
                 $values['experience_years'],
                 $values['skills_uz'],
                 $values['skills_ru'],
@@ -85,10 +87,11 @@ final class TeacherProfileRepository
         }
 
         $stmt = Database::pdo()->prepare(
-            'UPDATE teacher_profiles SET age = ?, experience_years = ?, skills_uz = ?, skills_ru = ?, education_uz = ?, education_ru = ?, telegram = ?, email = ?, photo_url = ? WHERE user_id = ?'
+            'UPDATE teacher_profiles SET age = ?, birth_date = ?, experience_years = ?, skills_uz = ?, skills_ru = ?, education_uz = ?, education_ru = ?, telegram = ?, email = ?, photo_url = ? WHERE user_id = ?'
         );
         $stmt->execute([
             $values['age'],
+            $values['birth_date'],
             $values['experience_years'],
             $values['skills_uz'],
             $values['skills_ru'],
@@ -99,5 +102,19 @@ final class TeacherProfileRepository
             $values['photo_url'],
             $userId,
         ]);
+    }
+
+    /**
+     * Teacher user ids who teach at least one group in the given profession,
+     * for the admin teachers list's profession filter.
+     */
+    public function teacherIdsForProfession(int $professionId): array
+    {
+        $stmt = Database::pdo()->prepare(
+            "SELECT DISTINCT g.teacher_id FROM `groups` g WHERE g.profession_id = ? AND g.teacher_id IS NOT NULL"
+        );
+        $stmt->execute([$professionId]);
+
+        return array_map('intval', $stmt->fetchAll(\PDO::FETCH_COLUMN));
     }
 }

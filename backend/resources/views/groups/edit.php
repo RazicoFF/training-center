@@ -1,6 +1,7 @@
 <?php
 /** @var array $group */
 /** @var array $teachers */
+/** @var array $brandsForProfession */
 use App\Core\Csrf;
 use App\Core\Lang;
 ?>
@@ -11,6 +12,17 @@ use App\Core\Lang;
         <label class="form-label"><?= htmlspecialchars(Lang::t('group_name')) ?></label>
         <input type="text" name="name" class="form-control" value="<?= htmlspecialchars($group['name']) ?>" required>
     </div>
+    <?php if ($brandsForProfession !== []): ?>
+    <div class="mb-3">
+        <label class="form-label"><?= htmlspecialchars(Lang::t('brand_field_label')) ?></label>
+        <select name="brand_id" class="form-select">
+            <option value="">-</option>
+            <?php foreach ($brandsForProfession as $b): ?>
+                <option value="<?= (int) $b['id'] ?>" <?= (int) ($group['brand_id'] ?? 0) === (int) $b['id'] ? 'selected' : '' ?>><?= htmlspecialchars($b['name']) ?></option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <?php endif; ?>
     <div class="mb-3">
         <label class="form-label"><?= htmlspecialchars(Lang::t('group_teacher')) ?></label>
         <select name="teacher_id" class="form-select">

@@ -77,7 +77,9 @@ final class HomeController
             return ['rendered' => true];
         }
 
-        $this->applications->create($fullName, $phone, $professionId, $brandId);
+        $photoUrl = $this->handlePhotoUpload();
+
+        $this->applications->create($fullName, $phone, $professionId, $brandId, $photoUrl);
 
         SiteView::render('site/apply', [
             'professions' => $this->professions->all(),
@@ -86,5 +88,31 @@ final class HomeController
             'submitted' => true,
         ]);
         return ['rendered' => true];
+    }
+
+    private function handlePhotoUpload(): ?string
+    {
+        $uploadedPhoto = $_FILES['photo'] ?? null;
+        if (!is_array($uploadedPhoto) || ($uploadedPhoto['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            return null;
+        }
+
+        $extension = strtolower((string) pathinfo((string) $uploadedPhoto['name'], PATHINFO_EXTENSION));
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+        if (!in_array($extension, $allowedExtensions, true)) {
+            return null;
+        }
+
+        $uploadDir = dirname(__DIR__, 3) . '/public/uploads/applications';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0775, true);
+        }
+
+        $filename = 'application-' . bin2hex(random_bytes(8)) . '.' . $extension;
+        if (!move_uploaded_file((string) $uploadedPhoto['tmp_name'], $uploadDir . '/' . $filename)) {
+            return null;
+        }
+
+        return '/uploads/applications/' . $filename;
     }
 }

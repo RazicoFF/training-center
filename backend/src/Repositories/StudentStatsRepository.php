@@ -47,10 +47,18 @@ final class StudentStatsRepository
      * render everything without N+1 queries.
      *
      * @param string|null $stat one of 'studying'|'completed'|'dropped'|'in_exam', or null for all students
+     * @param int|null $teacherId when given, restricts to students enrolled in a group taught
+     *                            by this teacher (the teacher-portal scope)
      */
-    public function list(?string $q = null, ?int $groupId = null, ?string $stat = null): array
-    {
-        $sql = "SELECT u.id, u.full_name, u.phone,
+    public function list(
+        ?string $q = null,
+        ?int $groupId = null,
+        ?string $stat = null,
+        ?int $professionId = null,
+        ?int $brandId = null,
+        ?int $teacherId = null
+    ): array {
+        $sql = "SELECT u.id, u.full_name, u.phone, u.photo_url,
                     (SELECT GROUP_CONCAT(DISTINCT g.name SEPARATOR ', ')
                        FROM enrollments e JOIN `groups` g ON g.id = e.group_id
                       WHERE e.user_id = u.id) AS group_names,
@@ -72,6 +80,30 @@ final class StudentStatsRepository
         if ($groupId !== null) {
             $sql .= ' AND EXISTS (SELECT 1 FROM enrollments e2 WHERE e2.user_id = u.id AND e2.group_id = ?)';
             $params[] = $groupId;
+        }
+
+        if ($professionId !== null) {
+            $sql .= ' AND EXISTS (
+                SELECT 1 FROM enrollments e4 JOIN `groups` g4 ON g4.id = e4.group_id
+                WHERE e4.user_id = u.id AND g4.profession_id = ?
+            )';
+            $params[] = $professionId;
+        }
+
+        if ($brandId !== null) {
+            $sql .= ' AND EXISTS (
+                SELECT 1 FROM enrollments e5 JOIN `groups` g5 ON g5.id = e5.group_id
+                WHERE e5.user_id = u.id AND g5.brand_id = ?
+            )';
+            $params[] = $brandId;
+        }
+
+        if ($teacherId !== null) {
+            $sql .= ' AND EXISTS (
+                SELECT 1 FROM enrollments e6 JOIN `groups` g6 ON g6.id = e6.group_id
+                WHERE e6.user_id = u.id AND g6.teacher_id = ?
+            )';
+            $params[] = $teacherId;
         }
 
         switch ($stat) {

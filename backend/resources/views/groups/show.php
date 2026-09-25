@@ -9,7 +9,7 @@ use App\Core\Lang;
     <h1 class="h4 mb-0"><?= htmlspecialchars($group['name']) ?></h1>
     <a href="/admin/groups/<?= (int) $group['id'] ?>/edit" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('teacher_edit')) ?></a>
 </div>
-<p><?= htmlspecialchars($group['profession_name_uz']) ?> — <?= htmlspecialchars($group['teacher_name'] ?? '-') ?></p>
+<p><?= htmlspecialchars($group['profession_name_uz']) ?><?php if (!empty($group['brand_name'])): ?> (<?= htmlspecialchars($group['brand_name']) ?>)<?php endif; ?> — <?= htmlspecialchars($group['teacher_name'] ?? '-') ?></p>
 
 <h2 class="h6">Talabalar</h2>
 <ul class="list-group mb-4">

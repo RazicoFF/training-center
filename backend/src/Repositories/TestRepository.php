@@ -44,6 +44,72 @@ final class TestRepository
         return true;
     }
 
+    /**
+     * A student gets one free attempt, then - if it failed - exactly one retake, which only
+     * opens 14 days after the first attempt and closes 14 days after that (28 days total).
+     * Missing that window, or already having 2 attempts, means no more free attempts: the
+     * student has to re-enroll (and re-pay) to reset.
+     *
+     * @return array{eligible:bool, reason:string|null, availableAt:string|null}
+     */
+    public function retakeEligibility(int $userId, int $testId): array
+    {
+        $stmt = Database::pdo()->prepare(
+            'SELECT attempted_at FROM test_attempts WHERE user_id = ? AND test_id = ? ORDER BY attempted_at ASC'
+        );
+        $stmt->execute([$userId, $testId]);
+        $attempts = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+
+        if (count($attempts) === 0) {
+            return ['eligible' => true, 'reason' => null, 'availableAt' => null];
+        }
+
+        if (count($attempts) >= 2) {
+            return ['eligible' => false, 'reason' => 'max_attempts', 'availableAt' => null];
+        }
+
+        $firstAttempt = new \DateTimeImmutable((string) $attempts[0]);
+        $retakeOpensAt = $firstAttempt->modify('+14 days');
+        $retakeClosesAt = $firstAttempt->modify('+28 days');
+        $now = new \DateTimeImmutable();
+
+        if ($now < $retakeOpensAt) {
+            return ['eligible' => false, 'reason' => 'too_early', 'availableAt' => $retakeOpensAt->format('Y-m-d H:i:s')];
+        }
+
+        if ($now > $retakeClosesAt) {
+            return ['eligible' => false, 'reason' => 'expired', 'availableAt' => null];
+        }
+
+        return ['eligible' => true, 'reason' => null, 'availableAt' => null];
+    }
+
+    /**
+     * True once a user has passed every test that exists for a profession - used to
+     * automatically mark their enrollment(s) in that profession as completed.
+     */
+    public function allTestsPassedForProfession(int $userId, int $professionId): bool
+    {
+        $totalStmt = Database::pdo()->prepare('SELECT COUNT(*) FROM tests WHERE profession_id = ?');
+        $totalStmt->execute([$professionId]);
+        $total = (int) $totalStmt->fetchColumn();
+
+        if ($total === 0) {
+            return false;
+        }
+
+        $passedStmt = Database::pdo()->prepare(
+            'SELECT COUNT(DISTINCT ta.test_id)
+             FROM test_attempts ta
+             JOIN tests t ON t.id = ta.test_id
+             WHERE ta.user_id = ? AND ta.passed = 1 AND t.profession_id = ?'
+        );
+        $passedStmt->execute([$userId, $professionId]);
+        $passed = (int) $passedStmt->fetchColumn();
+
+        return $passed >= $total;
+    }
+
     public function attemptsForTest(int $testId): array
     {
         $stmt = Database::pdo()->prepare(

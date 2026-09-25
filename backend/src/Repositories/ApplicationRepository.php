@@ -13,12 +13,12 @@ final class ApplicationRepository
     {
     }
 
-    public function create(string $fullName, string $phone, int $professionId, ?int $brandId = null): int
+    public function create(string $fullName, string $phone, int $professionId, ?int $brandId = null, ?string $photoUrl = null): int
     {
         $stmt = Database::pdo()->prepare(
-            'INSERT INTO applications (full_name, phone, profession_id, brand_id) VALUES (?, ?, ?, ?)'
+            'INSERT INTO applications (full_name, phone, profession_id, brand_id, photo_url) VALUES (?, ?, ?, ?, ?)'
         );
-        $stmt->execute([$fullName, $phone, $professionId, $brandId]);
+        $stmt->execute([$fullName, $phone, $professionId, $brandId, $photoUrl]);
 
         return (int) Database::pdo()->lastInsertId();
     }
@@ -52,6 +52,10 @@ final class ApplicationRepository
                 Auth::hashPassword($temporaryPassword),
                 'student'
             );
+
+            if (!empty($application['photo_url'])) {
+                $this->users->updatePhoto($userId, $application['photo_url']);
+            }
 
             $stmt = $pdo->prepare(
                 "UPDATE applications SET status = 'approved', created_user_id = ? WHERE id = ?"

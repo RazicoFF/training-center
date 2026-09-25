@@ -68,6 +68,11 @@ body {
     letter-spacing: 0.03em;
 }
 
+.tc-nav-sep {
+    opacity: 0.35;
+    font-size: 0.82rem;
+}
+
 .tc-site-nav .nav-link:hover,
 .tc-site-nav .nav-link.fw-bold {
     color: var(--tc-primary);

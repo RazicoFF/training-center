@@ -25,8 +25,14 @@ final class DashboardController
 
     private function index(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        $claims = AdminAuthMiddleware::authenticate();
+        if ($claims === null) {
             return ['redirect' => '/admin/login'];
+        }
+
+        // A teacher's home is their own groups, not the center-wide dashboard.
+        if ($claims['role'] === 'teacher') {
+            return ['redirect' => '/admin/groups'];
         }
 
         $pdo = Database::pdo();

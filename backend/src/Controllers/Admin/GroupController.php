@@ -11,6 +11,7 @@ use App\Core\Router;
 use App\Core\View;
 use App\Middleware\AdminAuthMiddleware;
 use App\Repositories\GroupRepository;
+use App\Repositories\ProfessionBrandRepository;
 use App\Repositories\ProfessionRepository;
 use App\Repositories\TeacherRepository;
 use App\Services\ScheduleGenerator;
@@ -22,6 +23,7 @@ final class GroupController
         private readonly GroupRepository $groups = new GroupRepository(),
         private readonly ProfessionRepository $professions = new ProfessionRepository(),
         private readonly TeacherRepository $teachers = new TeacherRepository(),
+        private readonly ProfessionBrandRepository $brands = new ProfessionBrandRepository(),
         private readonly ScheduleGenerator $scheduleGenerator = new ScheduleGenerator()
     ) {
     }
@@ -40,23 +42,29 @@ final class GroupController
 
     private function index(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        $claims = AdminAuthMiddleware::authenticate();
+        if ($claims === null) {
             return ['redirect' => '/admin/login'];
         }
 
-        View::render('groups/index', ['groups' => $this->groups->all()]);
+        $groups = $claims['role'] === 'teacher'
+            ? $this->groups->allForTeacher($claims['user_id'])
+            : $this->groups->all();
+
+        View::render('groups/index', ['groups' => $groups]);
         return ['rendered' => true];
     }
 
     private function createForm(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
             return ['redirect' => '/admin/login'];
         }
 
         View::render('groups/create', [
             'professions' => $this->professions->all(),
             'teachers' => $this->teachers->all(),
+            'brandsByProfession' => $this->brands->allGroupedByProfession(),
         ]);
         return ['rendered' => true];
     }
@@ -74,6 +82,7 @@ final class GroupController
 
         $professionId = (int) ($body['profession_id'] ?? 0);
         $teacherId = ($body['teacher_id'] ?? '') !== '' ? (int) $body['teacher_id'] : null;
+        $brandId = ($body['brand_id'] ?? '') !== '' ? (int) $body['brand_id'] : null;
         $name = trim((string) ($body['name'] ?? ''));
         $startDate = (string) ($body['start_date'] ?? '');
         $endDate = (string) ($body['end_date'] ?? '');
@@ -86,7 +95,7 @@ final class GroupController
             return ['redirect' => '/admin/groups/create', 'flash' => 'Barcha maydonlarni to\'ldiring'];
         }
 
-        $groupId = $this->groups->create($professionId, $teacherId, $name, $startDate, $endDate);
+        $groupId = $this->groups->create($professionId, $teacherId, $name, $startDate, $endDate, $brandId);
 
         $template = array_map(
             static fn (int $weekday) => ['weekday' => $weekday, 'start_time' => $startTime . ':00', 'end_time' => $endTime . ':00', 'room' => $room],
@@ -100,13 +109,20 @@ final class GroupController
 
     private function show(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        $claims = AdminAuthMiddleware::authenticate();
+        if ($claims === null) {
             return ['redirect' => '/admin/login'];
         }
 
         $group = $this->groups->find((int) $request->param('id'));
 
         if ($group === null) {
+            http_response_code(404);
+            echo '<h1>404</h1>';
+            return ['rendered' => true];
+        }
+
+        if ($claims['role'] === 'teacher' && (int) ($group['teacher_id'] ?? 0) !== $claims['user_id']) {
             http_response_code(404);
             echo '<h1>404</h1>';
             return ['rendered' => true];
@@ -143,7 +159,7 @@ final class GroupController
 
     private function editForm(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
             return ['redirect' => '/admin/login'];
         }
 
@@ -158,6 +174,7 @@ final class GroupController
         View::render('groups/edit', [
             'group' => $group,
             'teachers' => $this->teachers->all(),
+            'brandsForProfession' => $this->brands->forProfession((int) $group['profession_id']),
         ]);
         return ['rendered' => true];
     }
@@ -181,6 +198,7 @@ final class GroupController
         }
 
         $teacherId = ($body['teacher_id'] ?? '') !== '' ? (int) $body['teacher_id'] : null;
+        $brandId = ($body['brand_id'] ?? '') !== '' ? (int) $body['brand_id'] : null;
         $name = trim((string) ($body['name'] ?? ''));
         $startDate = (string) ($body['start_date'] ?? '');
         $endDate = (string) ($body['end_date'] ?? '');
@@ -189,7 +207,7 @@ final class GroupController
             return ['redirect' => "/admin/groups/{$groupId}/edit", 'flash' => 'Barcha maydonlarni to\'ldiring'];
         }
 
-        $this->groups->update($groupId, $teacherId, $name, $startDate, $endDate);
+        $this->groups->update($groupId, $teacherId, $name, $startDate, $endDate, $brandId);
 
         return ['redirect' => "/admin/groups/{$groupId}", 'flash' => Lang::t('group_updated')];
     }

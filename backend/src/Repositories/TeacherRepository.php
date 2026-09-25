@@ -14,19 +14,27 @@ final class TeacherRepository
         return $stmt->fetchAll();
     }
 
-    public function search(?string $q = null): array
+    public function search(?string $q = null, ?int $professionId = null): array
     {
-        $sql = "SELECT id, full_name, phone, created_at FROM users WHERE role = 'teacher'";
+        $sql = "SELECT u.id, u.full_name, u.phone, u.created_at, tp.photo_url
+                FROM users u
+                LEFT JOIN teacher_profiles tp ON tp.user_id = u.id
+                WHERE u.role = 'teacher'";
         $params = [];
 
         if ($q !== null && $q !== '') {
-            $sql .= ' AND (full_name LIKE ? OR phone LIKE ?)';
+            $sql .= ' AND (u.full_name LIKE ? OR u.phone LIKE ?)';
             $like = '%' . $q . '%';
             $params[] = $like;
             $params[] = $like;
         }
 
-        $sql .= ' ORDER BY full_name';
+        if ($professionId !== null) {
+            $sql .= ' AND u.id IN (SELECT DISTINCT teacher_id FROM `groups` WHERE profession_id = ? AND teacher_id IS NOT NULL)';
+            $params[] = $professionId;
+        }
+
+        $sql .= ' ORDER BY u.full_name';
 
         $stmt = Database::pdo()->prepare($sql);
         $stmt->execute($params);

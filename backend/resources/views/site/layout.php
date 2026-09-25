@@ -27,17 +27,23 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
         </a>
         <div class="d-flex align-items-center gap-2 ms-auto">
             <a href="/" class="nav-link d-inline <?= $currentPath === '/' ? 'fw-bold' : '' ?>"><?= htmlspecialchars(Lang::t('site_nav_home')) ?></a>
+            <span class="tc-nav-sep text-muted">|</span>
             <a href="/teachers" class="nav-link d-inline <?= str_starts_with($currentPath, '/teachers') ? 'fw-bold' : '' ?>"><?= htmlspecialchars(Lang::t('site_nav_teachers')) ?></a>
+            <span class="tc-nav-sep text-muted">|</span>
             <a href="/media" class="nav-link d-inline <?= str_starts_with($currentPath, '/media') ? 'fw-bold' : '' ?>"><?= htmlspecialchars(Lang::t('nav_media')) ?></a>
+            <span class="tc-nav-sep text-muted">|</span>
             <a href="/apply" class="nav-link d-inline <?= str_starts_with($currentPath, '/apply') ? 'fw-bold' : '' ?>"><?= htmlspecialchars(Lang::t('site_nav_apply')) ?></a>
+            <span class="tc-nav-sep text-muted">|</span>
             <?php if ($isLoggedIn): ?>
                 <a href="/portal" class="nav-link d-inline <?= str_starts_with($currentPath, '/portal') ? 'fw-bold' : '' ?>"><?= htmlspecialchars(Lang::t('site_nav_portal')) ?></a>
+                <span class="tc-nav-sep text-muted">|</span>
                 <form method="post" action="/logout" class="d-inline">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
                     <button type="submit" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('logout')) ?></button>
                 </form>
             <?php else: ?>
                 <a href="/login" class="nav-link d-inline <?= str_starts_with($currentPath, '/login') ? 'fw-bold' : '' ?>"><?= htmlspecialchars(Lang::t('site_nav_login')) ?></a>
+                <span class="tc-nav-sep text-muted">|</span>
             <?php endif; ?>
             <form method="post" action="/lang" class="d-inline">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">

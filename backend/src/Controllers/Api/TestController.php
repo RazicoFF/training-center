@@ -9,12 +9,15 @@ use App\Core\Request;
 use App\Core\Router;
 use App\Middleware\AuthMiddleware;
 use App\Repositories\CertificateRepository;
+use App\Repositories\GroupRepository;
 use App\Repositories\TestRepository;
 
 final class TestController
 {
-    public function __construct(private readonly TestRepository $repository = new TestRepository())
-    {
+    public function __construct(
+        private readonly TestRepository $repository = new TestRepository(),
+        private readonly GroupRepository $groups = new GroupRepository()
+    ) {
     }
 
     public function register(Router $router): void
@@ -43,6 +46,11 @@ final class TestController
 
         $testId = (int) $request->param('id');
 
+        $eligibility = $this->repository->retakeEligibility($claims['user_id'], $testId);
+        if (!$eligibility['eligible']) {
+            return ['error' => ['code' => 'TEST_NOT_RETAKEABLE', 'message' => $eligibility['reason']], 'status' => 403];
+        }
+
         return ['questions' => $this->repository->questionsWithAnswers($testId, $claims['user_id'])];
     }
 
@@ -54,6 +62,12 @@ final class TestController
         }
 
         $testId = (int) $request->param('id');
+
+        $eligibility = $this->repository->retakeEligibility($claims['user_id'], $testId);
+        if (!$eligibility['eligible']) {
+            return ['error' => ['code' => 'TEST_NOT_RETAKEABLE', 'message' => $eligibility['reason']], 'status' => 403];
+        }
+
         $answers = $request->jsonBody()['answers'] ?? [];
 
         if (!is_array($answers)) {
@@ -94,6 +108,14 @@ final class TestController
                 }
             } catch (\Throwable $e) {
                 error_log('Certificate issuance failed: ' . $e->getMessage());
+            }
+
+            $professionStmt = Database::pdo()->prepare('SELECT profession_id FROM tests WHERE id = ?');
+            $professionStmt->execute([$testId]);
+            $professionId = (int) $professionStmt->fetchColumn();
+
+            if ($this->repository->allTestsPassedForProfession($claims['user_id'], $professionId)) {
+                $this->groups->completeEnrollmentsForProfession($claims['user_id'], $professionId);
             }
         }
 

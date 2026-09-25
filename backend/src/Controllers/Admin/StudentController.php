@@ -13,6 +13,8 @@ use App\Core\View;
 use App\Middleware\AdminAuthMiddleware;
 use App\Repositories\CertificateRepository;
 use App\Repositories\GroupRepository;
+use App\Repositories\ProfessionBrandRepository;
+use App\Repositories\ProfessionRepository;
 use App\Repositories\StudentStatsRepository;
 use App\Repositories\TestRepository;
 use App\Repositories\UserRepository;
@@ -24,7 +26,9 @@ final class StudentController
         private readonly GroupRepository $groups = new GroupRepository(),
         private readonly StudentStatsRepository $studentStats = new StudentStatsRepository(),
         private readonly TestRepository $tests = new TestRepository(),
-        private readonly CertificateRepository $certificates = new CertificateRepository()
+        private readonly CertificateRepository $certificates = new CertificateRepository(),
+        private readonly ProfessionRepository $professions = new ProfessionRepository(),
+        private readonly ProfessionBrandRepository $brands = new ProfessionBrandRepository()
     ) {
     }
 
@@ -40,20 +44,31 @@ final class StudentController
 
     private function index(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        $claims = AdminAuthMiddleware::authenticate();
+        if ($claims === null) {
             return ['redirect' => '/admin/login'];
         }
 
         $q = trim((string) ($_GET['q'] ?? ''));
         $groupId = ($_GET['group_id'] ?? '') !== '' ? (int) $_GET['group_id'] : null;
         $stat = ($_GET['stat'] ?? '') !== '' ? (string) $_GET['stat'] : null;
+        $professionId = ($_GET['profession_id'] ?? '') !== '' ? (int) $_GET['profession_id'] : null;
+        $brandId = ($_GET['brand_id'] ?? '') !== '' ? (int) $_GET['brand_id'] : null;
+
+        // A teacher only ever sees the students enrolled in a group they teach.
+        $teacherId = $claims['role'] === 'teacher' ? $claims['user_id'] : null;
+        $groups = $teacherId !== null ? $this->groups->allForTeacher($teacherId) : $this->groups->all();
 
         View::render('students/index', [
-            'students' => $this->studentStats->list($q !== '' ? $q : null, $groupId, $stat),
-            'groups' => $this->groups->all(),
+            'students' => $this->studentStats->list($q !== '' ? $q : null, $groupId, $stat, $professionId, $brandId, $teacherId),
+            'groups' => $groups,
+            'professions' => $this->professions->all(),
+            'brands' => $this->brands->all(),
             'q' => $q,
             'groupId' => $groupId,
             'stat' => $stat,
+            'professionId' => $professionId,
+            'brandId' => $brandId,
         ]);
         return ['rendered' => true];
     }
@@ -94,7 +109,8 @@ final class StudentController
 
     private function editForm(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        $claims = AdminAuthMiddleware::authenticate();
+        if ($claims === null) {
             return ['redirect' => '/admin/login'];
         }
 
@@ -102,6 +118,12 @@ final class StudentController
         $student = $this->users->find($studentId);
 
         if ($student === null || $student['role'] !== 'student') {
+            http_response_code(404);
+            echo '<h1>404</h1>';
+            return ['rendered' => true];
+        }
+
+        if ($claims['role'] === 'teacher' && !$this->groups->isStudentTaughtByTeacher($studentId, $claims['user_id'])) {
             http_response_code(404);
             echo '<h1>404</h1>';
             return ['rendered' => true];

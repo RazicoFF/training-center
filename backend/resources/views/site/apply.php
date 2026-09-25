@@ -18,7 +18,7 @@ $isRu = Lang::current() === 'ru';
     <?php if ($error): ?>
         <div class="alert alert-danger tc-alert"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
-    <form method="post" action="/apply" class="col-md-6">
+    <form method="post" action="/apply" class="col-md-6" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
         <div class="mb-3">
             <label class="form-label"><?= htmlspecialchars(Lang::t('student_name')) ?></label>
@@ -27,6 +27,11 @@ $isRu = Lang::current() === 'ru';
         <div class="mb-3">
             <label class="form-label"><?= htmlspecialchars(Lang::t('student_phone')) ?></label>
             <input type="text" name="phone" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label"><?= htmlspecialchars(Lang::t('apply_photo_label')) ?></label>
+            <input type="file" name="photo" class="form-control" accept=".jpg,.jpeg,.png,.webp">
+            <div class="form-text"><?= htmlspecialchars(Lang::t('apply_photo_hint')) ?></div>
         </div>
         <div class="mb-3">
             <label class="form-label"><?= htmlspecialchars(Lang::t('group_profession')) ?></label>

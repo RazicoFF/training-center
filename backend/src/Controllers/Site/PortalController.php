@@ -9,8 +9,10 @@ use App\Core\Database;
 use App\Core\Request;
 use App\Core\Router;
 use App\Core\SiteView;
+use App\Core\Lang;
 use App\Middleware\SiteAuthMiddleware;
 use App\Repositories\CertificateRepository;
+use App\Repositories\GroupRepository;
 use App\Repositories\ScheduleRepository;
 use App\Repositories\TestRepository;
 use App\Repositories\UserRepository;
@@ -21,7 +23,8 @@ final class PortalController
         private readonly UserRepository $users = new UserRepository(),
         private readonly ScheduleRepository $schedule = new ScheduleRepository(),
         private readonly TestRepository $tests = new TestRepository(),
-        private readonly CertificateRepository $certificates = new CertificateRepository()
+        private readonly CertificateRepository $certificates = new CertificateRepository(),
+        private readonly GroupRepository $groups = new GroupRepository()
     ) {
     }
 
@@ -85,6 +88,11 @@ final class PortalController
             return ['redirect' => '/portal/tests', 'flash' => 'Test hozircha yopiq'];
         }
 
+        $eligibility = $this->tests->retakeEligibility($claims['user_id'], $testId);
+        if (!$eligibility['eligible']) {
+            return ['redirect' => '/portal/tests', 'flash' => $this->retakeMessage($eligibility)];
+        }
+
         SiteView::render('site/portal/test_show', [
             'testId' => $testId,
             'questions' => $this->tests->questionsWithAnswers($testId, $claims['user_id']),
@@ -110,6 +118,11 @@ final class PortalController
 
         if ($test === null || !$this->tests->isOpenNow($test)) {
             return ['redirect' => '/portal/tests', 'flash' => 'Test hozircha yopiq'];
+        }
+
+        $eligibility = $this->tests->retakeEligibility($claims['user_id'], $testId);
+        if (!$eligibility['eligible']) {
+            return ['redirect' => '/portal/tests', 'flash' => $this->retakeMessage($eligibility)];
         }
 
         $answerIds = array_map('intval', array_values($body['answer_id'] ?? []));
@@ -140,6 +153,14 @@ final class PortalController
                 }
             } catch (\Throwable $e) {
                 error_log('Certificate issuance failed: ' . $e->getMessage());
+            }
+
+            $professionStmt = Database::pdo()->prepare('SELECT profession_id FROM tests WHERE id = ?');
+            $professionStmt->execute([$testId]);
+            $professionId = (int) $professionStmt->fetchColumn();
+
+            if ($this->tests->allTestsPassedForProfession($claims['user_id'], $professionId)) {
+                $this->groups->completeEnrollmentsForProfession($claims['user_id'], $professionId);
             }
         }
 
@@ -174,5 +195,18 @@ final class PortalController
         }
 
         return ['file' => $certificate['pdf_path']];
+    }
+
+    /**
+     * @param array{eligible:bool, reason:string|null, availableAt:string|null} $eligibility
+     */
+    private function retakeMessage(array $eligibility): string
+    {
+        return match ($eligibility['reason']) {
+            'too_early' => sprintf(Lang::t('test_retake_too_early'), (string) $eligibility['availableAt']),
+            'expired' => Lang::t('test_retake_expired'),
+            'max_attempts' => Lang::t('test_retake_max_attempts'),
+            default => Lang::t('test_retake_max_attempts'),
+        };
     }
 }
