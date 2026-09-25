@@ -34,6 +34,7 @@ final class ProfessionController
         $router->post('/admin/professions/{id}/videos/{videoId}/delete', fn (Request $req) => $this->deleteVideo($req));
         $router->post('/admin/professions/{id}/brands', fn (Request $req) => $this->addBrand($req));
         $router->post('/admin/professions/{id}/brands/{brandId}/delete', fn (Request $req) => $this->deleteBrand($req));
+        $router->post('/admin/professions/{id}/delete', fn (Request $req) => $this->delete($req));
     }
 
     private function index(Request $request): array
@@ -270,6 +271,33 @@ final class ProfessionController
         $this->brands->delete((int) $request->param('brandId'));
 
         return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('brand_deleted')];
+    }
+
+    private function delete(Request $request): array
+    {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $professionId = (int) $request->param('id');
+        $body = $request->formBody();
+        if (!Csrf::verify($body['csrf_token'] ?? null)) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        if ($this->professions->find($professionId) === null) {
+            http_response_code(404);
+            echo '<h1>404</h1>';
+            return ['rendered' => true];
+        }
+
+        if ($this->professions->hasDependents($professionId)) {
+            return ['redirect' => '/admin/professions', 'flash' => Lang::t('profession_has_dependents')];
+        }
+
+        $this->professions->delete($professionId);
+
+        return ['redirect' => '/admin/professions', 'flash' => Lang::t('profession_deleted')];
     }
 
     private function handlePdfUpload(int $professionId): ?string

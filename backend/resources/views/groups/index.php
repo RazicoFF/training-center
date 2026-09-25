@@ -1,5 +1,6 @@
 <?php
 /** @var array $groups */
+use App\Core\Csrf;
 use App\Core\Lang;
 ?>
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -16,7 +17,13 @@ use App\Core\Lang;
             <td><?= htmlspecialchars($g['brand_name'] ?? '-') ?></td>
             <td><?= htmlspecialchars($g['teacher_name'] ?? '-') ?></td>
             <td><?= (int) $g['student_count'] ?></td>
-            <td><a href="/admin/groups/<?= (int) $g['id'] ?>/edit" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('teacher_edit')) ?></a></td>
+            <td class="text-end">
+                <a href="/admin/groups/<?= (int) $g['id'] ?>/edit" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('teacher_edit')) ?></a>
+                <form method="post" action="/admin/groups/<?= (int) $g['id'] ?>/delete" class="d-inline" onsubmit="return confirm('<?= htmlspecialchars(Lang::t('group_delete_confirm')) ?>');">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
+                    <button type="submit" class="btn btn-sm btn-outline-danger"><?= htmlspecialchars(Lang::t('group_delete')) ?></button>
+                </form>
+            </td>
         </tr>
     <?php endforeach; ?>
     </tbody>

@@ -38,6 +38,7 @@ final class GroupController
         $router->post('/admin/groups/{id}/enroll', fn (Request $req) => $this->enroll($req));
         $router->get('/admin/groups/{id}/edit', fn (Request $req) => $this->editForm($req));
         $router->post('/admin/groups/{id}/edit', fn (Request $req) => $this->update($req));
+        $router->post('/admin/groups/{id}/delete', fn (Request $req) => $this->delete($req));
     }
 
     private function index(Request $request): array
@@ -210,5 +211,28 @@ final class GroupController
         $this->groups->update($groupId, $teacherId, $name, $startDate, $endDate, $brandId);
 
         return ['redirect' => "/admin/groups/{$groupId}", 'flash' => Lang::t('group_updated')];
+    }
+
+    private function delete(Request $request): array
+    {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $groupId = (int) $request->param('id');
+        $body = $request->formBody();
+        if (!Csrf::verify($body['csrf_token'] ?? null)) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        if ($this->groups->find($groupId) === null) {
+            http_response_code(404);
+            echo '<h1>404</h1>';
+            return ['rendered' => true];
+        }
+
+        $this->groups->delete($groupId);
+
+        return ['redirect' => '/admin/groups', 'flash' => Lang::t('group_deleted')];
     }
 }

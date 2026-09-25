@@ -11,6 +11,7 @@ use App\Core\Request;
 use App\Core\Router;
 use App\Core\View;
 use App\Middleware\AdminAuthMiddleware;
+use App\Repositories\GroupRepository;
 use App\Repositories\ProfessionRepository;
 use App\Repositories\TeacherProfileRepository;
 use App\Repositories\TeacherRepository;
@@ -22,7 +23,8 @@ final class TeacherController
         private readonly TeacherRepository $teachers = new TeacherRepository(),
         private readonly UserRepository $users = new UserRepository(),
         private readonly TeacherProfileRepository $profiles = new TeacherProfileRepository(),
-        private readonly ProfessionRepository $professions = new ProfessionRepository()
+        private readonly ProfessionRepository $professions = new ProfessionRepository(),
+        private readonly GroupRepository $groups = new GroupRepository()
     ) {
     }
 
@@ -33,6 +35,7 @@ final class TeacherController
         $router->post('/admin/teachers', fn (Request $req) => $this->create($req));
         $router->get('/admin/teachers/{id}/edit', fn (Request $req) => $this->editForm($req));
         $router->post('/admin/teachers/{id}', fn (Request $req) => $this->update($req));
+        $router->post('/admin/teachers/{id}/delete', fn (Request $req) => $this->delete($req));
     }
 
     private function index(Request $request): array
@@ -133,6 +136,32 @@ final class TeacherController
         $this->profiles->upsert($teacherId, $this->buildProfileFields($teacherId, $body, $existing));
 
         return ['redirect' => '/admin/teachers', 'flash' => Lang::t('teacher_updated')];
+    }
+
+    private function delete(Request $request): array
+    {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $teacherId = (int) $request->param('id');
+        $body = $request->formBody();
+        if (!Csrf::verify($body['csrf_token'] ?? null)) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $teacher = $this->users->find($teacherId);
+        if ($teacher === null || $teacher['role'] !== 'teacher') {
+            http_response_code(404);
+            echo '<h1>404</h1>';
+            return ['rendered' => true];
+        }
+
+        $this->groups->unassignTeacherFromGroups($teacherId);
+        $this->profiles->deleteByUserId($teacherId);
+        $this->users->delete($teacherId);
+
+        return ['redirect' => '/admin/teachers', 'flash' => Lang::t('teacher_deleted')];
     }
 
     /**

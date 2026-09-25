@@ -117,4 +117,10 @@ final class TeacherProfileRepository
 
         return array_map('intval', $stmt->fetchAll(\PDO::FETCH_COLUMN));
     }
+
+    public function deleteByUserId(int $userId): void
+    {
+        $stmt = Database::pdo()->prepare('DELETE FROM teacher_profiles WHERE user_id = ?');
+        $stmt->execute([$userId]);
+    }
 }

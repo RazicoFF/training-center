@@ -5,6 +5,7 @@
 /** @var string $q */
 /** @var int|null $professionId */
 /** @var int|null $year */
+use App\Core\Csrf;
 use App\Core\Lang;
 ?>
 <h1 class="h4 mb-3"><?= htmlspecialchars(Lang::t('certificates_title')) ?></h1>
@@ -41,7 +42,13 @@ use App\Core\Lang;
             <td><?= htmlspecialchars($c['profession_name_uz']) ?></td>
             <td><?= htmlspecialchars($c['certificate_number']) ?></td>
             <td><?= htmlspecialchars($c['issue_date']) ?></td>
-            <td><a href="/admin/certificates/<?= (int) $c['id'] ?>/download" class="btn btn-sm btn-outline-primary"><?= htmlspecialchars(Lang::t('certificate_download')) ?></a></td>
+            <td class="text-end">
+                <a href="/admin/certificates/<?= (int) $c['id'] ?>/download" class="btn btn-sm btn-outline-primary"><?= htmlspecialchars(Lang::t('certificate_download')) ?></a>
+                <form method="post" action="/admin/certificates/<?= (int) $c['id'] ?>/delete" class="d-inline" onsubmit="return confirm('<?= htmlspecialchars(Lang::t('certificate_delete_confirm')) ?>');">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
+                    <button type="submit" class="btn btn-sm btn-outline-danger"><?= htmlspecialchars(Lang::t('certificate_delete')) ?></button>
+                </form>
+            </td>
         </tr>
     <?php endforeach; ?>
     </tbody>

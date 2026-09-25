@@ -1,5 +1,6 @@
 <?php
 /** @var array $professions */
+use App\Core\Csrf;
 use App\Core\Lang;
 ?>
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -20,6 +21,10 @@ use App\Core\Lang;
                     <h2 class="h6"><?= htmlspecialchars($p['name_uz']) ?></h2>
                     <p class="text-muted small mb-2"><?= number_format((float) $p['price']) ?> UZS &middot; <?= (int) $p['duration_days'] ?> <?= htmlspecialchars(Lang::t('profession_days')) ?></p>
                     <a href="/admin/professions/<?= (int) $p['id'] ?>/edit" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('profession_edit')) ?></a>
+                    <form method="post" action="/admin/professions/<?= (int) $p['id'] ?>/delete" class="d-inline" onsubmit="return confirm('<?= htmlspecialchars(Lang::t('profession_delete_confirm')) ?>');">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
+                        <button type="submit" class="btn btn-sm btn-outline-danger"><?= htmlspecialchars(Lang::t('profession_delete')) ?></button>
+                    </form>
                 </div>
             </div>
         </div>

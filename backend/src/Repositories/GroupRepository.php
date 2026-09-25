@@ -154,4 +154,23 @@ final class GroupRepository
 
         return (int) $stmt->fetchColumn() > 0;
     }
+
+    /**
+     * Deleting a group also drops its schedule and enrollment rows - a student's test
+     * attempts and certificates are keyed by user+profession, not by group, so they
+     * survive their enrolling group being removed.
+     */
+    public function delete(int $id): void
+    {
+        $pdo = Database::pdo();
+        $pdo->prepare('DELETE FROM schedule WHERE group_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM enrollments WHERE group_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM `groups` WHERE id = ?')->execute([$id]);
+    }
+
+    public function unassignTeacherFromGroups(int $teacherId): void
+    {
+        $stmt = Database::pdo()->prepare('UPDATE `groups` SET teacher_id = NULL WHERE teacher_id = ?');
+        $stmt->execute([$teacherId]);
+    }
 }

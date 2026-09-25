@@ -3,6 +3,7 @@
 /** @var array $professions */
 /** @var string $q */
 /** @var int|null $professionId */
+use App\Core\Csrf;
 use App\Core\Lang;
 ?>
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -37,7 +38,13 @@ use App\Core\Lang;
             </td>
             <td><?= htmlspecialchars($t['full_name']) ?></td>
             <td><?= htmlspecialchars($t['phone']) ?></td>
-            <td class="text-end"><a href="/admin/teachers/<?= (int) $t['id'] ?>/edit" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('teacher_edit')) ?></a></td>
+            <td class="text-end">
+                <a href="/admin/teachers/<?= (int) $t['id'] ?>/edit" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('teacher_edit')) ?></a>
+                <form method="post" action="/admin/teachers/<?= (int) $t['id'] ?>/delete" class="d-inline" onsubmit="return confirm('<?= htmlspecialchars(Lang::t('teacher_delete_confirm')) ?>');">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
+                    <button type="submit" class="btn btn-sm btn-outline-danger"><?= htmlspecialchars(Lang::t('teacher_delete')) ?></button>
+                </form>
+            </td>
         </tr>
     <?php endforeach; ?>
     </tbody>
