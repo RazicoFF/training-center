@@ -155,7 +155,7 @@ return [
     'profession_deleted' => 'Kasb o\'chirildi',
     'profession_delete' => 'O\'chirish',
     'profession_delete_confirm' => 'Ushbu kasbni o\'chirmoqchimisiz?',
-    'profession_has_dependents' => 'Bu kasbga bog\'liq guruh, test, ariza yoki sertifikat mavjud - avval ularni o\'chiring.',
+    'profession_has_dependents' => 'Bu kasbga bog\'liq guruh, test yoki sertifikat mavjud - avval ularni o\'chiring.',
     'brand_deleted' => 'Marka o\'chirildi',
     'brand_name_required' => 'Marka nomini kiriting',
     'brand_field_label' => 'Texnika markasi',

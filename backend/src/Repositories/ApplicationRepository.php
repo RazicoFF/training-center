@@ -57,10 +57,10 @@ final class ApplicationRepository
                 $this->users->updatePhoto($userId, $application['photo_url']);
             }
 
-            $stmt = $pdo->prepare(
-                "UPDATE applications SET status = 'approved', created_user_id = ? WHERE id = ?"
-            );
-            $stmt->execute([$userId, $applicationId]);
+            // Approving turns the application into a real student account, so the
+            // application record itself no longer serves a purpose - remove it rather
+            // than keeping it around forever with status = 'approved'.
+            $pdo->prepare('DELETE FROM applications WHERE id = ?')->execute([$applicationId]);
 
             $pdo->commit();
         } catch (\Throwable $e) {

@@ -49,10 +49,15 @@ final class SiteApplyPhotoTest extends TestCase
             'password' => 'temppass1',
         ]));
 
-        $userId = (int) $pdo->query("SELECT created_user_id FROM applications WHERE id = {$applicationId}")->fetchColumn();
+        // Approving deletes the application record entirely, so look the new account up by
+        // the phone number instead of reading created_user_id off the (now gone) application.
+        $userId = (int) $pdo->query("SELECT id FROM users WHERE phone = '+998987770260'")->fetchColumn();
         $this->assertGreaterThan(0, $userId);
 
         $photoUrl = $pdo->query("SELECT photo_url FROM users WHERE id = {$userId}")->fetchColumn();
         $this->assertSame('/uploads/applications/sample.jpg', $photoUrl);
+
+        $applicationRemaining = $pdo->query("SELECT COUNT(*) FROM applications WHERE id = {$applicationId}")->fetchColumn();
+        $this->assertSame(0, (int) $applicationRemaining);
     }
 }

@@ -53,8 +53,10 @@ final class AdminApplicationsTest extends TestCase
         ]));
 
         $this->assertSame('/admin/applications', $result['redirect']);
-        $status = Database::pdo()->query("SELECT status FROM applications WHERE id = {$this->applicationId}")->fetchColumn();
-        $this->assertSame('approved', $status);
+        // Approving deletes the application record entirely rather than leaving it around
+        // with status = 'approved'.
+        $remaining = Database::pdo()->query("SELECT COUNT(*) FROM applications WHERE id = {$this->applicationId}")->fetchColumn();
+        $this->assertSame(0, (int) $remaining);
     }
 
     public function testApproveWithPhoneAlreadyRegisteredFlashRedirectsInsteadOf500(): void

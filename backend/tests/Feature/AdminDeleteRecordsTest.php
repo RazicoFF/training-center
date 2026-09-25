@@ -117,6 +117,28 @@ final class AdminDeleteRecordsTest extends TestCase
         $this->assertSame(1, (int) $stillExists);
     }
 
+    public function testProfessionWithOnlyAPendingApplicationCanStillBeDeleted(): void
+    {
+        $pdo = Database::pdo();
+        $pdo->prepare('INSERT INTO professions (name_uz, name_ru, description_uz, description_ru, duration_days, price) VALUES ("Deletable Prof With App", "Deletable Prof With App", "d", "d", 10, 100)')
+            ->execute();
+        $professionId = (int) $pdo->lastInsertId();
+        $pdo->prepare('INSERT INTO applications (full_name, phone, profession_id, status) VALUES ("App Owner", "+998987770282", ?, "pending")')
+            ->execute([$professionId]);
+        $applicationId = (int) $pdo->lastInsertId();
+
+        $router = new Router();
+        (new ProfessionController())->register($router);
+        $token = Csrf::token();
+
+        $router->dispatch(new Request('POST', "/admin/professions/{$professionId}/delete", [], [], [
+            'csrf_token' => $token,
+        ]));
+
+        $this->assertSame(0, (int) $pdo->query("SELECT COUNT(*) FROM professions WHERE id = {$professionId}")->fetchColumn());
+        $this->assertSame(0, (int) $pdo->query("SELECT COUNT(*) FROM applications WHERE id = {$applicationId}")->fetchColumn());
+    }
+
     public function testProfessionWithNoDependentsCanBeDeleted(): void
     {
         $pdo = Database::pdo();

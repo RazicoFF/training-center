@@ -36,9 +36,8 @@ final class ApplicationApprovalTest extends TestCase
         $this->assertNotNull($user);
         $this->assertSame($result['user_id'], (int) $user['id']);
 
-        $application = $repo->find($applicationId);
-        $this->assertSame('approved', $application['status']);
-        $this->assertSame($result['user_id'], (int) $application['created_user_id']);
+        // Approving deletes the application record entirely - it's now a real student account.
+        $this->assertNull($repo->find($applicationId));
     }
 
     public function testApprovingAlreadyApprovedApplicationThrows(): void
