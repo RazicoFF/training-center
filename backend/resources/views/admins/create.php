@@ -2,8 +2,8 @@
 use App\Core\Csrf;
 use App\Core\Lang;
 ?>
-<h1 class="h4 mb-3"><?= htmlspecialchars(Lang::t('student_create')) ?></h1>
-<form method="post" action="/admin/students" enctype="multipart/form-data">
+<h1 class="h4 mb-3"><?= htmlspecialchars(Lang::t('admin_user_create')) ?></h1>
+<form method="post" action="/admin/admins">
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
     <div class="mb-3">
         <label class="form-label"><?= htmlspecialchars(Lang::t('student_name')) ?></label>
@@ -17,10 +17,5 @@ use App\Core\Lang;
         <label class="form-label"><?= htmlspecialchars(Lang::t('student_password')) ?></label>
         <input type="password" name="password" class="form-control" minlength="6" required>
     </div>
-    <div class="mb-3">
-        <label class="form-label"><?= htmlspecialchars(Lang::t('apply_photo_label')) ?></label>
-        <input type="file" name="photo" class="form-control" accept="image/jpeg,image/png,image/webp">
-        <div class="form-text"><?= htmlspecialchars(Lang::t('apply_photo_hint')) ?></div>
-    </div>
-    <button type="submit" class="btn btn-primary"><?= htmlspecialchars(Lang::t('student_create')) ?></button>
+    <button type="submit" class="btn btn-primary"><?= htmlspecialchars(Lang::t('admin_user_create')) ?></button>
 </form>

@@ -204,7 +204,6 @@ final class PortalController
     {
         return match ($eligibility['reason']) {
             'too_early' => sprintf(Lang::t('test_retake_too_early'), (string) $eligibility['availableAt']),
-            'expired' => Lang::t('test_retake_expired'),
             'max_attempts' => Lang::t('test_retake_max_attempts'),
             default => Lang::t('test_retake_max_attempts'),
         };

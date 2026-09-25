@@ -19,6 +19,7 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
     <link href="/css/site.css" rel="stylesheet">
 </head>
 <body>
+<div class="tc-bg-fx" aria-hidden="true"></div>
 <nav class="navbar navbar-expand-lg tc-site-nav">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center gap-2" href="/">

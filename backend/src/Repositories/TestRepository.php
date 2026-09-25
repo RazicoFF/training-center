@@ -45,10 +45,10 @@ final class TestRepository
     }
 
     /**
-     * A student gets one free attempt, then - if it failed - exactly one retake, which only
-     * opens 14 days after the first attempt and closes 14 days after that (28 days total).
-     * Missing that window, or already having 2 attempts, means no more free attempts: the
-     * student has to re-enroll (and re-pay) to reset.
+     * A student gets exactly 2 attempts total at a test. The first attempt is free at any
+     * time; if it fails, the second (and final) attempt only opens 14 days later - with no
+     * expiry on that window. Failing the second attempt, or already having used both, means
+     * the student has to re-enroll (and re-pay) to get another chance.
      *
      * @return array{eligible:bool, reason:string|null, availableAt:string|null}
      */
@@ -70,15 +70,10 @@ final class TestRepository
 
         $firstAttempt = new \DateTimeImmutable((string) $attempts[0]);
         $retakeOpensAt = $firstAttempt->modify('+14 days');
-        $retakeClosesAt = $firstAttempt->modify('+28 days');
         $now = new \DateTimeImmutable();
 
         if ($now < $retakeOpensAt) {
             return ['eligible' => false, 'reason' => 'too_early', 'availableAt' => $retakeOpensAt->format('Y-m-d H:i:s')];
-        }
-
-        if ($now > $retakeClosesAt) {
-            return ['eligible' => false, 'reason' => 'expired', 'availableAt' => null];
         }
 
         return ['eligible' => true, 'reason' => null, 'availableAt' => null];

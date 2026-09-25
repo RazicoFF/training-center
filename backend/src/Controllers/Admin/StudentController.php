@@ -102,7 +102,12 @@ final class StudentController
             return ['redirect' => '/admin/students/create', 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring'];
         }
 
-        $this->users->create($fullName, $phone, Auth::hashPassword($password), 'student');
+        $studentId = $this->users->create($fullName, $phone, Auth::hashPassword($password), 'student');
+
+        $photoUrl = $this->uploadPhoto($studentId);
+        if ($photoUrl !== null) {
+            $this->users->updatePhoto($studentId, $photoUrl);
+        }
 
         return ['redirect' => '/admin/students', 'flash' => Lang::t('student_created')];
     }
@@ -166,6 +171,11 @@ final class StudentController
 
         $this->users->updateProfile($studentId, $fullName, $phone);
 
+        $photoUrl = $this->uploadPhoto($studentId);
+        if ($photoUrl !== null) {
+            $this->users->updatePhoto($studentId, $photoUrl);
+        }
+
         $newPassword = (string) ($body['password'] ?? '');
         if ($newPassword !== '') {
             if (strlen($newPassword) < 6) {
@@ -194,5 +204,31 @@ final class StudentController
         $this->groups->updateEnrollmentStatus($enrollmentId, $status);
 
         return ['redirect' => "/admin/students/{$studentId}/edit", 'flash' => Lang::t('student_updated')];
+    }
+
+    private function uploadPhoto(int $studentId): ?string
+    {
+        $uploadedPhoto = $_FILES['photo'] ?? null;
+        if (!is_array($uploadedPhoto) || ($uploadedPhoto['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            return null;
+        }
+
+        $extension = strtolower((string) pathinfo((string) $uploadedPhoto['name'], PATHINFO_EXTENSION));
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+        if (!in_array($extension, $allowedExtensions, true)) {
+            return null;
+        }
+
+        $uploadDir = dirname(__DIR__, 3) . '/public/uploads/students';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0775, true);
+        }
+
+        $filename = 'student-' . $studentId . '-' . bin2hex(random_bytes(8)) . '.' . $extension;
+        if (!move_uploaded_file((string) $uploadedPhoto['tmp_name'], $uploadDir . '/' . $filename)) {
+            return null;
+        }
+
+        return '/uploads/students/' . $filename;
     }
 }
