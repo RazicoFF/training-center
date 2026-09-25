@@ -67,10 +67,31 @@ final class SitePortalTest extends TestCase
         $this->assertStringContainsString('Portal Student', $html);
     }
 
-    public function testLoginRejectsNonStudentRole(): void
+    public function testLoginAcceptsTeacherAndRedirectsToAdminGroups(): void
     {
         Database::pdo()->exec("DELETE FROM users WHERE phone = '+998987770051'");
-        (new UserRepository())->create('Portal Teacher', '+998987770051', Auth::hashPassword('teachpass1'), 'teacher');
+        $teacherId = (new UserRepository())->create('Portal Teacher', '+998987770051', Auth::hashPassword('teachpass1'), 'teacher');
+
+        $router = new Router();
+        (new AuthController())->register($router);
+        $token = Csrf::token();
+
+        $result = $router->dispatch(new Request('POST', '/login', [], [], [
+            'csrf_token' => $token,
+            'phone' => '+998987770051',
+            'password' => 'teachpass1',
+        ]));
+
+        $this->assertSame(['redirect' => '/admin/groups'], $result);
+        $this->assertSame($teacherId, $_SESSION['admin_user_id']);
+        $this->assertSame('teacher', $_SESSION['admin_role']);
+        $this->assertArrayNotHasKey('site_user_id', $_SESSION);
+    }
+
+    public function testLoginRejectsAdminRole(): void
+    {
+        Database::pdo()->exec("DELETE FROM users WHERE phone = '+998987770052'");
+        (new UserRepository())->create('Portal Admin', '+998987770052', Auth::hashPassword('adminpass1'), 'admin');
 
         $router = new Router();
         (new AuthController())->register($router);
@@ -79,13 +100,14 @@ final class SitePortalTest extends TestCase
         ob_start();
         $result = $router->dispatch(new Request('POST', '/login', [], [], [
             'csrf_token' => $token,
-            'phone' => '+998987770051',
-            'password' => 'teachpass1',
+            'phone' => '+998987770052',
+            'password' => 'adminpass1',
         ]));
         ob_end_clean();
 
         $this->assertSame(['rendered' => true], $result);
         $this->assertArrayNotHasKey('site_user_id', $_SESSION);
+        $this->assertArrayNotHasKey('admin_user_id', $_SESSION);
     }
 
     public function testClosedTestCannotBeOpenedOrSubmitted(): void
