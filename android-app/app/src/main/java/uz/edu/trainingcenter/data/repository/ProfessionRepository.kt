@@ -18,9 +18,15 @@ class ProfessionRepository(
         return safeApiCall(sessionManager) { api.getProfessionDetail(professionId) }
     }
 
-    suspend fun submitApplication(fullName: String, phone: String, professionId: Int): Result<Unit> {
+    suspend fun submitApplication(
+        fullName: String,
+        phone: String,
+        professionId: Int,
+        brandId: Int? = null,
+        photoBase64: String? = null
+    ): Result<Unit> {
         return safeApiCall(sessionManager) {
-            api.submitApplication(ApplicationRequest(fullName, phone, professionId))
+            api.submitApplication(ApplicationRequest(fullName, phone, professionId, brandId, photoBase64))
         }.map { }
     }
 }

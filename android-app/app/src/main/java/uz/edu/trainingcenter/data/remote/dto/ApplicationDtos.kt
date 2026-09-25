@@ -7,7 +7,9 @@ import com.squareup.moshi.JsonClass
 data class ApplicationRequest(
     @Json(name = "full_name") val fullName: String,
     val phone: String,
-    @Json(name = "profession_id") val professionId: Int
+    @Json(name = "profession_id") val professionId: Int,
+    @Json(name = "brand_id") val brandId: Int? = null,
+    @Json(name = "photo_base64") val photoBase64: String? = null
 )
 
 @JsonClass(generateAdapter = true)

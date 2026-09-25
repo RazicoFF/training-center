@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Newspaper
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Quiz
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.material.icons.filled.WorkspacePremium
@@ -24,6 +25,7 @@ private val tabs = listOf(
     BottomTab(Routes.TESTS_LIST, R.string.tab_tests, Icons.Filled.Quiz),
     BottomTab(Routes.CERTIFICATES, R.string.tab_certificates, Icons.Filled.WorkspacePremium),
     BottomTab(Routes.NEWS_LIST, R.string.tab_news, Icons.Filled.Newspaper),
+    BottomTab(Routes.MEDIA_LIST, R.string.tab_media, Icons.Filled.PhotoLibrary),
     BottomTab(Routes.PROFILE, R.string.tab_profile, Icons.Filled.Person)
 )
 

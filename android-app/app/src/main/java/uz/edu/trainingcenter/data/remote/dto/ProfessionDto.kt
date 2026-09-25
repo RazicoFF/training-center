@@ -17,7 +17,14 @@ data class ProfessionDto(
     @Json(name = "career_info_uz") val careerInfoUz: String? = null,
     @Json(name = "career_info_ru") val careerInfoRu: String? = null,
     val videos: List<ProfessionVideoDto>? = null,
-    val tests: List<ProfessionTestSummaryDto>? = null
+    val tests: List<ProfessionTestSummaryDto>? = null,
+    val brands: List<ProfessionBrandDto>? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class ProfessionBrandDto(
+    val id: Int,
+    val name: String
 )
 
 @JsonClass(generateAdapter = true)
