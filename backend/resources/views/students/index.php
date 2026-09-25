@@ -1,8 +1,12 @@
 <?php
 /** @var array $students */
 /** @var array $groups */
+/** @var array $professions */
+/** @var array $brands */
 /** @var string $q */
 /** @var int|null $groupId */
+/** @var int|null $professionId */
+/** @var int|null $brandId */
 /** @var string|null $stat */
 use App\Core\Lang;
 
@@ -27,10 +31,10 @@ $statLabels = [
 
 <form method="get" action="/admin/students" class="row g-2 mb-3">
     <?php if ($stat !== null): ?><input type="hidden" name="stat" value="<?= htmlspecialchars($stat) ?>"><?php endif; ?>
-    <div class="col-md-5">
+    <div class="col-md-4">
         <input type="text" name="q" class="form-control" placeholder="<?= htmlspecialchars(Lang::t('search_by_name_phone')) ?>" value="<?= htmlspecialchars($q) ?>">
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <select name="group_id" class="form-select">
             <option value=""><?= htmlspecialchars(Lang::t('filter_all_groups')) ?></option>
             <?php foreach ($groups as $g): ?>
@@ -38,7 +42,23 @@ $statLabels = [
             <?php endforeach; ?>
         </select>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-2">
+        <select name="profession_id" class="form-select">
+            <option value=""><?= htmlspecialchars(Lang::t('filter_all_professions')) ?></option>
+            <?php foreach ($professions as $p): ?>
+                <option value="<?= (int) $p['id'] ?>" <?= $professionId === (int) $p['id'] ? 'selected' : '' ?>><?= htmlspecialchars($p['name_uz']) ?></option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="brand_id" class="form-select">
+            <option value=""><?= htmlspecialchars(Lang::t('filter_all_brands')) ?></option>
+            <?php foreach ($brands as $b): ?>
+                <option value="<?= (int) $b['id'] ?>" <?= $brandId === (int) $b['id'] ? 'selected' : '' ?>><?= htmlspecialchars($b['name']) ?></option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <div class="col-md-1">
         <button type="submit" class="btn btn-outline-primary w-100"><?= htmlspecialchars(Lang::t('search_submit')) ?></button>
     </div>
 </form>
@@ -46,6 +66,7 @@ $statLabels = [
 <table class="table table-striped">
     <thead>
         <tr>
+            <th></th>
             <th><?= htmlspecialchars(Lang::t('student_name')) ?></th>
             <th><?= htmlspecialchars(Lang::t('student_phone')) ?></th>
             <th><?= htmlspecialchars(Lang::t('student_enrollments')) ?></th>
@@ -57,6 +78,11 @@ $statLabels = [
     <tbody>
     <?php foreach ($students as $s): ?>
         <tr>
+            <td>
+                <?php if (!empty($s['photo_url'])): ?>
+                    <img src="<?= htmlspecialchars($s['photo_url']) ?>" alt="" style="width:30px;height:40px;object-fit:cover;border-radius:4px;">
+                <?php endif; ?>
+            </td>
             <td><?= htmlspecialchars($s['full_name']) ?></td>
             <td><?= htmlspecialchars($s['phone']) ?></td>
             <td><?= htmlspecialchars($s['group_names'] ?? '') ?: '-' ?></td>

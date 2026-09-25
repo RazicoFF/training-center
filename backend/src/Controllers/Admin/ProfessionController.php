@@ -38,7 +38,7 @@ final class ProfessionController
 
     private function index(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
             return ['redirect' => '/admin/login'];
         }
 
@@ -108,7 +108,7 @@ final class ProfessionController
 
     private function editForm(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
             return ['redirect' => '/admin/login'];
         }
 

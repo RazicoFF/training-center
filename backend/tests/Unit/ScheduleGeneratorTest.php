@@ -16,6 +16,7 @@ final class ScheduleGeneratorTest extends TestCase
     {
         $pdo = Database::pdo();
         $pdo->exec('DELETE FROM schedule');
+        $pdo->exec('DELETE FROM enrollments');
         $pdo->exec('DELETE FROM `groups`');
         $professionId = (int) $pdo->query('SELECT id FROM professions LIMIT 1')->fetchColumn();
         $pdo->prepare('INSERT INTO `groups` (profession_id, name, start_date, end_date) VALUES (?, "SchedGen", "2026-01-05", "2026-01-18")')

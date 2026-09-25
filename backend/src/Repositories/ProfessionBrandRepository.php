@@ -8,6 +8,13 @@ use App\Core\Database;
 
 final class ProfessionBrandRepository
 {
+    public function all(): array
+    {
+        $stmt = Database::pdo()->query('SELECT id, profession_id, name FROM profession_brands ORDER BY name');
+
+        return $stmt->fetchAll();
+    }
+
     public function forProfession(int $professionId): array
     {
         $stmt = Database::pdo()->prepare(

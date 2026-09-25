@@ -1,6 +1,7 @@
 <?php
 /** @var array $professions */
 /** @var array $teachers */
+/** @var array<int, array<int, array{id:int, name:string}>> $brandsByProfession */
 use App\Core\Csrf;
 use App\Core\Lang;
 ?>
@@ -26,6 +27,10 @@ use App\Core\Lang;
                 </div>
             <?php endforeach; ?>
         </div>
+    </div>
+    <div class="mb-3 d-none" id="tc-group-brand-field">
+        <label class="form-label"><?= htmlspecialchars(Lang::t('brand_field_label')) ?></label>
+        <select name="brand_id" id="tc-group-brand" class="form-select"></select>
     </div>
     <div class="mb-3">
         <label class="form-label"><?= htmlspecialchars(Lang::t('group_teacher')) ?></label>
@@ -76,11 +81,33 @@ use App\Core\Lang;
 <script>
 (function () {
     var cards = document.querySelectorAll('.tc-profession-card');
+    var brandsByProfession = <?= json_encode($brandsByProfession, JSON_UNESCAPED_UNICODE) ?>;
+    var brandField = document.getElementById('tc-group-brand-field');
+    var brandSelect = document.getElementById('tc-group-brand');
+
+    function updateBrands() {
+        var checked = document.querySelector('.tc-profession-radio:checked');
+        var brands = (checked && brandsByProfession[checked.value]) || [];
+        brandSelect.innerHTML = '';
+        if (brands.length === 0) {
+            brandField.classList.add('d-none');
+            return;
+        }
+        brandField.classList.remove('d-none');
+        brands.forEach(function (b) {
+            var opt = document.createElement('option');
+            opt.value = b.id;
+            opt.textContent = b.name;
+            brandSelect.appendChild(opt);
+        });
+    }
+
     function sync() {
         cards.forEach(function (card) {
             var radio = card.querySelector('.tc-profession-radio');
             card.classList.toggle('selected', radio.checked);
         });
+        updateBrands();
     }
     cards.forEach(function (card) {
         card.addEventListener('click', function () {

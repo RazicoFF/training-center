@@ -2,7 +2,12 @@
 /** @var array $user */
 use App\Core\Lang;
 ?>
-<h1 class="h4 mb-3"><?= htmlspecialchars(Lang::t('site_portal_welcome')) ?>, <?= htmlspecialchars($user['full_name']) ?></h1>
+<div class="d-flex align-items-center gap-3 mb-3">
+    <?php if (!empty($user['photo_url'])): ?>
+        <img src="<?= htmlspecialchars($user['photo_url']) ?>" alt="" style="width:64px;height:84px;object-fit:cover;border-radius:8px;">
+    <?php endif; ?>
+    <h1 class="h4 mb-0"><?= htmlspecialchars(Lang::t('site_portal_welcome')) ?>, <?= htmlspecialchars($user['full_name']) ?></h1>
+</div>
 <div class="row g-3">
     <div class="col-md-4">
         <a href="/portal/schedule" class="card text-decoration-none tc-fade-in tc-fade-in-1">

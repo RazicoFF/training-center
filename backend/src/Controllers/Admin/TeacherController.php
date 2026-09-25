@@ -11,6 +11,7 @@ use App\Core\Request;
 use App\Core\Router;
 use App\Core\View;
 use App\Middleware\AdminAuthMiddleware;
+use App\Repositories\ProfessionRepository;
 use App\Repositories\TeacherProfileRepository;
 use App\Repositories\TeacherRepository;
 use App\Repositories\UserRepository;
@@ -20,7 +21,8 @@ final class TeacherController
     public function __construct(
         private readonly TeacherRepository $teachers = new TeacherRepository(),
         private readonly UserRepository $users = new UserRepository(),
-        private readonly TeacherProfileRepository $profiles = new TeacherProfileRepository()
+        private readonly TeacherProfileRepository $profiles = new TeacherProfileRepository(),
+        private readonly ProfessionRepository $professions = new ProfessionRepository()
     ) {
     }
 
@@ -40,10 +42,13 @@ final class TeacherController
         }
 
         $q = trim((string) ($_GET['q'] ?? ''));
+        $professionId = ($_GET['profession_id'] ?? '') !== '' ? (int) $_GET['profession_id'] : null;
 
         View::render('teachers/index', [
-            'teachers' => $this->teachers->search($q !== '' ? $q : null),
+            'teachers' => $this->teachers->search($q !== '' ? $q : null, $professionId),
+            'professions' => $this->professions->all(),
             'q' => $q,
+            'professionId' => $professionId,
         ]);
         return ['rendered' => true];
     }
@@ -85,7 +90,7 @@ final class TeacherController
 
     private function editForm(Request $request): array
     {
-        if (AdminAuthMiddleware::authenticate() === null) {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
             return ['redirect' => '/admin/login'];
         }
 
@@ -141,6 +146,7 @@ final class TeacherController
     {
         $fields = [
             'age' => ($body['age'] ?? '') !== '' ? (int) $body['age'] : null,
+            'birth_date' => ($body['birth_date'] ?? '') !== '' ? (string) $body['birth_date'] : null,
             'experience_years' => ($body['experience_years'] ?? '') !== '' ? (int) $body['experience_years'] : null,
             'skills_uz' => ($body['skills_uz'] ?? '') !== '' ? trim((string) $body['skills_uz']) : null,
             'skills_ru' => ($body['skills_ru'] ?? '') !== '' ? trim((string) $body['skills_ru']) : null,

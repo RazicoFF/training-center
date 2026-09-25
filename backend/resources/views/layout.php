@@ -6,21 +6,30 @@ use App\Core\Lang;
 $flash = $_SESSION['flash'] ?? null;
 unset($_SESSION['flash']);
 $isLoggedIn = isset($_SESSION['admin_user_id']);
+$isTeacherSession = ($_SESSION['admin_role'] ?? null) === 'teacher';
 $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
-$navItems = [
-    ['href' => '/admin', 'label' => Lang::t('nav_dashboard'), 'match' => '/admin', 'icon' => 'home'],
-    ['href' => '/admin/applications', 'label' => Lang::t('nav_applications'), 'match' => '/admin/applications', 'icon' => 'inbox'],
-    ['href' => '/admin/groups', 'label' => Lang::t('nav_groups'), 'match' => '/admin/groups', 'icon' => 'users'],
-    ['href' => '/admin/students', 'label' => Lang::t('nav_students'), 'match' => '/admin/students', 'icon' => 'graduation'],
-    ['href' => '/admin/teachers', 'label' => Lang::t('nav_teachers'), 'match' => '/admin/teachers', 'icon' => 'user-check'],
-    ['href' => '/admin/professions', 'label' => Lang::t('nav_professions'), 'match' => '/admin/professions', 'icon' => 'briefcase'],
-    ['href' => '/admin/news', 'label' => Lang::t('nav_news'), 'match' => '/admin/news', 'icon' => 'inbox'],
-    ['href' => '/admin/media', 'label' => Lang::t('nav_media'), 'match' => '/admin/media', 'icon' => 'award'],
-    ['href' => '/admin/tests', 'label' => Lang::t('nav_tests'), 'match' => '/admin/tests', 'icon' => 'clipboard'],
-    ['href' => '/admin/certificates', 'label' => Lang::t('nav_certificates'), 'match' => '/admin/certificates', 'icon' => 'award'],
-    ['href' => '/admin/settings', 'label' => Lang::t('nav_settings'), 'match' => '/admin/settings', 'icon' => 'settings'],
-];
+// A teacher session only ever sees their own groups and students - everything else
+// (applications, other teachers, professions, tests, certificates, news, media, settings)
+// is admin-only.
+$navItems = $isTeacherSession
+    ? [
+        ['href' => '/admin/groups', 'label' => Lang::t('nav_groups'), 'match' => '/admin/groups', 'icon' => 'users'],
+        ['href' => '/admin/students', 'label' => Lang::t('nav_students'), 'match' => '/admin/students', 'icon' => 'graduation'],
+    ]
+    : [
+        ['href' => '/admin', 'label' => Lang::t('nav_dashboard'), 'match' => '/admin', 'icon' => 'home'],
+        ['href' => '/admin/applications', 'label' => Lang::t('nav_applications'), 'match' => '/admin/applications', 'icon' => 'inbox'],
+        ['href' => '/admin/groups', 'label' => Lang::t('nav_groups'), 'match' => '/admin/groups', 'icon' => 'users'],
+        ['href' => '/admin/students', 'label' => Lang::t('nav_students'), 'match' => '/admin/students', 'icon' => 'graduation'],
+        ['href' => '/admin/teachers', 'label' => Lang::t('nav_teachers'), 'match' => '/admin/teachers', 'icon' => 'user-check'],
+        ['href' => '/admin/professions', 'label' => Lang::t('nav_professions'), 'match' => '/admin/professions', 'icon' => 'briefcase'],
+        ['href' => '/admin/news', 'label' => Lang::t('nav_news'), 'match' => '/admin/news', 'icon' => 'inbox'],
+        ['href' => '/admin/media', 'label' => Lang::t('nav_media'), 'match' => '/admin/media', 'icon' => 'award'],
+        ['href' => '/admin/tests', 'label' => Lang::t('nav_tests'), 'match' => '/admin/tests', 'icon' => 'clipboard'],
+        ['href' => '/admin/certificates', 'label' => Lang::t('nav_certificates'), 'match' => '/admin/certificates', 'icon' => 'award'],
+        ['href' => '/admin/settings', 'label' => Lang::t('nav_settings'), 'match' => '/admin/settings', 'icon' => 'settings'],
+    ];
 
 $icons = [
     'home' => '<path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-5h2v5h4a1 1 0 0 0 1-1v-9"/>',
