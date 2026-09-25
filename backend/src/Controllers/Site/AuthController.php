@@ -33,6 +33,10 @@ final class AuthController
             return ['redirect' => '/portal'];
         }
 
+        if (($_SESSION['admin_role'] ?? null) === 'teacher') {
+            return ['redirect' => '/admin/groups'];
+        }
+
         SiteView::render('site/login', ['error' => null]);
         return ['rendered' => true];
     }
@@ -50,7 +54,7 @@ final class AuthController
         $user = $this->users->findByPhone($phone);
 
         if ($user === null
-            || $user['role'] !== 'student'
+            || !in_array($user['role'], ['student', 'teacher'], true)
             || !Auth::verifyPassword($password, $user['password_hash'])
         ) {
             SiteView::render('site/login', ['error' => Lang::t('login_invalid')]);
@@ -61,6 +65,16 @@ final class AuthController
             session_regenerate_id(true);
         }
         unset($_SESSION['csrf_token']);
+
+        // A teacher logging in from the public site's login page lands in their scoped
+        // admin-panel view (groups/students only) - the admin session keys, not the site
+        // ones, are what AdminAuthMiddleware and the admin panel's teacher-scoping check.
+        if ($user['role'] === 'teacher') {
+            $_SESSION['admin_user_id'] = (int) $user['id'];
+            $_SESSION['admin_role'] = $user['role'];
+
+            return ['redirect' => '/admin/groups'];
+        }
 
         $_SESSION['site_user_id'] = (int) $user['id'];
         $_SESSION['site_role'] = $user['role'];
