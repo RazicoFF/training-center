@@ -1,20 +1,28 @@
 # Training Center — Android app
 
-Kotlin + Jetpack Compose student app for the training center. Consumes the backend REST API (`docs/superpowers/specs/2026-09-22-backend-db-design.md`).
+Kotlin + Jetpack Compose student app for the training center. Consumes the backend's JSON
+REST API, and gives admin/teacher accounts a WebView entry into the same backend's web
+admin panel.
 
 ## Setup
 
-1. Requires JDK 17 and Android SDK (platform 34, build-tools) — set `ANDROID_HOME` (or create `android-app/local.properties` with `sdk.dir=...`).
+1. Requires JDK 17 and Android SDK (platform 34, build-tools) — set `ANDROID_HOME` (or create
+   `android-app/local.properties` with `sdk.dir=...`).
 2. From `android-app/`: `gradlew.bat assembleDebug` (Windows) or `./gradlew assembleDebug`.
 3. Install the APK on a device/emulator: `gradlew.bat installDebug`.
-4. On first launch, go to Profile → Server manzili and set it to your backend's real address (default assumes an emulator talking to a host machine on `10.0.2.2:8080`; a physical device needs your machine's LAN IP instead, e.g. `http://192.168.1.5:8080/api/v1/`).
+4. On first launch, go to Profile → Server manzili and set it to the backend's address,
+   including the `/api/v1/` suffix (e.g. `https://training-center.up.railway.app/api/v1/`;
+   an emulator talking to a local dev server on the host machine uses `10.0.2.2` instead of
+   `localhost`).
 
 ## Tests
 
-`gradlew.bat testDebugUnitTest` — unit tests only (ViewModels, Repositories, interceptors), no emulator required.
+`gradlew.bat testDebugUnitTest` — unit tests only (ViewModels, Repositories, interceptors), no
+emulator required.
 
-## Known gaps
+## Features
 
-- No instrumented/UI tests and no live on-device verification were performed in this environment (no Android emulator was installed — see the plan's Global Constraints). Compilation and all unit tests were verified with a real Gradle + Android SDK toolchain, but the running app's actual screens have not been visually confirmed. The human user should run `gradlew.bat installDebug` on a device/emulator and walk through: register → (admin approves via the admin panel) → login → schedule → take a test → view/download a certificate.
-- No password-reset flow in the app (matches the backend's current scope — students get their initial password from an admin, in person).
-- Certificate PDFs are opened via an external viewer (no in-app PDF rendering), per the design spec.
+- Student: registration (with technika brand selection and a photo upload), login, professions
+  catalog, schedule, tests, certificates, news, media gallery, profile settings.
+- Admin/teacher: a "Men admin yoki o'qituvchiman" entry point on the login screen opens the
+  full web admin panel inside an in-app WebView.
