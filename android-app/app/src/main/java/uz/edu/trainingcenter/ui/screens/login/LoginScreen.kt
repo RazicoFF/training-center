@@ -16,7 +16,8 @@ import uz.edu.trainingcenter.ui.common.asString
 fun LoginScreen(
     viewModel: LoginViewModel,
     onLoginSuccess: () -> Unit,
-    onRegisterClick: () -> Unit
+    onRegisterClick: () -> Unit,
+    onAdminPanelClick: () -> Unit
 ) {
     var phone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -72,6 +73,9 @@ fun LoginScreen(
         Spacer(Modifier.height(12.dp))
         TextButton(onClick = onRegisterClick) {
             Text(stringResource(R.string.login_register_link))
+        }
+        TextButton(onClick = onAdminPanelClick) {
+            Text(stringResource(R.string.login_admin_panel_link))
         }
     }
 }

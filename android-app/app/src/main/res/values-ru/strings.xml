@@ -5,6 +5,8 @@
     <string name="login_password">Пароль</string>
     <string name="login_submit">Войти</string>
     <string name="login_register_link">Подать заявку</string>
+    <string name="login_admin_panel_link">Я администратор или преподаватель</string>
+    <string name="admin_panel_title">Админ-панель</string>
     <string name="register_title">Подать заявку</string>
     <string name="register_full_name">Ф.И.О</string>
     <string name="register_phone">Номер телефона</string>

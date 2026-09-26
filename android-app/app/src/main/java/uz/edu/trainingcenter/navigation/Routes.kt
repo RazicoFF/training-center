@@ -15,6 +15,7 @@ object Routes {
     const val PROFESSION_DETAIL = "profession_detail/{professionId}"
     const val NEWS_LIST = "news_list"
     const val MEDIA_LIST = "media_list"
+    const val ADMIN_PANEL = "admin_panel"
 
     fun testTaking(testId: Int) = "test_taking/$testId"
     fun testResult(score: Int, passed: Boolean) = "test_result/$score/$passed"

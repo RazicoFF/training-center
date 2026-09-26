@@ -2,6 +2,8 @@ package uz.edu.trainingcenter.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -10,6 +12,8 @@ import androidx.navigation.navArgument
 import androidx.lifecycle.viewmodel.compose.viewModel
 import uz.edu.trainingcenter.ServiceLocator
 import uz.edu.trainingcenter.ViewModelFactory
+import uz.edu.trainingcenter.ui.screens.admin.AdminWebViewScreen
+import uz.edu.trainingcenter.ui.screens.admin.adminLoginUrlFrom
 import uz.edu.trainingcenter.ui.screens.home.HomeScaffold
 import uz.edu.trainingcenter.ui.screens.login.LoginScreen
 import uz.edu.trainingcenter.ui.screens.login.LoginViewModel
@@ -53,8 +57,20 @@ fun AppNavHost(navController: NavHostController) {
                 onLoginSuccess = {
                     navController.navigate(Routes.HOME) { popUpTo(Routes.LOGIN) { inclusive = true } }
                 },
-                onRegisterClick = { navController.navigate(Routes.REGISTER) }
+                onRegisterClick = { navController.navigate(Routes.REGISTER) },
+                onAdminPanelClick = { navController.navigate(Routes.ADMIN_PANEL) }
             )
+        }
+        composable(Routes.ADMIN_PANEL) {
+            val adminLoginUrl by produceState(initialValue = "") {
+                value = adminLoginUrlFrom(ServiceLocator.dataStore.getBaseUrl())
+            }
+            if (adminLoginUrl.isNotEmpty()) {
+                AdminWebViewScreen(
+                    adminLoginUrl = adminLoginUrl,
+                    onClose = { navController.popBackStack() }
+                )
+            }
         }
         composable(Routes.REGISTER) {
             val viewModel: RegisterViewModel = viewModel(factory = ViewModelFactory { RegisterViewModel(ServiceLocator.professionRepository) })
