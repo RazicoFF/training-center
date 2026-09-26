@@ -10,17 +10,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import uz.edu.trainingcenter.R
+import uz.edu.trainingcenter.data.local.PreferencesDataStore
 import uz.edu.trainingcenter.ui.common.asString
 
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
+    dataStore: PreferencesDataStore,
     onLoginSuccess: () -> Unit,
     onRegisterClick: () -> Unit,
     onAdminPanelClick: () -> Unit
 ) {
     var phone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var showServerSettings by remember { mutableStateOf(false) }
     val state by viewModel.uiState.collectAsState()
 
     LaunchedEffect(state) {
@@ -77,5 +80,12 @@ fun LoginScreen(
         TextButton(onClick = onAdminPanelClick) {
             Text(stringResource(R.string.login_admin_panel_link))
         }
+        TextButton(onClick = { showServerSettings = true }) {
+            Text(stringResource(R.string.login_server_settings_link))
+        }
+    }
+
+    if (showServerSettings) {
+        ServerSettingsDialog(dataStore = dataStore, onDismiss = { showServerSettings = false })
     }
 }

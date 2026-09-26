@@ -7,6 +7,8 @@
     <string name="login_register_link">Ariza berish</string>
     <string name="login_admin_panel_link">Men admin yoki o\'qituvchiman</string>
     <string name="admin_panel_title">Admin panel</string>
+    <string name="login_server_settings_link">Server manzilini sozlash</string>
+    <string name="login_server_settings_cancel">Bekor qilish</string>
     <string name="register_title">Ariza berish</string>
     <string name="register_full_name">F.I.Sh</string>
     <string name="register_phone">Telefon raqam</string>

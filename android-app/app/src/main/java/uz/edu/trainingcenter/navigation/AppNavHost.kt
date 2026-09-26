@@ -54,6 +54,7 @@ fun AppNavHost(navController: NavHostController) {
             val viewModel: LoginViewModel = viewModel(factory = ViewModelFactory { LoginViewModel(ServiceLocator.authRepository) })
             LoginScreen(
                 viewModel = viewModel,
+                dataStore = ServiceLocator.dataStore,
                 onLoginSuccess = {
                     navController.navigate(Routes.HOME) { popUpTo(Routes.LOGIN) { inclusive = true } }
                 },
