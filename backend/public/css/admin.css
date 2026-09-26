@@ -148,6 +148,60 @@ body {
     margin-bottom: 1.25rem;
 }
 
+/* ---------- mobile: sidebar becomes a horizontally scrollable top bar,
+   tables scroll horizontally instead of squeezing/overflowing the page ---------- */
+@media (max-width: 768px) {
+    .tc-shell {
+        flex-direction: column;
+    }
+
+    .tc-sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        flex-direction: row;
+        align-items: center;
+        padding: 0.6rem 0.75rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tc-brand {
+        padding: 0 0.75rem 0 0.25rem;
+        flex-shrink: 0;
+    }
+
+    .tc-nav {
+        flex-direction: row;
+        flex: none;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tc-nav-link {
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .tc-sidebar-footer {
+        flex-shrink: 0;
+        border-top: none;
+        padding: 0 0 0 0.5rem;
+        margin-left: auto;
+    }
+
+    .tc-main {
+        padding: 1rem 1rem 2rem;
+    }
+
+    table.table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
 /* ---------- theme toggle (sun/moon) ---------- */
 
 .tc-theme-toggle {

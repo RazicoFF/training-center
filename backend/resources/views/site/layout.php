@@ -26,37 +26,44 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
             <img src="/images/brand/logo.png" alt="" class="tc-brand-logo">
             <span><?= htmlspecialchars(Lang::t('site_app_title')) ?></span>
         </a>
-        <div class="d-flex align-items-center gap-2 ms-auto">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#tcNavCollapse" aria-controls="tcNavCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="tcNavCollapse">
+        <div class="d-flex flex-column flex-lg-row align-items-lg-center gap-2 ms-lg-auto mt-3 mt-lg-0">
             <a href="/" class="nav-link d-inline <?= $currentPath === '/' ? 'fw-bold' : '' ?>"><?= htmlspecialchars(Lang::t('site_nav_home')) ?></a>
-            <span class="tc-nav-sep text-muted">|</span>
+            <span class="tc-nav-sep text-muted d-none d-lg-inline">|</span>
             <a href="/teachers" class="nav-link d-inline <?= str_starts_with($currentPath, '/teachers') ? 'fw-bold' : '' ?>"><?= htmlspecialchars(Lang::t('site_nav_teachers')) ?></a>
-            <span class="tc-nav-sep text-muted">|</span>
+            <span class="tc-nav-sep text-muted d-none d-lg-inline">|</span>
             <a href="/media" class="nav-link d-inline <?= str_starts_with($currentPath, '/media') ? 'fw-bold' : '' ?>"><?= htmlspecialchars(Lang::t('nav_media')) ?></a>
-            <span class="tc-nav-sep text-muted">|</span>
+            <span class="tc-nav-sep text-muted d-none d-lg-inline">|</span>
             <a href="/apply" class="nav-link d-inline <?= str_starts_with($currentPath, '/apply') ? 'fw-bold' : '' ?>"><?= htmlspecialchars(Lang::t('site_nav_apply')) ?></a>
-            <span class="tc-nav-sep text-muted">|</span>
+            <span class="tc-nav-sep text-muted d-none d-lg-inline">|</span>
             <?php if ($isLoggedIn): ?>
                 <a href="/portal" class="nav-link d-inline <?= str_starts_with($currentPath, '/portal') ? 'fw-bold' : '' ?>"><?= htmlspecialchars(Lang::t('site_nav_portal')) ?></a>
-                <span class="tc-nav-sep text-muted">|</span>
+                <span class="tc-nav-sep text-muted d-none d-lg-inline">|</span>
                 <form method="post" action="/logout" class="d-inline">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
                     <button type="submit" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('logout')) ?></button>
                 </form>
             <?php else: ?>
                 <a href="/login" class="nav-link d-inline <?= str_starts_with($currentPath, '/login') ? 'fw-bold' : '' ?>"><?= htmlspecialchars(Lang::t('site_nav_login')) ?></a>
-                <span class="tc-nav-sep text-muted">|</span>
+                <span class="tc-nav-sep text-muted d-none d-lg-inline">|</span>
             <?php endif; ?>
-            <form method="post" action="/lang" class="d-inline">
-                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
-                <input type="hidden" name="back" value="<?= htmlspecialchars($currentPath) ?>">
-                <input type="hidden" name="locale" value="<?= Lang::current() === 'ru' ? 'uz' : 'ru' ?>">
-                <button type="submit" class="tc-theme-toggle" title="<?= htmlspecialchars(Lang::t('lang_uz')) ?> / <?= htmlspecialchars(Lang::t('lang_ru')) ?>" style="font-weight:700;font-size:0.8rem;">
-                    <?= Lang::current() === 'ru' ? 'UZ' : 'RU' ?>
+            <div class="d-flex align-items-center gap-2">
+                <form method="post" action="/lang" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
+                    <input type="hidden" name="back" value="<?= htmlspecialchars($currentPath) ?>">
+                    <input type="hidden" name="locale" value="<?= Lang::current() === 'ru' ? 'uz' : 'ru' ?>">
+                    <button type="submit" class="tc-theme-toggle" title="<?= htmlspecialchars(Lang::t('lang_uz')) ?> / <?= htmlspecialchars(Lang::t('lang_ru')) ?>" style="font-weight:700;font-size:0.8rem;">
+                        <?= Lang::current() === 'ru' ? 'UZ' : 'RU' ?>
+                    </button>
+                </form>
+                <button type="button" class="tc-theme-toggle" id="tc-site-theme-toggle" title="Theme">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" id="tc-site-theme-icon"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.4 1.4M17.6 17.6 19 19M5 19l1.4-1.4M17.6 6.4 19 5"/></svg>
                 </button>
-            </form>
-            <button type="button" class="tc-theme-toggle" id="tc-site-theme-toggle" title="Theme">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" id="tc-site-theme-icon"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.4 1.4M17.6 17.6 19 19M5 19l1.4-1.4M17.6 6.4 19 5"/></svg>
-            </button>
+            </div>
+        </div>
         </div>
     </div>
 </nav>
@@ -66,6 +73,7 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
     <?php endif; ?>
     <?= $content ?>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 (function () {
     var root = document.documentElement;
