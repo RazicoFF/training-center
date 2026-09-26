@@ -40,6 +40,17 @@ ketmasligi uchun **Volume** qo'shing:
 2. Mount path: `/var/www/html/public/uploads`
 3. Yana bittasini qo'shing: mount path `/var/www/html/storage`
 
+> **MUHIM CHEKLOV**: Railway'ning bepul (Trial, kartasiz) tarifida Volume funksiyasi
+> umuman ko'rsatilmaydi - u faqat Hobby va undan yuqori (pullik) tarifda ochiladi. Agar
+> bepul tarifda qolsangiz, `public/uploads/` va `storage/` papkalari **doimiy emas** -
+> har bir yangi `git push` (Railway'ni qayta build qilishga majbur qiladigan har qanday
+> o'zgarish) shu papkalardagi barcha fayllarni (admin panel orqali yuklangan kasb/
+> o'qituvchi/talaba rasmlari, media fayllar, sertifikat PDF'lari) butunlay o'chirib
+> yuboradi - ma'lumotlar bazasidagi yozuv (masalan, professions.image_url) qoladi, lekin
+> fayl o'zi yo'qoladi va rasm sinib ko'rinadi. Amaliy yechim: barcha kerakli rasmlarni
+> **eng oxirgi** `git push`dan keyin, taqdimot/himoyadan oldin bir marta yuklang va shundan
+> keyin boshqa kod o'zgarishi yubormang.
+
 ## 5. Deploy va migratsiya
 
 Railway `git push` qilinganda avtomatik deploy qiladi. Konteyner ishga tushganda
