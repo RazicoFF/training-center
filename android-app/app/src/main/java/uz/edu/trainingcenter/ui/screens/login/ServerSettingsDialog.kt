@@ -17,9 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import uz.edu.trainingcenter.R
 import uz.edu.trainingcenter.data.local.PreferencesDataStore
+import uz.edu.trainingcenter.util.normalizeApiBaseUrl
 
 /**
  * Lets the user change the API base URL before logging in. The Profile screen already offers
@@ -50,6 +50,7 @@ fun ServerSettingsDialog(dataStore: PreferencesDataStore, onDismiss: () -> Unit)
                         isError = false
                     },
                     isError = isError,
+                    placeholder = { Text(stringResource(R.string.profile_server_url_hint)) },
                     supportingText = if (isError) {
                         { Text(stringResource(R.string.profile_invalid_url)) }
                     } else null,
@@ -59,11 +60,12 @@ fun ServerSettingsDialog(dataStore: PreferencesDataStore, onDismiss: () -> Unit)
         },
         confirmButton = {
             TextButton(onClick = {
-                if (urlInput.toHttpUrlOrNull() == null) {
+                val normalized = normalizeApiBaseUrl(urlInput)
+                if (normalized == null) {
                     isError = true
                 } else {
                     scope.launch {
-                        dataStore.setBaseUrl(urlInput)
+                        dataStore.setBaseUrl(normalized)
                         onDismiss()
                     }
                 }

@@ -45,13 +45,13 @@ class RegisterViewModelTest {
     @Test
     fun `submit emits Submitted on success`() = runTest {
         val repository = mockk<ProfessionRepository>()
-        coEvery { repository.submitApplication("Ali", "+998900000000", 1) } returns Result.success(Unit)
+        coEvery { repository.submitApplication("Ali", "+998900000000", 1, null, null) } returns Result.success(Unit)
 
         val viewModel = RegisterViewModel(repository)
 
         viewModel.uiState.test {
             assertTrue(awaitItem() is RegisterUiState.Idle)
-            viewModel.submit("Ali", "+998900000000", 1)
+            viewModel.submit("Ali", "+998900000000", 1, null, null)
             assertTrue(awaitItem() is RegisterUiState.Submitting)
             assertTrue(awaitItem() is RegisterUiState.Submitted)
         }

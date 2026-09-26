@@ -9,10 +9,10 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import uz.edu.trainingcenter.data.local.PreferencesDataStore
 import uz.edu.trainingcenter.data.remote.dto.MeDto
 import uz.edu.trainingcenter.data.repository.AuthRepository
+import uz.edu.trainingcenter.util.normalizeApiBaseUrl
 
 class ProfileViewModel(
     private val authRepository: AuthRepository,
@@ -56,14 +56,15 @@ class ProfileViewModel(
     }
 
     fun setBaseUrl(url: String) {
-        if (url.toHttpUrlOrNull() == null) {
+        val normalized = normalizeApiBaseUrl(url)
+        if (normalized == null) {
             _baseUrlError.value = true
             return
         }
         _baseUrlError.value = false
         viewModelScope.launch {
-            dataStore.setBaseUrl(url)
-            _baseUrl.value = url
+            dataStore.setBaseUrl(normalized)
+            _baseUrl.value = normalized
         }
     }
 

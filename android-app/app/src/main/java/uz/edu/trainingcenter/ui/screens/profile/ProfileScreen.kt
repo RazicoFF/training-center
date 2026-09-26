@@ -49,6 +49,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, padding: PaddingValues, onLoggedO
             value = baseUrlInput,
             onValueChange = { baseUrlInput = it },
             isError = baseUrlError,
+            placeholder = { Text(stringResource(R.string.profile_server_url_hint)) },
             supportingText = if (baseUrlError) {
                 { Text(stringResource(R.string.profile_invalid_url)) }
             } else null,
