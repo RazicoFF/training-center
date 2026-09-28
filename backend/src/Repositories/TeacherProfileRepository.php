@@ -40,7 +40,13 @@ final class TeacherProfileRepository
         $stmt = Database::pdo()->query(
             'SELECT u.id AS user_id, u.full_name,
                     tp.age, tp.birth_date, tp.experience_years, tp.skills_uz, tp.skills_ru,
-                    tp.education_uz, tp.education_ru, tp.telegram, tp.email, tp.photo_url
+                    tp.education_uz, tp.education_ru, tp.telegram, tp.email, tp.photo_url,
+                    (SELECT GROUP_CONCAT(DISTINCT p.name_uz ORDER BY p.name_uz SEPARATOR \', \')
+                     FROM `groups` g JOIN professions p ON p.id = g.profession_id
+                     WHERE g.teacher_id = u.id) AS professions_uz,
+                    (SELECT GROUP_CONCAT(DISTINCT p.name_ru ORDER BY p.name_ru SEPARATOR \', \')
+                     FROM `groups` g JOIN professions p ON p.id = g.profession_id
+                     WHERE g.teacher_id = u.id) AS professions_ru
              FROM users u
              LEFT JOIN teacher_profiles tp ON tp.user_id = u.id
              WHERE u.role = \'teacher\'

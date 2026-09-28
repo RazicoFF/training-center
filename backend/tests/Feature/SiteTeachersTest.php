@@ -42,4 +42,29 @@ final class SiteTeachersTest extends TestCase
         $this->assertStringContainsString('Ekskavator boshqarish', $html);
         $this->assertStringContainsString('8', $html);
     }
+
+    public function testCardOpensModalWithFullProfileButNoPhone(): void
+    {
+        $userId = (new UserRepository())->create('Modal Teacher', '+998987770040', 'x', 'teacher');
+        (new TeacherProfileRepository())->upsert($userId, [
+            'birth_date' => '1990-05-01',
+            'education_uz' => 'Toshkent davlat texnika universiteti',
+            'telegram' => '@modal_teacher',
+            'email' => 'modal@example.com',
+        ]);
+
+        $router = new Router();
+        (new TeacherController())->register($router);
+
+        ob_start();
+        $router->dispatch(new Request('GET', '/teachers', [], [], []));
+        $html = ob_get_clean();
+
+        $this->assertMatchesRegularExpression('/data-bs-target="#tcTeacherModal(\d+)"/', $html);
+        $this->assertStringContainsString('class="modal fade" id="tcTeacherModal', $html);
+        $this->assertStringContainsString('Toshkent davlat texnika universiteti', $html);
+        $this->assertStringContainsString('https://t.me/modal_teacher', $html);
+        $this->assertStringContainsString('mailto:modal@example.com', $html);
+        $this->assertStringNotContainsString('+998987770040', $html);
+    }
 }
