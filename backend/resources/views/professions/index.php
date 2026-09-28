@@ -15,7 +15,7 @@ use App\Core\Lang;
                     <span class="badge text-bg-secondary" style="position:absolute;top:8px;right:8px;">PDF</span>
                 <?php endif; ?>
                 <?php if (!empty($p['image_url'])): ?>
-                    <img src="<?= htmlspecialchars($p['image_url']) ?>" alt="" style="width:100%;height:140px;object-fit:cover;">
+                    <img src="<?= htmlspecialchars(\App\Services\UploadStore::thumbUrl($p['image_url'])) ?>" alt="" loading="lazy" style="width:100%;height:140px;object-fit:cover;">
                 <?php endif; ?>
                 <div class="card-body">
                     <h2 class="h6"><?= htmlspecialchars($p['name_uz']) ?></h2>

@@ -2,6 +2,7 @@
 /** @var array $mediaItems */
 use App\Core\Lang;
 use App\Repositories\ProfessionVideoRepository;
+use App\Services\UploadStore;
 
 $isRu = Lang::current() === 'ru';
 ?>
@@ -16,7 +17,7 @@ $isRu = Lang::current() === 'ru';
                 <div class="tc-price-card h-100 tc-reveal" style="transition-delay:<?= min($i, 5) * 0.05 ?>s;">
                     <?php if ($m['type'] === 'image'): ?>
                         <button type="button" class="btn p-0 border-0 w-100" data-bs-toggle="modal" data-bs-target="#tcMediaModal<?= $i ?>" style="cursor:zoom-in;">
-                            <img src="<?= htmlspecialchars($m['file_url']) ?>" alt="<?= htmlspecialchars((string) $title) ?>">
+                            <img src="<?= htmlspecialchars(UploadStore::thumbUrl($m['file_url'])) ?>" alt="<?= htmlspecialchars((string) $title) ?>" loading="lazy" decoding="async">
                         </button>
                     <?php else: ?>
                         <?php $youtubeId = ProfessionVideoRepository::extractYoutubeId($m['youtube_url']); ?>
@@ -46,7 +47,7 @@ $isRu = Lang::current() === 'ru';
             <div class="modal-dialog modal-dialog-centered modal-xl">
                 <div class="modal-content tc-media-modal-content">
                     <button type="button" class="btn-close btn-close-white tc-media-modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    <img src="<?= htmlspecialchars($m['file_url']) ?>" alt="<?= htmlspecialchars((string) $title) ?>" class="tc-media-modal-img">
+                    <img src="<?= htmlspecialchars($m['file_url']) ?>" alt="<?= htmlspecialchars((string) $title) ?>" class="tc-media-modal-img" loading="lazy" decoding="async">
                     <?php if (!empty($title)): ?>
                         <div class="tc-media-modal-caption"><?= htmlspecialchars($title) ?></div>
                     <?php endif; ?>

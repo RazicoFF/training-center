@@ -81,7 +81,7 @@ $statLabels = [
         <tr>
             <td>
                 <?php if (!empty($s['photo_url'])): ?>
-                    <img src="<?= htmlspecialchars($s['photo_url']) ?>" alt="" style="width:30px;height:40px;object-fit:cover;border-radius:4px;">
+                    <img src="<?= htmlspecialchars(\App\Services\UploadStore::thumbUrl($s['photo_url'])) ?>" alt="" loading="lazy" style="width:30px;height:40px;object-fit:cover;border-radius:4px;">
                 <?php endif; ?>
             </td>
             <td><a href="/admin/students/<?= (int) $s['id'] ?>" data-tc-card class="fw-semibold"><?= htmlspecialchars($s['full_name']) ?></a></td>

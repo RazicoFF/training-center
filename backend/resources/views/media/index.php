@@ -58,7 +58,7 @@ use App\Core\Lang;
         <div class="col-md-3">
             <div class="card h-100">
                 <?php if ($m['type'] === 'image'): ?>
-                    <img src="<?= htmlspecialchars($m['file_url']) ?>" alt="" style="width:100%;height:140px;object-fit:cover;">
+                    <img src="<?= htmlspecialchars(\App\Services\UploadStore::thumbUrl($m['file_url'])) ?>" alt="" loading="lazy" style="width:100%;height:140px;object-fit:cover;">
                 <?php else: ?>
                     <div class="d-flex align-items-center justify-content-center bg-body-secondary" style="height:140px;">
                         <a href="<?= htmlspecialchars($m['youtube_url']) ?>" target="_blank" rel="noopener">YouTube &#9654;</a>

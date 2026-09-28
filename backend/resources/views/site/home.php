@@ -3,6 +3,7 @@
 /** @var array $settings */
 /** @var array $newsItems */
 use App\Core\Lang;
+use App\Services\UploadStore;
 
 $isRu = Lang::current() === 'ru';
 $aboutText = $isRu ? ($settings['about_ru'] ?? null) : ($settings['about_uz'] ?? null);
@@ -25,7 +26,7 @@ $addressText = $isRu ? ($settings['address_ru'] ?? null) : ($settings['address_u
                 <?php endif; ?>
                 <a href="/professions/<?= (int) $p['id'] ?>" class="text-decoration-none text-reset">
                     <?php if (!empty($p['image_url'])): ?>
-                        <img src="<?= htmlspecialchars($p['image_url']) ?>" alt="<?= htmlspecialchars($p['name_uz']) ?>">
+                        <img src="<?= htmlspecialchars(UploadStore::thumbUrl($p['image_url'])) ?>" alt="<?= htmlspecialchars($p['name_uz']) ?>" loading="lazy" decoding="async">
                     <?php endif; ?>
                     <div class="p-3 pb-0">
                         <h3 class="h5"><?= htmlspecialchars($isRu ? $p['name_ru'] : $p['name_uz']) ?></h3>
@@ -51,7 +52,7 @@ $addressText = $isRu ? ($settings['address_ru'] ?? null) : ($settings['address_u
                      role="button" tabindex="0" data-bs-toggle="modal" data-bs-target="#tcNewsModal<?= $i ?>"
                      aria-label="<?= htmlspecialchars($isRu ? $n['title_ru'] : $n['title_uz']) ?>">
                     <?php if (!empty($n['image_url'])): ?>
-                        <img src="<?= htmlspecialchars($n['image_url']) ?>" alt="">
+                        <img src="<?= htmlspecialchars(UploadStore::thumbUrl($n['image_url'])) ?>" alt="" loading="lazy" decoding="async">
                     <?php endif; ?>
                     <div class="p-3">
                         <h3 class="h6"><?= htmlspecialchars($isRu ? $n['title_ru'] : $n['title_uz']) ?></h3>
@@ -77,7 +78,7 @@ $addressText = $isRu ? ($settings['address_ru'] ?? null) : ($settings['address_u
                 <div class="modal-content tc-teacher-modal">
                     <button type="button" class="btn-close tc-teacher-modal-close" data-bs-dismiss="modal" aria-label="<?= htmlspecialchars(Lang::t('card_close')) ?>"></button>
                     <?php if (!empty($n['image_url'])): ?>
-                        <img src="<?= htmlspecialchars($n['image_url']) ?>" alt="" class="tc-news-modal-img">
+                        <img src="<?= htmlspecialchars($n['image_url']) ?>" alt="" class="tc-news-modal-img" loading="lazy" decoding="async">
                     <?php endif; ?>
                     <div class="modal-body">
                         <h2 class="h5 mb-1 pe-4" id="tcNewsModalTitle<?= $i ?>"><?= htmlspecialchars($newsTitle) ?></h2>

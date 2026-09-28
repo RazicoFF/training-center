@@ -33,7 +33,7 @@ use App\Core\Lang;
         <tr>
             <td>
                 <?php if (!empty($t['photo_url'])): ?>
-                    <img src="<?= htmlspecialchars($t['photo_url']) ?>" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:50%;">
+                    <img src="<?= htmlspecialchars(\App\Services\UploadStore::thumbUrl($t['photo_url'])) ?>" alt="" loading="lazy" style="width:36px;height:36px;object-fit:cover;border-radius:50%;">
                 <?php endif; ?>
             </td>
             <td><a href="/admin/teachers/<?= (int) $t['id'] ?>" data-tc-card class="fw-semibold"><?= htmlspecialchars($t['full_name']) ?></a></td>

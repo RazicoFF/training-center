@@ -21,6 +21,7 @@ final class UploadStore
 {
     public const PHOTO_MAX_SIDE = 800;
     public const IMAGE_MAX_SIDE = 1600;
+    public const THUMB_MAX_SIDE = 640;
 
     private const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
     private const WEBP_QUALITY = 82;
@@ -63,6 +64,9 @@ final class UploadStore
         return $this->put($dir, $prefix, 'pdf', 'application/pdf', $bytes);
     }
 
+    /**
+     * Stores an image plus a small card-sized copy at thumbUrl() of the returned URL.
+     */
     public function storeImageBytes(string $bytes, string $dir, string $prefix, int $maxSide = self::IMAGE_MAX_SIDE): ?string
     {
         $image = @imagecreatefromstring($bytes);
@@ -70,19 +74,29 @@ final class UploadStore
             return null;
         }
 
-        $image = $this->orientUpright($image, $bytes);
-        $image = $this->scaleDown($image, $maxSide);
+        $image = $this->scaleDown($this->orientUpright($image, $bytes), $maxSide);
+        [$extension, $mime, $encoded] = $this->encode($image);
+        $url = $this->put($dir, $prefix, $extension, $mime, $encoded);
 
-        ob_start();
-        $encoded = function_exists('imagewebp') && imagewebp($image, null, self::WEBP_QUALITY);
-        $output = (string) ob_get_clean();
-        if ($encoded) {
-            return $this->put($dir, $prefix, 'webp', 'image/webp', $output);
+        [, $thumbMime, $thumbBytes] = $this->encode($this->scaleDown($image, self::THUMB_MAX_SIDE));
+        $this->putAt(self::thumbUrl($url), $thumbMime, $thumbBytes);
+
+        return $url;
+    }
+
+    /**
+     * The card-sized copy of an uploaded image ("/uploads/news/a.webp" becomes
+     * "/uploads/news/a-sm.webp"). Anything that is not an upload - bundled /images/...
+     * defaults, null - is returned unchanged, so views can call this unconditionally.
+     */
+    public static function thumbUrl(?string $url): ?string
+    {
+        $path = self::normalizePath($url);
+        if ($path === null || !preg_match('/\.(webp|jpe?g|png)$/', $path) || str_contains($path, '-sm.')) {
+            return $url;
         }
 
-        ob_start();
-        imagejpeg($image, null, 85);
-        return $this->put($dir, $prefix, 'jpg', 'image/jpeg', (string) ob_get_clean());
+        return (string) preg_replace('/\.(webp|jpe?g|png)$/', '-sm.$1', $path);
     }
 
     /**
@@ -96,12 +110,13 @@ final class UploadStore
             return;
         }
 
-        $file = $this->publicDir . $path;
-        if (is_file($file)) {
-            @unlink($file);
+        foreach (array_unique([$path, (string) self::thumbUrl($path)]) as $target) {
+            $file = $this->publicDir . $target;
+            if (is_file($file)) {
+                @unlink($file);
+            }
+            Database::pdo()->prepare('DELETE FROM uploaded_files WHERE path = ?')->execute([$target]);
         }
-
-        Database::pdo()->prepare('DELETE FROM uploaded_files WHERE path = ?')->execute([$path]);
     }
 
     /**
@@ -151,7 +166,7 @@ final class UploadStore
         $stmt->execute([$path]);
         $row = $stmt->fetch();
         if ($row === false) {
-            return null;
+            return $this->createMissingThumb($path);
         }
 
         $file = $this->publicDir . $path;
@@ -194,12 +209,58 @@ final class UploadStore
         return ['tmp_name' => (string) $file['tmp_name'], 'name' => (string) $file['name']];
     }
 
+    /**
+     * Images uploaded before thumbnails existed have none; build one from the original
+     * the first time it is requested.
+     */
+    private function createMissingThumb(string $thumbPath): ?array
+    {
+        if (!str_contains($thumbPath, '-sm.')) {
+            return null;
+        }
+        $originalPath = str_replace('-sm.', '.', $thumbPath);
+
+        $original = is_file($this->publicDir . $originalPath)
+            ? (string) file_get_contents($this->publicDir . $originalPath)
+            : ($this->fetch($originalPath)['data'] ?? null);
+        $image = $original !== null ? @imagecreatefromstring($original) : false;
+        if (!$image instanceof GdImage) {
+            return null;
+        }
+
+        [, $mime, $bytes] = $this->encode($this->scaleDown($image, self::THUMB_MAX_SIDE));
+        $this->putAt($thumbPath, $mime, $bytes);
+
+        return ['mime' => $mime, 'data' => $bytes];
+    }
+
+    /** @return array{0: string, 1: string, 2: string} extension, mime type, bytes */
+    private function encode(GdImage $image): array
+    {
+        ob_start();
+        $isWebp = function_exists('imagewebp') && imagewebp($image, null, self::WEBP_QUALITY);
+        $bytes = (string) ob_get_clean();
+        if ($isWebp) {
+            return ['webp', 'image/webp', $bytes];
+        }
+
+        ob_start();
+        imagejpeg($image, null, 85);
+        return ['jpg', 'image/jpeg', (string) ob_get_clean()];
+    }
+
     private function put(string $dir, string $prefix, string $extension, string $mime, string $bytes): string
     {
         $path = '/uploads/' . $dir . '/' . $prefix . '-' . bin2hex(random_bytes(8)) . '.' . $extension;
+        $this->putAt($path, $mime, $bytes);
 
+        return $path;
+    }
+
+    private function putAt(string $path, string $mime, string $bytes): void
+    {
         Database::pdo()
-            ->prepare('INSERT INTO uploaded_files (path, mime, data) VALUES (?, ?, ?)')
+            ->prepare('INSERT INTO uploaded_files (path, mime, data) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE mime = VALUES(mime), data = VALUES(data)')
             ->execute([$path, $mime, $bytes]);
 
         $file = $this->publicDir . $path;
@@ -207,8 +268,6 @@ final class UploadStore
             mkdir(dirname($file), 0775, true);
         }
         file_put_contents($file, $bytes);
-
-        return $path;
     }
 
     private function scaleDown(GdImage $image, int $maxSide): GdImage

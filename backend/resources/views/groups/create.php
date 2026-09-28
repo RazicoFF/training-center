@@ -20,7 +20,7 @@ use App\Core\Lang;
                     <label class="tc-profession-card d-block mb-0 tc-fade-in tc-fade-in-<?= min($i + 1, 4) ?>">
                         <input type="radio" name="profession_id" value="<?= (int) $p['id'] ?>" class="d-none tc-profession-radio" <?= $i === 0 ? 'checked' : '' ?> required>
                         <?php if (!empty($p['image_url'])): ?>
-                            <img src="<?= htmlspecialchars($p['image_url']) ?>" alt="<?= htmlspecialchars($p['name_uz']) ?>">
+                            <img src="<?= htmlspecialchars(\App\Services\UploadStore::thumbUrl($p['image_url'])) ?>" alt="<?= htmlspecialchars($p['name_uz']) ?>" loading="lazy">
                         <?php endif; ?>
                         <div class="tc-profession-name"><?= htmlspecialchars($p['name_uz']) ?></div>
                     </label>

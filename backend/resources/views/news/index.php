@@ -12,7 +12,7 @@ use App\Core\Lang;
         <div class="col-md-4">
             <div class="card tc-fade-in tc-fade-in-<?= min($i + 1, 4) ?> h-100">
                 <?php if (!empty($n['image_url'])): ?>
-                    <img src="<?= htmlspecialchars($n['image_url']) ?>" alt="" style="width:100%;height:140px;object-fit:cover;">
+                    <img src="<?= htmlspecialchars(\App\Services\UploadStore::thumbUrl($n['image_url'])) ?>" alt="" loading="lazy" style="width:100%;height:140px;object-fit:cover;">
                 <?php endif; ?>
                 <div class="card-body">
                     <h2 class="h6"><?= htmlspecialchars($n['title_uz']) ?></h2>

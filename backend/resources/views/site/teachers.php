@@ -1,6 +1,7 @@
 <?php
 /** @var array $teachers */
 use App\Core\Lang;
+use App\Services\UploadStore;
 
 $isRu = Lang::current() === 'ru';
 
@@ -40,7 +41,7 @@ if (!function_exists('tc_teacher_age')) {
                  aria-label="<?= htmlspecialchars($t['full_name']) ?>">
                 <div class="d-flex align-items-center gap-3 mb-3">
                     <?php if (!empty($t['photo_url'])): ?>
-                        <img src="<?= htmlspecialchars($t['photo_url']) ?>" alt="" class="tc-teacher-photo">
+                        <img src="<?= htmlspecialchars(UploadStore::thumbUrl($t['photo_url'])) ?>" alt="" class="tc-teacher-photo" loading="lazy" decoding="async">
                     <?php else: ?>
                         <div class="tc-teacher-photo-placeholder"><?= htmlspecialchars(tc_initials($t['full_name'])) ?></div>
                     <?php endif; ?>
@@ -81,7 +82,7 @@ if (!function_exists('tc_teacher_age')) {
                 <div class="modal-body">
                     <div class="tc-teacher-modal-head">
                         <?php if (!empty($t['photo_url'])): ?>
-                            <img src="<?= htmlspecialchars($t['photo_url']) ?>" alt="" class="tc-teacher-modal-photo">
+                            <img src="<?= htmlspecialchars($t['photo_url']) ?>" alt="" class="tc-teacher-modal-photo" loading="lazy" decoding="async">
                         <?php else: ?>
                             <div class="tc-teacher-modal-photo tc-teacher-photo-placeholder"><?= htmlspecialchars(tc_initials($t['full_name'])) ?></div>
                         <?php endif; ?>

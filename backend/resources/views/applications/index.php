@@ -43,7 +43,7 @@ $tabs = [
         <tr>
             <td>
                 <?php if (!empty($app['photo_url'])): ?>
-                    <img src="<?= htmlspecialchars($app['photo_url']) ?>" alt="" style="width:36px;height:48px;object-fit:cover;border-radius:4px;">
+                    <img src="<?= htmlspecialchars(\App\Services\UploadStore::thumbUrl($app['photo_url'])) ?>" alt="" loading="lazy" style="width:36px;height:48px;object-fit:cover;border-radius:4px;">
                 <?php endif; ?>
             </td>
             <td><a href="/admin/applications/<?= (int) $app['id'] ?>" data-tc-card class="fw-semibold"><?= htmlspecialchars($app['full_name']) ?></a></td>

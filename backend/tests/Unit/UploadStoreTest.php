@@ -51,6 +51,51 @@ final class UploadStoreTest extends TestCase
         $this->assertSame(filesize($this->publicDir . $url), (int) $stored['bytes']);
     }
 
+    public function testThumbnailIsStoredNextToTheImage(): void
+    {
+        $url = $this->store->storeImageBytes($this->pngBytes(3000, 2000), 'unittest', 'pic');
+        $thumb = UploadStore::thumbUrl($url);
+
+        $this->assertSame(str_replace('.webp', '-sm.webp', $url), $thumb);
+        $size = getimagesize($this->publicDir . $thumb);
+        $this->assertSame([640, 427], [$size[0], $size[1]]);
+        $this->assertNotNull($this->store->fetch($thumb));
+    }
+
+    public function testThumbUrlLeavesNonUploadsAlone(): void
+    {
+        $this->assertSame('/images/professions/excavator.jpg', UploadStore::thumbUrl('/images/professions/excavator.jpg'));
+        $this->assertNull(UploadStore::thumbUrl(null));
+        $this->assertSame('/uploads/news/a-sm.webp', UploadStore::thumbUrl('/uploads/news/a-sm.webp'));
+    }
+
+    public function testMissingThumbnailIsBuiltFromTheOriginalOnFirstRequest(): void
+    {
+        $url = $this->store->storeImageBytes($this->pngBytes(2000, 1000), 'unittest', 'pic');
+        $thumb = UploadStore::thumbUrl($url);
+        // Simulate an image uploaded before thumbnails existed.
+        Database::pdo()->prepare('DELETE FROM uploaded_files WHERE path = ?')->execute([$thumb]);
+        unlink($this->publicDir . $thumb);
+
+        $fetched = $this->store->fetch($thumb);
+
+        $this->assertNotNull($fetched);
+        $this->assertSame([640, 320], array_slice(getimagesizefromstring($fetched['data']), 0, 2));
+        $this->assertFileExists($this->publicDir . $thumb);
+    }
+
+    public function testDeleteAlsoRemovesTheThumbnail(): void
+    {
+        $url = $this->store->storeImageBytes($this->pngBytes(40, 40), 'unittest', 'pic');
+
+        $this->store->delete($url);
+
+        $this->assertFileDoesNotExist($this->publicDir . UploadStore::thumbUrl($url));
+        $count = Database::pdo()->prepare('SELECT COUNT(*) FROM uploaded_files WHERE path = ?');
+        $count->execute([UploadStore::thumbUrl($url)]);
+        $this->assertSame(0, (int) $count->fetchColumn());
+    }
+
     public function testSmallImageKeepsItsSize(): void
     {
         $url = $this->store->storeImageBytes($this->pngBytes(300, 200), 'unittest', 'pic');
