@@ -21,4 +21,14 @@ final class View
 
         echo $renderFile($viewsDir . '/' . $layout . '.php', array_merge($data, ['content' => $content]));
     }
+
+    /**
+     * Renders a template without the layout, for HTML fragments fetched by page JS
+     * (e.g. the admin profile cards shown in a dialog).
+     */
+    public static function partial(string $template, array $data = []): void
+    {
+        extract($data);
+        require dirname(__DIR__, 2) . '/resources/views/' . $template . '.php';
+    }
 }

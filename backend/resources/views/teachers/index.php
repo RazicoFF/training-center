@@ -36,7 +36,7 @@ use App\Core\Lang;
                     <img src="<?= htmlspecialchars($t['photo_url']) ?>" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:50%;">
                 <?php endif; ?>
             </td>
-            <td><?= htmlspecialchars($t['full_name']) ?></td>
+            <td><a href="/admin/teachers/<?= (int) $t['id'] ?>" data-tc-card class="fw-semibold"><?= htmlspecialchars($t['full_name']) ?></a></td>
             <td><?= htmlspecialchars($t['phone']) ?></td>
             <td class="text-end">
                 <a href="/admin/teachers/<?= (int) $t['id'] ?>/edit" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('teacher_edit')) ?></a>

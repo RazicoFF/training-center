@@ -25,6 +25,8 @@ final class MediaController
         $router->get('/admin/media', fn (Request $req) => $this->index($req));
         $router->post('/admin/media/image', fn (Request $req) => $this->createImage($req));
         $router->post('/admin/media/video', fn (Request $req) => $this->createVideo($req));
+        $router->get('/admin/media/{id}/edit', fn (Request $req) => $this->editForm($req));
+        $router->post('/admin/media/{id}', fn (Request $req) => $this->update($req));
         $router->post('/admin/media/{id}/delete', fn (Request $req) => $this->delete($req));
     }
 
@@ -49,24 +51,8 @@ final class MediaController
             return ['redirect' => '/admin/login'];
         }
 
-        $uploadedImage = $_FILES['image'] ?? null;
-        if (!is_array($uploadedImage) || ($uploadedImage['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            return ['redirect' => '/admin/media', 'flash' => Lang::t('media_image_required')];
-        }
-
-        $extension = strtolower((string) pathinfo((string) $uploadedImage['name'], PATHINFO_EXTENSION));
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
-        if (!in_array($extension, $allowedExtensions, true)) {
-            return ['redirect' => '/admin/media', 'flash' => Lang::t('media_image_required')];
-        }
-
-        $uploadDir = dirname(__DIR__, 3) . '/public/uploads/media';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0775, true);
-        }
-
-        $filename = 'media-' . bin2hex(random_bytes(8)) . '.' . $extension;
-        if (!move_uploaded_file((string) $uploadedImage['tmp_name'], $uploadDir . '/' . $filename)) {
+        $fileUrl = $this->storeUploadedImage();
+        if ($fileUrl === null) {
             return ['redirect' => '/admin/media', 'flash' => Lang::t('media_image_required')];
         }
 
@@ -74,7 +60,7 @@ final class MediaController
         $titleRu = trim((string) ($body['title_ru'] ?? ''));
 
         $this->media->createImage(
-            '/uploads/media/' . $filename,
+            $fileUrl,
             $titleUz !== '' ? $titleUz : null,
             $titleRu !== '' ? $titleRu : null
         );
@@ -110,6 +96,74 @@ final class MediaController
         return ['redirect' => '/admin/media', 'flash' => Lang::t('media_added')];
     }
 
+    private function editForm(Request $request): array
+    {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $item = $this->media->find((int) $request->param('id'));
+        if ($item === null) {
+            http_response_code(404);
+            echo '<h1>404</h1>';
+            return ['rendered' => true];
+        }
+
+        View::render('media/edit', ['item' => $item]);
+        return ['rendered' => true];
+    }
+
+    private function update(Request $request): array
+    {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $body = $request->formBody();
+        if (!Csrf::verify($body['csrf_token'] ?? null)) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $mediaId = (int) $request->param('id');
+        $item = $this->media->find($mediaId);
+        if ($item === null) {
+            http_response_code(404);
+            echo '<h1>404</h1>';
+            return ['rendered' => true];
+        }
+
+        $fileUrl = null;
+        $youtubeUrl = null;
+        if ($item['type'] === 'image') {
+            $uploadedImage = $_FILES['image'] ?? null;
+            if (is_array($uploadedImage) && ($uploadedImage['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                $fileUrl = $this->storeUploadedImage();
+                if ($fileUrl === null) {
+                    return ['redirect' => "/admin/media/{$mediaId}/edit", 'flash' => Lang::t('media_image_required')];
+                }
+            }
+        } else {
+            $youtubeUrl = trim((string) ($body['youtube_url'] ?? ''));
+            if ($youtubeUrl === '' || ProfessionVideoRepository::extractYoutubeId($youtubeUrl) === null) {
+                return ['redirect' => "/admin/media/{$mediaId}/edit", 'flash' => Lang::t('video_invalid_url')];
+            }
+        }
+
+        $titleUz = trim((string) ($body['title_uz'] ?? ''));
+        $titleRu = trim((string) ($body['title_ru'] ?? ''));
+
+        $this->media->update(
+            $mediaId,
+            $titleUz !== '' ? $titleUz : null,
+            $titleRu !== '' ? $titleRu : null,
+            (int) ($body['sort_order'] ?? 0),
+            $fileUrl,
+            $youtubeUrl
+        );
+
+        return ['redirect' => '/admin/media', 'flash' => Lang::t('media_updated')];
+    }
+
     private function delete(Request $request): array
     {
         if (AdminAuthMiddleware::requireAdmin() === null) {
@@ -124,5 +178,35 @@ final class MediaController
         $this->media->delete((int) $request->param('id'));
 
         return ['redirect' => '/admin/media', 'flash' => Lang::t('media_deleted')];
+    }
+
+    /**
+     * Moves the uploaded $_FILES['image'] into public/uploads/media and returns its
+     * public URL, or null when no valid jpg/png/webp file was uploaded.
+     */
+    private function storeUploadedImage(): ?string
+    {
+        $uploadedImage = $_FILES['image'] ?? null;
+        if (!is_array($uploadedImage) || ($uploadedImage['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            return null;
+        }
+
+        $extension = strtolower((string) pathinfo((string) $uploadedImage['name'], PATHINFO_EXTENSION));
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+        if (!in_array($extension, $allowedExtensions, true)) {
+            return null;
+        }
+
+        $uploadDir = dirname(__DIR__, 3) . '/public/uploads/media';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0775, true);
+        }
+
+        $filename = 'media-' . bin2hex(random_bytes(8)) . '.' . $extension;
+        if (!move_uploaded_file((string) $uploadedImage['tmp_name'], $uploadDir . '/' . $filename)) {
+            return null;
+        }
+
+        return '/uploads/media/' . $filename;
     }
 }

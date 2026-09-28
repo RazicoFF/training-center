@@ -377,3 +377,95 @@ body {
     border: none;
     animation: tc-fade-in-up 0.3s ease both;
 }
+
+/* Teacher/student profile card - shown full-page at /admin/{teachers|students}/{id}
+   and inside #tc-card-dialog when opened from a list. */
+.tc-profile-card {
+    max-width: 640px;
+}
+
+.tc-main > .tc-fade-in > .tc-profile-card {
+    background: var(--tc-surface);
+    border: 1px solid var(--tc-border);
+    border-radius: 12px;
+    box-shadow: var(--tc-shadow);
+    padding: 1.5rem;
+}
+
+.tc-profile-head {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-right: 2rem;
+}
+
+.tc-profile-photo {
+    width: 96px;
+    height: 120px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.tc-profile-photo-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--tc-accent-grad);
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.tc-profile-fields {
+    display: grid;
+    grid-template-columns: minmax(120px, max-content) 1fr;
+    gap: 0.4rem 1rem;
+    margin: 0;
+}
+
+.tc-profile-fields dt {
+    color: var(--tc-text-muted);
+    font-weight: 500;
+}
+
+.tc-profile-fields dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.tc-card-dialog {
+    width: min(640px, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    padding: 1.5rem;
+    border: 1px solid var(--tc-border);
+    border-radius: 14px;
+    background: var(--tc-surface);
+    color: var(--tc-text);
+    box-shadow: var(--tc-shadow-hover);
+}
+
+.tc-card-dialog::backdrop {
+    background: rgba(15, 23, 32, 0.55);
+}
+
+.tc-card-dialog[open] {
+    animation: tc-fade-in-up 0.25s ease both;
+}
+
+.tc-card-dialog-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+@media (max-width: 480px) {
+    .tc-profile-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .tc-profile-fields dd {
+        margin-bottom: 0.4rem;
+    }
+}

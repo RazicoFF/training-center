@@ -37,6 +37,7 @@ final class StudentController
         $router->get('/admin/students', fn (Request $req) => $this->index($req));
         $router->get('/admin/students/create', fn (Request $req) => $this->createForm($req));
         $router->post('/admin/students', fn (Request $req) => $this->create($req));
+        $router->get('/admin/students/{id}', fn (Request $req) => $this->show($req));
         $router->get('/admin/students/{id}/edit', fn (Request $req) => $this->editForm($req));
         $router->post('/admin/students/{id}', fn (Request $req) => $this->update($req));
         $router->post('/admin/students/{id}/delete', fn (Request $req) => $this->delete($req));
@@ -115,6 +116,20 @@ final class StudentController
 
     private function editForm(Request $request): array
     {
+        return $this->renderStudent($request, 'students/edit');
+    }
+
+    /**
+     * Profile card with the student's details, groups, test results and certificates.
+     * With ?modal=1 only the card fragment is returned, for the dialog opened from the list.
+     */
+    private function show(Request $request): array
+    {
+        return $this->renderStudent($request, 'students/show', ($_GET['modal'] ?? '') === '1');
+    }
+
+    private function renderStudent(Request $request, string $template, bool $partial = false): array
+    {
         $claims = AdminAuthMiddleware::authenticate();
         if ($claims === null) {
             return ['redirect' => '/admin/login'];
@@ -135,12 +150,17 @@ final class StudentController
             return ['rendered' => true];
         }
 
-        View::render('students/edit', [
+        $data = [
             'student' => $student,
             'enrollments' => $this->groups->enrollmentsForUser($studentId),
             'testAttempts' => $this->tests->attemptsForUser($studentId),
             'certificates' => $this->certificates->forUser($studentId),
-        ]);
+        ];
+        if ($partial) {
+            View::partial($template, $data);
+        } else {
+            View::render($template, $data);
+        }
         return ['rendered' => true];
     }
 

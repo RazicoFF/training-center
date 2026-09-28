@@ -63,7 +63,7 @@ if (!function_exists('tc_icon')) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars(Lang::t('app_title')) ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/css/admin.css" rel="stylesheet">
+    <link href="/css/admin.css?v=<?= (int) @filemtime(dirname(__DIR__, 2) . '/public/css/admin.css') ?>" rel="stylesheet">
 </head>
 <body>
 <?php if ($isLoggedIn): ?>
@@ -117,6 +117,45 @@ if (!function_exists('tc_icon')) {
         </div>
     </main>
 </div>
+<dialog id="tc-card-dialog" class="tc-card-dialog">
+    <button type="button" class="btn-close tc-card-dialog-close" aria-label="<?= htmlspecialchars(Lang::t('card_close')) ?>"></button>
+    <div class="tc-card-dialog-body"></div>
+</dialog>
+<script>
+// Links marked data-tc-card open the linked profile card in a dialog instead of
+// navigating; without JS (or if the fetch fails) they fall back to the full page.
+(function () {
+    var dialog = document.getElementById('tc-card-dialog');
+    if (!dialog || typeof dialog.showModal !== 'function') {
+        return;
+    }
+    var body = dialog.querySelector('.tc-card-dialog-body');
+
+    document.addEventListener('click', function (e) {
+        var link = e.target.closest('a[data-tc-card]');
+        if (!link || e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) {
+            return;
+        }
+        e.preventDefault();
+        var url = link.getAttribute('href');
+        fetch(url + (url.indexOf('?') === -1 ? '?' : '&') + 'modal=1', { credentials: 'same-origin' })
+            .then(function (r) {
+                if (!r.ok || r.redirected) { throw new Error('card'); }
+                return r.text();
+            })
+            .then(function (html) {
+                body.innerHTML = html;
+                dialog.showModal();
+            })
+            .catch(function () { window.location.href = url; });
+    });
+
+    dialog.querySelector('.tc-card-dialog-close').addEventListener('click', function () { dialog.close(); });
+    dialog.addEventListener('click', function (e) {
+        if (e.target === dialog) { dialog.close(); }
+    });
+})();
+</script>
 <?php else: ?>
 <div class="tc-topbar" style="padding: 1rem 1.5rem 0;">
     <button type="button" id="theme-toggle" class="tc-theme-toggle" title="<?= htmlspecialchars(Lang::t('theme_toggle')) ?>">

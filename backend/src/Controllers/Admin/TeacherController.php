@@ -33,6 +33,7 @@ final class TeacherController
         $router->get('/admin/teachers', fn (Request $req) => $this->index($req));
         $router->get('/admin/teachers/create', fn (Request $req) => $this->createForm($req));
         $router->post('/admin/teachers', fn (Request $req) => $this->create($req));
+        $router->get('/admin/teachers/{id}', fn (Request $req) => $this->show($req));
         $router->get('/admin/teachers/{id}/edit', fn (Request $req) => $this->editForm($req));
         $router->post('/admin/teachers/{id}', fn (Request $req) => $this->update($req));
         $router->post('/admin/teachers/{id}/delete', fn (Request $req) => $this->delete($req));
@@ -89,6 +90,38 @@ final class TeacherController
         $this->profiles->upsert($teacherId, $this->buildProfileFields($teacherId, $body, null));
 
         return ['redirect' => '/admin/teachers', 'flash' => Lang::t('teacher_created')];
+    }
+
+    /**
+     * Profile card with everything known about the teacher. With ?modal=1 only the card
+     * fragment is returned, for the dialog opened from the teachers list.
+     */
+    private function show(Request $request): array
+    {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $teacherId = (int) $request->param('id');
+        $teacher = $this->users->find($teacherId);
+
+        if ($teacher === null || $teacher['role'] !== 'teacher') {
+            http_response_code(404);
+            echo '<h1>404</h1>';
+            return ['rendered' => true];
+        }
+
+        $data = [
+            'teacher' => $teacher,
+            'profile' => $this->profiles->findByUserId($teacherId),
+            'groups' => $this->groups->allForTeacher($teacherId),
+        ];
+        if (($_GET['modal'] ?? '') === '1') {
+            View::partial('teachers/show', $data);
+        } else {
+            View::render('teachers/show', $data);
+        }
+        return ['rendered' => true];
     }
 
     private function editForm(Request $request): array

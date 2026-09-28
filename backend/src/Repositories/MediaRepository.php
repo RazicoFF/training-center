@@ -44,6 +44,21 @@ final class MediaRepository
         return (int) Database::pdo()->lastInsertId();
     }
 
+    /**
+     * Updates titles and sort order; $fileUrl / $youtubeUrl replace the item's source
+     * only when non-null, so an edit without a new upload keeps the current one.
+     */
+    public function update(int $id, ?string $titleUz, ?string $titleRu, int $sortOrder, ?string $fileUrl = null, ?string $youtubeUrl = null): void
+    {
+        $stmt = Database::pdo()->prepare(
+            'UPDATE media_items
+             SET title_uz = ?, title_ru = ?, sort_order = ?,
+                 file_url = COALESCE(?, file_url), youtube_url = COALESCE(?, youtube_url)
+             WHERE id = ?'
+        );
+        $stmt->execute([$titleUz, $titleRu, $sortOrder, $fileUrl, $youtubeUrl, $id]);
+    }
+
     public function delete(int $id): void
     {
         $stmt = Database::pdo()->prepare('DELETE FROM media_items WHERE id = ?');

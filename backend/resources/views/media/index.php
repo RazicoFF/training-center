@@ -66,6 +66,7 @@ use App\Core\Lang;
                 <?php endif; ?>
                 <div class="card-body">
                     <p class="small mb-2"><?= htmlspecialchars($m['title_uz'] ?: '-') ?></p>
+                    <a href="/admin/media/<?= (int) $m['id'] ?>/edit" class="btn btn-sm btn-outline-secondary w-100 mb-2"><?= htmlspecialchars(Lang::t('teacher_edit')) ?></a>
                     <form method="post" action="/admin/media/<?= (int) $m['id'] ?>/delete">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
                         <button type="submit" class="btn btn-sm btn-outline-danger w-100"><?= htmlspecialchars(Lang::t('video_delete')) ?></button>

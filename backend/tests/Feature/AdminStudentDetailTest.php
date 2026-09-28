@@ -62,6 +62,38 @@ final class AdminStudentDetailTest extends TestCase
         $this->assertStringContainsString('CERT-DETAIL-TEST', $html);
     }
 
+    public function testProfileCardFragmentShowsFullDetailsWithoutLayout(): void
+    {
+        $router = new Router();
+        (new StudentController())->register($router);
+
+        $_GET = ['modal' => '1'];
+        ob_start();
+        $result = $router->dispatch(new Request('GET', "/admin/students/{$this->studentId}", [], [], []));
+        $html = ob_get_clean();
+        $_GET = [];
+
+        $this->assertSame(['rendered' => true], $result);
+        $this->assertStringContainsString('tc-profile-card', $html);
+        $this->assertStringContainsString('+998987770130', $html);
+        $this->assertStringContainsString('Detail Test', $html);
+        $this->assertStringContainsString('CERT-DETAIL-TEST', $html);
+        $this->assertStringContainsString("/admin/students/{$this->studentId}/edit", $html);
+        $this->assertStringNotContainsString('<html', $html);
+    }
+
+    public function testStudentsIndexLinksNamesToProfileCard(): void
+    {
+        $router = new Router();
+        (new StudentController())->register($router);
+
+        ob_start();
+        $router->dispatch(new Request('GET', '/admin/students', [], [], []));
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString("href=\"/admin/students/{$this->studentId}\" data-tc-card", $html);
+    }
+
     public function testStudentsIndexShowsCertificateDownloadButton(): void
     {
         $certificateId = (int) Database::pdo()->query("SELECT id FROM certificates WHERE certificate_number = 'CERT-DETAIL-TEST'")->fetchColumn();

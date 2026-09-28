@@ -84,7 +84,7 @@ $statLabels = [
                     <img src="<?= htmlspecialchars($s['photo_url']) ?>" alt="" style="width:30px;height:40px;object-fit:cover;border-radius:4px;">
                 <?php endif; ?>
             </td>
-            <td><?= htmlspecialchars($s['full_name']) ?></td>
+            <td><a href="/admin/students/<?= (int) $s['id'] ?>" data-tc-card class="fw-semibold"><?= htmlspecialchars($s['full_name']) ?></a></td>
             <td><?= htmlspecialchars($s['phone']) ?></td>
             <td><?= htmlspecialchars($s['group_names'] ?? '') ?: '-' ?></td>
             <td><?= (int) $s['tests_passed'] ?>/<?= (int) $s['tests_taken'] ?></td>
