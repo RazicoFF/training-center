@@ -19,7 +19,7 @@ use App\Core\Lang;
                 <?php endif; ?>
                 <div class="card-body">
                     <h2 class="h6"><?= htmlspecialchars($p['name_uz']) ?></h2>
-                    <p class="text-muted small mb-2"><?= number_format((float) $p['price']) ?> UZS &middot; <?= (int) $p['duration_days'] ?> <?= htmlspecialchars(Lang::t('profession_days')) ?></p>
+                    <p class="text-muted small mb-2"><?= htmlspecialchars(Lang::money((float) $p['price'])) ?> &middot; <?= (int) $p['duration_days'] ?> <?= htmlspecialchars(Lang::t('profession_days')) ?></p>
                     <a href="/admin/professions/<?= (int) $p['id'] ?>/edit" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('profession_edit')) ?></a>
                     <form method="post" action="/admin/professions/<?= (int) $p['id'] ?>/delete" class="d-inline" onsubmit="return confirm('<?= htmlspecialchars(Lang::t('profession_delete_confirm')) ?>');">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">

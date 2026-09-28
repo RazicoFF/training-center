@@ -35,4 +35,10 @@ final class Lang
 
         return self::$strings[$key] ?? $key;
     }
+
+    /** "1 500 000 so'm" / "1 500 000 сум", with non-breaking spaces so it never wraps. */
+    public static function money(float $amount): string
+    {
+        return number_format($amount, 0, ',', "\u{00A0}") . "\u{00A0}" . self::t('currency');
+    }
 }

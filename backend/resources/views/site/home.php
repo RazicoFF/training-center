@@ -30,7 +30,7 @@ $addressText = $isRu ? ($settings['address_ru'] ?? null) : ($settings['address_u
                     <div class="p-3 pb-0">
                         <h3 class="h5"><?= htmlspecialchars($isRu ? $p['name_ru'] : $p['name_uz']) ?></h3>
                         <p class="text-muted small mb-2"><?= htmlspecialchars($isRu ? $p['description_ru'] : $p['description_uz']) ?></p>
-                        <p class="tc-price-tag mb-1"><?= number_format((float) $p['price']) ?> UZS</p>
+                        <p class="tc-price-tag mb-1"><?= htmlspecialchars(Lang::money((float) $p['price'])) ?></p>
                         <p class="text-muted small mb-3"><?= (int) $p['duration_days'] ?> <?= htmlspecialchars(Lang::t('profession_days')) ?></p>
                     </div>
                 </a>

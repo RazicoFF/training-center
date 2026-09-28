@@ -17,7 +17,7 @@ $isRu = Lang::current() === 'ru';
     <div class="col-md-7">
         <h1 class="h3"><?= htmlspecialchars($isRu ? $profession['name_ru'] : $profession['name_uz']) ?></h1>
         <p><?= htmlspecialchars($isRu ? $profession['description_ru'] : $profession['description_uz']) ?></p>
-        <p class="tc-price-tag"><?= number_format((float) $profession['price']) ?> UZS</p>
+        <p class="tc-price-tag"><?= htmlspecialchars(Lang::money((float) $profession['price'])) ?></p>
         <p class="text-muted"><?= (int) $profession['duration_days'] ?> <?= htmlspecialchars(Lang::t('profession_days')) ?></p>
 
         <?php $careerInfo = $isRu ? ($profession['career_info_ru'] ?? null) : ($profession['career_info_uz'] ?? null); ?>

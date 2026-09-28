@@ -30,7 +30,7 @@ final class SiteHomeTest extends TestCase
 
         $this->assertSame(['rendered' => true], $result);
         $this->assertStringContainsString('Ekskavator', $html);
-        $this->assertStringContainsString('1,500,000', $html);
+        $this->assertStringContainsString("1\u{00A0}500\u{00A0}000\u{00A0}so&#039;m", $html);
     }
 
     public function testHomeRendersAboutAddressContactsAndStatsWhenSet(): void
