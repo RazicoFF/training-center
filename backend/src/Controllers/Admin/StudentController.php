@@ -18,6 +18,7 @@ use App\Repositories\ProfessionRepository;
 use App\Repositories\StudentStatsRepository;
 use App\Repositories\TestRepository;
 use App\Repositories\UserRepository;
+use App\Services\UploadStore;
 
 final class StudentController
 {
@@ -28,7 +29,8 @@ final class StudentController
         private readonly TestRepository $tests = new TestRepository(),
         private readonly CertificateRepository $certificates = new CertificateRepository(),
         private readonly ProfessionRepository $professions = new ProfessionRepository(),
-        private readonly ProfessionBrandRepository $brands = new ProfessionBrandRepository()
+        private readonly ProfessionBrandRepository $brands = new ProfessionBrandRepository(),
+        private readonly UploadStore $uploads = new UploadStore()
     ) {
     }
 
@@ -253,27 +255,6 @@ final class StudentController
 
     private function uploadPhoto(int $studentId): ?string
     {
-        $uploadedPhoto = $_FILES['photo'] ?? null;
-        if (!is_array($uploadedPhoto) || ($uploadedPhoto['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            return null;
-        }
-
-        $extension = strtolower((string) pathinfo((string) $uploadedPhoto['name'], PATHINFO_EXTENSION));
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
-        if (!in_array($extension, $allowedExtensions, true)) {
-            return null;
-        }
-
-        $uploadDir = dirname(__DIR__, 3) . '/public/uploads/students';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0775, true);
-        }
-
-        $filename = 'student-' . $studentId . '-' . bin2hex(random_bytes(8)) . '.' . $extension;
-        if (!move_uploaded_file((string) $uploadedPhoto['tmp_name'], $uploadDir . '/' . $filename)) {
-            return null;
-        }
-
-        return '/uploads/students/' . $filename;
+        return $this->uploads->storeUploadedImage('photo', 'students', 'student-' . $studentId, UploadStore::PHOTO_MAX_SIDE);
     }
 }

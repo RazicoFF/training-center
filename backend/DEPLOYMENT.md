@@ -31,25 +31,21 @@ JWT_SECRET=<uzun tasodifiy satr, masalan: openssl rand -hex 32>
 JWT_TTL_DAYS=30
 ```
 
-## 4. Doimiy disk (Volume) qo'shish
+## 4. Yuklangan fayllar (Volume shart emas)
 
-Rasmlar, PDF sertifikatlar va video fayllar konteyner qayta ishga tushganda yo'qolib
-ketmasligi uchun **Volume** qo'shing:
+Konteyner diski har `git push`dan keyin tozalanadi, lekin bu endi fayllarni yo'qotmaydi:
 
-1. Backend xizmatida **Settings → Volumes → New Volume**.
-2. Mount path: `/var/www/html/public/uploads`
-3. Yana bittasini qo'shing: mount path `/var/www/html/storage`
+- Admin panel va sayt orqali yuklangan har bir fayl (kasb, yangilik, media, o'qituvchi,
+  talaba va ariza rasmlari, kasb PDF'lari) diskka ham, MySQL'dagi `uploaded_files`
+  jadvaliga ham yoziladi. Diskda fayl topilmasa, `public/upload.php` uni bazadan beradi
+  va diskka qayta yozib qo'yadi.
+- Sertifikat PDF'lari (`storage/certificates`) yuklab olinayotganda topilmasa, bazadagi
+  ma'lumotdan avtomatik qayta yaratiladi.
+- Rasmlar yuklash paytida uzun tomoni 1600 px gacha (odam rasmlari 800 px) kichraytirilib,
+  WebP formatga o'tkaziladi, shuning uchun baza tez to'lib qolmaydi.
 
-> **MUHIM CHEKLOV**: Railway'ning bepul (Trial, kartasiz) tarifida Volume funksiyasi
-> umuman ko'rsatilmaydi - u faqat Hobby va undan yuqori (pullik) tarifda ochiladi. Agar
-> bepul tarifda qolsangiz, `public/uploads/` va `storage/` papkalari **doimiy emas** -
-> har bir yangi `git push` (Railway'ni qayta build qilishga majbur qiladigan har qanday
-> o'zgarish) shu papkalardagi barcha fayllarni (admin panel orqali yuklangan kasb/
-> o'qituvchi/talaba rasmlari, media fayllar, sertifikat PDF'lari) butunlay o'chirib
-> yuboradi - ma'lumotlar bazasidagi yozuv (masalan, professions.image_url) qoladi, lekin
-> fayl o'zi yo'qoladi va rasm sinib ko'rinadi. Amaliy yechim: barcha kerakli rasmlarni
-> **eng oxirgi** `git push`dan keyin, taqdimot/himoyadan oldin bir marta yuklang va shundan
-> keyin boshqa kod o'zgarishi yubormang.
+Volume (Hobby tarif) ixtiyoriy: ulasangiz, fayllar bazadan qayta tiklanishi ham shart
+bo'lmay qoladi. Mount path: `/var/www/html/public/uploads` va `/var/www/html/storage`.
 
 ## 5. Deploy va migratsiya
 

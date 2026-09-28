@@ -13,13 +13,15 @@ use App\Middleware\AdminAuthMiddleware;
 use App\Repositories\ProfessionBrandRepository;
 use App\Repositories\ProfessionRepository;
 use App\Repositories\ProfessionVideoRepository;
+use App\Services\UploadStore;
 
 final class ProfessionController
 {
     public function __construct(
         private readonly ProfessionRepository $professions = new ProfessionRepository(),
         private readonly ProfessionVideoRepository $videos = new ProfessionVideoRepository(),
-        private readonly ProfessionBrandRepository $brands = new ProfessionBrandRepository()
+        private readonly ProfessionBrandRepository $brands = new ProfessionBrandRepository(),
+        private readonly UploadStore $uploads = new UploadStore()
     ) {
     }
 
@@ -147,7 +149,8 @@ final class ProfessionController
             return ['redirect' => '/admin/login'];
         }
 
-        if ($this->professions->find($professionId) === null) {
+        $existing = $this->professions->find($professionId);
+        if ($existing === null) {
             http_response_code(404);
             echo '<h1>404</h1>';
             return ['rendered' => true];
@@ -182,12 +185,14 @@ final class ProfessionController
         $imageUrl = $this->handleImageUpload($professionId);
         if ($imageUrl !== null) {
             $this->professions->updateImage($professionId, $imageUrl);
+            $this->uploads->delete($existing['image_url']);
         }
         $imageFailed = $imageUrl === null && $this->fileWasSubmitted('image');
 
         $pdfUrl = $this->handlePdfUpload($professionId);
         if ($pdfUrl !== null) {
             $this->professions->updatePdf($professionId, $pdfUrl);
+            $this->uploads->delete($existing['pdf_url']);
         }
 
         if ($imageFailed) {
@@ -295,7 +300,8 @@ final class ProfessionController
             return ['redirect' => '/admin/login'];
         }
 
-        if ($this->professions->find($professionId) === null) {
+        $profession = $this->professions->find($professionId);
+        if ($profession === null) {
             http_response_code(404);
             echo '<h1>404</h1>';
             return ['rendered' => true];
@@ -306,6 +312,8 @@ final class ProfessionController
         }
 
         $this->professions->delete($professionId);
+        $this->uploads->delete($profession['image_url']);
+        $this->uploads->delete($profession['pdf_url']);
 
         return ['redirect' => '/admin/professions', 'flash' => Lang::t('profession_deleted')];
     }
@@ -318,52 +326,11 @@ final class ProfessionController
 
     private function handlePdfUpload(int $professionId): ?string
     {
-        $uploadedPdf = $_FILES['pdf'] ?? null;
-        if (!is_array($uploadedPdf) || ($uploadedPdf['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            return null;
-        }
-
-        $extension = strtolower((string) pathinfo((string) $uploadedPdf['name'], PATHINFO_EXTENSION));
-        if ($extension !== 'pdf') {
-            return null;
-        }
-
-        $uploadDir = dirname(__DIR__, 3) . '/public/uploads/professions';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0775, true);
-        }
-
-        $filename = 'profession-' . $professionId . '-' . bin2hex(random_bytes(8)) . '.pdf';
-        if (!move_uploaded_file((string) $uploadedPdf['tmp_name'], $uploadDir . '/' . $filename)) {
-            return null;
-        }
-
-        return '/uploads/professions/' . $filename;
+        return $this->uploads->storeUploadedPdf('pdf', 'professions', 'profession-' . $professionId);
     }
 
     private function handleImageUpload(int $professionId): ?string
     {
-        $uploadedImage = $_FILES['image'] ?? null;
-        if (!is_array($uploadedImage) || ($uploadedImage['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            return null;
-        }
-
-        $extension = strtolower((string) pathinfo((string) $uploadedImage['name'], PATHINFO_EXTENSION));
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
-        if (!in_array($extension, $allowedExtensions, true)) {
-            return null;
-        }
-
-        $uploadDir = dirname(__DIR__, 3) . '/public/uploads/professions';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0775, true);
-        }
-
-        $filename = 'profession-' . $professionId . '-' . bin2hex(random_bytes(8)) . '.' . $extension;
-        if (!move_uploaded_file((string) $uploadedImage['tmp_name'], $uploadDir . '/' . $filename)) {
-            return null;
-        }
-
-        return '/uploads/professions/' . $filename;
+        return $this->uploads->storeUploadedImage('image', 'professions', 'profession-' . $professionId);
     }
 }

@@ -6,7 +6,8 @@ RUN composer install --no-dev --no-scripts --no-interaction --prefer-dist --opti
 FROM php:8.3-fpm
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends nginx libzip-dev libpng-dev libonig-dev \
+    && apt-get install -y --no-install-recommends nginx libzip-dev libpng-dev libjpeg62-turbo-dev libwebp-dev libfreetype-dev libonig-dev \
+    && docker-php-ext-configure gd --with-jpeg --with-webp --with-freetype \
     && docker-php-ext-install pdo_mysql gd zip mbstring \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 

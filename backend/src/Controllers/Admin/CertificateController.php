@@ -63,7 +63,7 @@ final class CertificateController
             return ['rendered' => true];
         }
 
-        return ['file' => $certificate['pdf_path']];
+        return ['file' => $this->repository->ensurePdf($certificate)];
     }
 
     private function delete(Request $request): array

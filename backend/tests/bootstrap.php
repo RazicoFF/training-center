@@ -31,6 +31,7 @@ $tablesToClear = [
     'test_question_selections',
     'password_reset_requests',
     'news',
+    'uploaded_files',
     'users',
 ];
 

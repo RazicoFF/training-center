@@ -18,7 +18,12 @@ if ($path !== '/' && is_file($staticFile)) {
     return false;
 }
 
-$sitePaths = ['/', '/login', '/logout', '/lang', '/teachers', '/apply', '/portal', '/media', '/forgot-password'];
+if (str_starts_with($path, '/uploads/')) {
+    require __DIR__ . '/public/upload.php';
+    return true;
+}
+
+$sitePaths =['/', '/login', '/logout', '/lang', '/teachers', '/apply', '/portal', '/media', '/forgot-password'];
 $isSitePath = in_array($path, $sitePaths, true)
     || str_starts_with($path, '/teachers/')
     || str_starts_with($path, '/apply/')

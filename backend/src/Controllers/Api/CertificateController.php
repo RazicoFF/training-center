@@ -44,6 +44,6 @@ final class CertificateController
             return ['error' => ['code' => 'NOT_FOUND', 'message' => 'Certificate not found'], 'status' => 404];
         }
 
-        return ['file_path' => $certificate['pdf_path']];
+        return ['file_path' => $this->repository->ensurePdf($certificate)];
     }
 }

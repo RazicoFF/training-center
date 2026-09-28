@@ -33,6 +33,34 @@ final class CertificateRepository
         return $row === false ? null : $row;
     }
 
+    /**
+     * Path to the certificate's PDF, regenerating it when the file is gone - the
+     * storage/ directory does not survive a redeploy, but the certificate row does.
+     */
+    public function ensurePdf(array $certificate): string
+    {
+        $path = (string) $certificate['pdf_path'];
+        if (is_file($path)) {
+            return $path;
+        }
+
+        $user = (new UserRepository())->find((int) $certificate['user_id']);
+        $profession = (new ProfessionRepository())->find((int) $certificate['profession_id']);
+
+        $newPath = $this->pdfService->generate([
+            'full_name' => $user['full_name'] ?? '',
+            'profession_name' => $profession['name_uz'] ?? '',
+            'issue_date' => (string) $certificate['issue_date'],
+            'certificate_number' => (string) $certificate['certificate_number'],
+        ]);
+
+        if ($newPath !== $path) {
+            Database::pdo()->prepare('UPDATE certificates SET pdf_path = ? WHERE id = ?')->execute([$newPath, $certificate['id']]);
+        }
+
+        return $newPath;
+    }
+
     public function issue(int $userId, int $professionId): array
     {
         $pdo = Database::pdo();

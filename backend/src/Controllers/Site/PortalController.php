@@ -194,7 +194,7 @@ final class PortalController
             return ['rendered' => true];
         }
 
-        return ['file' => $certificate['pdf_path']];
+        return ['file' => $this->certificates->ensurePdf($certificate)];
     }
 
     /**

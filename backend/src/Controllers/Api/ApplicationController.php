@@ -8,12 +8,14 @@ use App\Core\Request;
 use App\Core\Router;
 use App\Repositories\ApplicationRepository;
 use App\Repositories\ProfessionRepository;
+use App\Services\UploadStore;
 
 final class ApplicationController
 {
     public function __construct(
         private readonly ApplicationRepository $repository = new ApplicationRepository(),
-        private readonly ProfessionRepository $professions = new ProfessionRepository()
+        private readonly ProfessionRepository $professions = new ProfessionRepository(),
+        private readonly UploadStore $uploads = new UploadStore()
     ) {
     }
 
@@ -62,9 +64,8 @@ final class ApplicationController
             return null;
         }
 
-        $extension = 'jpg';
-        if (preg_match('/^data:image\/(jpeg|jpg|png|webp);base64,/', $photoBase64, $matches) === 1) {
-            $extension = $matches[1] === 'jpeg' ? 'jpg' : $matches[1];
+        // The image is re-encoded by UploadStore, so the declared type only matters for stripping the prefix.
+        if (preg_match('/^data:image\/(jpeg|jpg|png|webp);base64,/', $photoBase64) === 1) {
             $photoBase64 = substr($photoBase64, strpos($photoBase64, ',') + 1);
         }
 
@@ -78,16 +79,6 @@ final class ApplicationController
             return null;
         }
 
-        $uploadDir = dirname(__DIR__, 3) . '/public/uploads/applications';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0775, true);
-        }
-
-        $filename = 'application-' . bin2hex(random_bytes(8)) . '.' . $extension;
-        if (file_put_contents($uploadDir . '/' . $filename, $decoded) === false) {
-            return null;
-        }
-
-        return '/uploads/applications/' . $filename;
+        return $this->uploads->storeImageBytes($decoded, 'applications', 'application', UploadStore::PHOTO_MAX_SIDE);
     }
 }

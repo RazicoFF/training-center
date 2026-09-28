@@ -40,6 +40,30 @@ final class CertificateEndpointTest extends TestCase
         $this->assertFileExists($downloadResult['file_path']);
     }
 
+    public function testDownloadRegeneratesPdfLostOnRedeploy(): void
+    {
+        $pdo = Database::pdo();
+        $pdo->exec('DELETE FROM certificates');
+        $pdo->exec("DELETE FROM users WHERE phone = '+998900000005'");
+
+        $professionId = (int) $pdo->query('SELECT id FROM professions LIMIT 1')->fetchColumn();
+        $userId = (new UserRepository())->create('Cert Student', '+998900000005', Auth::hashPassword('pass1234'), 'student');
+        $certificate = (new CertificateRepository())->issue($userId, $professionId);
+        unlink($certificate['pdf_path']);
+
+        $router = new Router();
+        (new CertificateController())->register($router);
+        $result = $router->dispatch(new Request(
+            'GET',
+            "/api/v1/certificates/{$certificate['id']}/download",
+            ['AUTHORIZATION' => 'Bearer ' . Auth::issueToken($userId, 'student')],
+            []
+        ));
+
+        $this->assertFileExists($result['file_path']);
+        $this->assertStringStartsWith('%PDF', (string) file_get_contents($result['file_path']));
+    }
+
     public function testCrossUserCertificateAccessReturnsNotFound(): void
     {
         $pdo = Database::pdo();

@@ -11,11 +11,13 @@ use App\Core\Router;
 use App\Core\View;
 use App\Middleware\AdminAuthMiddleware;
 use App\Repositories\NewsRepository;
+use App\Services\UploadStore;
 
 final class NewsController
 {
     public function __construct(
-        private readonly NewsRepository $news = new NewsRepository()
+        private readonly NewsRepository $news = new NewsRepository(),
+        private readonly UploadStore $uploads = new UploadStore()
     ) {
     }
 
@@ -116,7 +118,8 @@ final class NewsController
             return ['redirect' => '/admin/login'];
         }
 
-        if ($this->news->find($newsId) === null) {
+        $existing = $this->news->find($newsId);
+        if ($existing === null) {
             http_response_code(404);
             echo '<h1>404</h1>';
             return ['rendered' => true];
@@ -137,6 +140,7 @@ final class NewsController
         $imageUrl = $this->handleImageUpload($newsId);
         if ($imageUrl !== null) {
             $this->news->updateImage($newsId, $imageUrl);
+            $this->uploads->delete($existing['image_url']);
         }
 
         return ['redirect' => '/admin/news', 'flash' => Lang::t('news_updated')];
@@ -154,34 +158,15 @@ final class NewsController
             return ['redirect' => '/admin/login'];
         }
 
+        $item = $this->news->find($newsId);
         $this->news->delete($newsId);
+        $this->uploads->delete($item['image_url'] ?? null);
 
         return ['redirect' => '/admin/news', 'flash' => Lang::t('news_deleted')];
     }
 
     private function handleImageUpload(int $newsId): ?string
     {
-        $uploadedImage = $_FILES['image'] ?? null;
-        if (!is_array($uploadedImage) || ($uploadedImage['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            return null;
-        }
-
-        $extension = strtolower((string) pathinfo((string) $uploadedImage['name'], PATHINFO_EXTENSION));
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
-        if (!in_array($extension, $allowedExtensions, true)) {
-            return null;
-        }
-
-        $uploadDir = dirname(__DIR__, 3) . '/public/uploads/news';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0775, true);
-        }
-
-        $filename = 'news-' . $newsId . '-' . bin2hex(random_bytes(8)) . '.' . $extension;
-        if (!move_uploaded_file((string) $uploadedImage['tmp_name'], $uploadDir . '/' . $filename)) {
-            return null;
-        }
-
-        return '/uploads/news/' . $filename;
+        return $this->uploads->storeUploadedImage('image', 'news', 'news-' . $newsId);
     }
 }

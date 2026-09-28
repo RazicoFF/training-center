@@ -16,6 +16,7 @@ use App\Repositories\ProfessionRepository;
 use App\Repositories\TeacherProfileRepository;
 use App\Repositories\TeacherRepository;
 use App\Repositories\UserRepository;
+use App\Services\UploadStore;
 
 final class TeacherController
 {
@@ -24,7 +25,8 @@ final class TeacherController
         private readonly UserRepository $users = new UserRepository(),
         private readonly TeacherProfileRepository $profiles = new TeacherProfileRepository(),
         private readonly ProfessionRepository $professions = new ProfessionRepository(),
-        private readonly GroupRepository $groups = new GroupRepository()
+        private readonly GroupRepository $groups = new GroupRepository(),
+        private readonly UploadStore $uploads = new UploadStore()
     ) {
     }
 
@@ -166,7 +168,11 @@ final class TeacherController
         }
 
         $existing = $this->profiles->findByUserId($teacherId);
-        $this->profiles->upsert($teacherId, $this->buildProfileFields($teacherId, $body, $existing));
+        $fields = $this->buildProfileFields($teacherId, $body, $existing);
+        $this->profiles->upsert($teacherId, $fields);
+        if (($existing['photo_url'] ?? null) !== $fields['photo_url']) {
+            $this->uploads->delete($existing['photo_url'] ?? null);
+        }
 
         return ['redirect' => '/admin/teachers', 'flash' => Lang::t('teacher_updated')];
     }
@@ -190,8 +196,10 @@ final class TeacherController
             return ['rendered' => true];
         }
 
+        $profile = $this->profiles->findByUserId($teacherId);
         $this->groups->unassignTeacherFromGroups($teacherId);
         $this->profiles->deleteByUserId($teacherId);
+        $this->uploads->delete($profile['photo_url'] ?? null);
         $this->users->delete($teacherId);
 
         return ['redirect' => '/admin/teachers', 'flash' => Lang::t('teacher_deleted')];
@@ -220,21 +228,9 @@ final class TeacherController
 
         $fields['photo_url'] = $existingProfile['photo_url'] ?? null;
 
-        $uploadedPhoto = $_FILES['photo'] ?? null;
-        if (is_array($uploadedPhoto) && ($uploadedPhoto['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
-            $uploadDir = dirname(__DIR__, 3) . '/public/uploads/teachers';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0775, true);
-            }
-
-            $extension = strtolower((string) pathinfo((string) $uploadedPhoto['name'], PATHINFO_EXTENSION));
-            $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
-            if (in_array($extension, $allowedExtensions, true)) {
-                $filename = 'teacher-' . $teacherId . '-' . bin2hex(random_bytes(8)) . '.' . $extension;
-                if (move_uploaded_file((string) $uploadedPhoto['tmp_name'], $uploadDir . '/' . $filename)) {
-                    $fields['photo_url'] = '/uploads/teachers/' . $filename;
-                }
-            }
+        $photoUrl = $this->uploads->storeUploadedImage('photo', 'teachers', 'teacher-' . $teacherId, UploadStore::PHOTO_MAX_SIDE);
+        if ($photoUrl !== null) {
+            $fields['photo_url'] = $photoUrl;
         }
 
         return $fields;

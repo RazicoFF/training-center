@@ -12,11 +12,13 @@ use App\Core\View;
 use App\Middleware\AdminAuthMiddleware;
 use App\Repositories\MediaRepository;
 use App\Repositories\ProfessionVideoRepository;
+use App\Services\UploadStore;
 
 final class MediaController
 {
     public function __construct(
-        private readonly MediaRepository $media = new MediaRepository()
+        private readonly MediaRepository $media = new MediaRepository(),
+        private readonly UploadStore $uploads = new UploadStore()
     ) {
     }
 
@@ -160,6 +162,9 @@ final class MediaController
             $fileUrl,
             $youtubeUrl
         );
+        if ($fileUrl !== null) {
+            $this->uploads->delete($item['file_url']);
+        }
 
         return ['redirect' => '/admin/media', 'flash' => Lang::t('media_updated')];
     }
@@ -175,7 +180,9 @@ final class MediaController
             return ['redirect' => '/admin/login'];
         }
 
+        $item = $this->media->find((int) $request->param('id'));
         $this->media->delete((int) $request->param('id'));
+        $this->uploads->delete($item['file_url'] ?? null);
 
         return ['redirect' => '/admin/media', 'flash' => Lang::t('media_deleted')];
     }
@@ -186,27 +193,6 @@ final class MediaController
      */
     private function storeUploadedImage(): ?string
     {
-        $uploadedImage = $_FILES['image'] ?? null;
-        if (!is_array($uploadedImage) || ($uploadedImage['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            return null;
-        }
-
-        $extension = strtolower((string) pathinfo((string) $uploadedImage['name'], PATHINFO_EXTENSION));
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
-        if (!in_array($extension, $allowedExtensions, true)) {
-            return null;
-        }
-
-        $uploadDir = dirname(__DIR__, 3) . '/public/uploads/media';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0775, true);
-        }
-
-        $filename = 'media-' . bin2hex(random_bytes(8)) . '.' . $extension;
-        if (!move_uploaded_file((string) $uploadedImage['tmp_name'], $uploadDir . '/' . $filename)) {
-            return null;
-        }
-
-        return '/uploads/media/' . $filename;
+        return $this->uploads->storeUploadedImage('image', 'media', 'media');
     }
 }
