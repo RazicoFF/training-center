@@ -32,7 +32,7 @@ use App\Core\Lang;
         </div>
         <div class="col-md-4 mb-3">
             <label class="form-label"><?= htmlspecialchars(Lang::t('profession_price')) ?></label>
-            <input type="number" name="price" class="form-control" min="1" step="1000" required>
+            <input type="number" name="price" class="form-control" min="1" step="1" required>
         </div>
         <div class="col-md-4 mb-3">
             <label class="form-label"><?= htmlspecialchars(Lang::t('profession_image')) ?></label>

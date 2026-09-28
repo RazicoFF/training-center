@@ -98,10 +98,15 @@ final class ProfessionController
         if ($imageUrl !== null) {
             $this->professions->updateImage($professionId, $imageUrl);
         }
+        $imageFailed = $imageUrl === null && $this->fileWasSubmitted('image');
 
         $pdfUrl = $this->handlePdfUpload($professionId);
         if ($pdfUrl !== null) {
             $this->professions->updatePdf($professionId, $pdfUrl);
+        }
+
+        if ($imageFailed) {
+            return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('profession_image_upload_failed')];
         }
 
         return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('profession_created')];
@@ -178,10 +183,15 @@ final class ProfessionController
         if ($imageUrl !== null) {
             $this->professions->updateImage($professionId, $imageUrl);
         }
+        $imageFailed = $imageUrl === null && $this->fileWasSubmitted('image');
 
         $pdfUrl = $this->handlePdfUpload($professionId);
         if ($pdfUrl !== null) {
             $this->professions->updatePdf($professionId, $pdfUrl);
+        }
+
+        if ($imageFailed) {
+            return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('profession_image_upload_failed')];
         }
 
         return ['redirect' => '/admin/professions', 'flash' => Lang::t('profession_updated')];
@@ -298,6 +308,12 @@ final class ProfessionController
         $this->professions->delete($professionId);
 
         return ['redirect' => '/admin/professions', 'flash' => Lang::t('profession_deleted')];
+    }
+
+    private function fileWasSubmitted(string $field): bool
+    {
+        $file = $_FILES[$field] ?? null;
+        return is_array($file) && ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
     }
 
     private function handlePdfUpload(int $professionId): ?string

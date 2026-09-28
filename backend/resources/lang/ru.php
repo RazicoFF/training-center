@@ -170,6 +170,7 @@ return [
     'brand_name_required' => 'Введите название марки',
     'brand_field_label' => 'Марка техники',
     'image_size_hint_profession' => 'Рекомендуемый размер: 960x640 px (горизонтально, соотношение 3:2)',
+    'profession_image_upload_failed' => 'Данные сохранены, но изображение не загружено. Файл должен быть JPG/PNG/WEBP и меньше 20 МБ',
     'image_size_hint_teacher' => 'Рекомендуемый размер: 400x400 px (квадрат)',
     'image_size_hint_news' => 'Рекомендуемый размер: 800x500 px',
     'image_size_hint_media' => 'Рекомендуемый размер: 1200x800 px',

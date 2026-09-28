@@ -170,6 +170,7 @@ return [
     'brand_name_required' => 'Marka nomini kiriting',
     'brand_field_label' => 'Texnika markasi',
     'image_size_hint_profession' => 'Tavsiya etilgan o\'lcham: 960x640 px (gorizontal, 3:2 nisbat)',
+    'profession_image_upload_failed' => 'Ma\'lumot saqlandi, lekin rasm yuklanmadi. Fayl JPG/PNG/WEBP formatida va 20 MB dan kichik bo\'lishi kerak',
     'image_size_hint_teacher' => 'Tavsiya etilgan o\'lcham: 400x400 px (kvadrat)',
     'image_size_hint_news' => 'Tavsiya etilgan o\'lcham: 800x500 px',
     'image_size_hint_media' => 'Tavsiya etilgan o\'lcham: 1200x800 px',

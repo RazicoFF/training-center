@@ -10,6 +10,9 @@ RUN apt-get update \
     && docker-php-ext-install pdo_mysql gd zip mbstring \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# PHP's default 2M upload limit silently drops typical phone photos; match nginx's client_max_body_size.
+RUN printf 'upload_max_filesize = 20M\npost_max_size = 25M\n' > /usr/local/etc/php/conf.d/uploads.ini
+
 WORKDIR /var/www/html
 
 COPY . .
