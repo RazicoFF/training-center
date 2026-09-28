@@ -47,6 +47,38 @@ final class AdminApplicationsTest extends TestCase
         $this->assertStringNotContainsString('<html', $html);
     }
 
+    public function testStatusFilterAndSearchNarrowTheList(): void
+    {
+        $router = new Router();
+        (new ApplicationController())->register($router);
+        $pdo = Database::pdo();
+        $pdo->exec("DELETE FROM applications WHERE phone = '+998933333334'");
+        $pdo->prepare('INSERT INTO applications (full_name, phone, profession_id, status) VALUES (?, ?, ?, "rejected")')
+            ->execute(['Rejected Applicant', '+998933333334', $this->professionId]);
+
+        $render = function (array $query) use ($router): string {
+            $_GET = $query;
+            ob_start();
+            $router->dispatch(new Request('GET', '/admin/applications', [], [], []));
+            $_GET = [];
+            return (string) ob_get_clean();
+        };
+
+        $pending = $render(['status' => 'pending']);
+        $this->assertStringContainsString('App Test', $pending);
+        $this->assertStringNotContainsString('Rejected Applicant', $pending);
+
+        $rejected = $render(['status' => 'rejected']);
+        $this->assertStringContainsString('Rejected Applicant', $rejected);
+        $this->assertStringNotContainsString('App Test', $rejected);
+
+        $search = $render(['q' => '3333334']);
+        $this->assertStringContainsString('Rejected Applicant', $search);
+        $this->assertStringNotContainsString('App Test', $search);
+
+        $pdo->exec("DELETE FROM applications WHERE phone = '+998933333334'");
+    }
+
     public function testListLinksNamesToApplicationCard(): void
     {
         $router = new Router();

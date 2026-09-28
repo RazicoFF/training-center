@@ -86,17 +86,27 @@ final class ApplicationRepository
         return $row === false ? null : $row;
     }
 
-    public function allWithProfession(?string $status = null): array
+    /** Optionally filtered by status and by a name/phone substring. */
+    public function allWithProfession(?string $status = null, ?string $q = null): array
     {
         $sql = 'SELECT a.*, p.name_uz AS profession_name_uz, p.name_ru AS profession_name_ru, b.name AS brand_name
                 FROM applications a
                 JOIN professions p ON p.id = a.profession_id
                 LEFT JOIN profession_brands b ON b.id = a.brand_id';
+        $where = [];
         $params = [];
 
         if ($status !== null) {
-            $sql .= ' WHERE a.status = ?';
+            $where[] = 'a.status = ?';
             $params[] = $status;
+        }
+        if ($q !== null) {
+            $where[] = '(a.full_name LIKE ? OR a.phone LIKE ?)';
+            $params[] = '%' . $q . '%';
+            $params[] = '%' . $q . '%';
+        }
+        if ($where !== []) {
+            $sql .= ' WHERE ' . implode(' AND ', $where);
         }
 
         $sql .= " ORDER BY (a.status = 'pending') DESC, a.created_at DESC";
@@ -105,6 +115,17 @@ final class ApplicationRepository
         $stmt->execute($params);
 
         return $stmt->fetchAll();
+    }
+
+    /** @return array{pending: int, approved: int, rejected: int} */
+    public function countsByStatus(): array
+    {
+        $counts = ['pending' => 0, 'approved' => 0, 'rejected' => 0];
+        foreach (Database::pdo()->query('SELECT status, COUNT(*) AS n FROM applications GROUP BY status') as $row) {
+            $counts[$row['status']] = (int) $row['n'];
+        }
+
+        return $counts;
     }
 
     public function reject(int $id): bool

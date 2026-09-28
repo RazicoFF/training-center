@@ -124,6 +124,8 @@ return [
     'filter_all_professions' => 'Barcha kasblar',
     'filter_all_brands' => 'Barcha markalar',
     'filter_all_years' => 'Barcha yillar',
+    'filter_all_statuses' => 'Hammasi',
+    'applications_empty' => 'Arizalar topilmadi',
     'media_add_image' => 'Rasm qo\'shish',
     'media_add_video' => 'Video qo\'shish',
     'media_add' => 'Qo\'shish',

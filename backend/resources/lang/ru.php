@@ -124,6 +124,8 @@ return [
     'filter_all_professions' => 'Все профессии',
     'filter_all_brands' => 'Все марки',
     'filter_all_years' => 'Все годы',
+    'filter_all_statuses' => 'Все',
+    'applications_empty' => 'Заявки не найдены',
     'media_add_image' => 'Добавить изображение',
     'media_add_video' => 'Добавить видео',
     'media_add' => 'Добавить',

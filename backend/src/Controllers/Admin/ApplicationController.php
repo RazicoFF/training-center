@@ -32,12 +32,15 @@ final class ApplicationController
             return ['redirect' => '/admin/login'];
         }
 
-        $status = $request->formBody()['status'] ?? null;
+        $status = $_GET['status'] ?? null;
         $status = in_array($status, ['pending', 'approved', 'rejected'], true) ? $status : null;
+        $q = trim((string) ($_GET['q'] ?? ''));
 
         View::render('applications/index', [
-            'applications' => $this->repository->allWithProfession($status),
+            'applications' => $this->repository->allWithProfession($status, $q !== '' ? $q : null),
             'statusFilter' => $status,
+            'statusCounts' => $this->repository->countsByStatus(),
+            'q' => $q,
         ]);
 
         return ['rendered' => true];
