@@ -264,3 +264,42 @@ h2.h4 {
     background: var(--tc-primary);
     color: #14171c;
 }
+
+.tc-media-modal-content {
+    background: #0b0d10;
+    border: 1px solid var(--tc-border);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.tc-media-modal-img {
+    width: 100%;
+    max-height: 78vh;
+    object-fit: contain;
+    background: #000;
+    display: block;
+}
+
+.tc-media-modal-caption {
+    padding: 1rem 1.25rem;
+    color: var(--tc-text);
+    font-weight: 600;
+    font-size: 1.05rem;
+    text-align: center;
+}
+
+.tc-media-modal-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 5;
+    background-color: rgba(0, 0, 0, 0.55);
+    border-radius: 50%;
+    padding: 0.6rem;
+    opacity: 1;
+}
+
+.tc-media-modal-close:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
