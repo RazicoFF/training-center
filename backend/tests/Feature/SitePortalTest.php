@@ -133,13 +133,13 @@ final class SitePortalTest extends TestCase
         ob_start();
         $showResult = $router->dispatch(new Request('GET', "/portal/tests/{$testId}", [], [], []));
         ob_end_clean();
-        $this->assertSame(['redirect' => '/portal/tests', 'flash' => 'Test hozircha yopiq'], $showResult);
+        $this->assertSame(['redirect' => '/portal/tests', 'flash' => 'Test hozircha yopiq', 'flash_type' => 'warning'], $showResult);
 
         $token = Csrf::token();
         $submitResult = $router->dispatch(new Request('POST', "/portal/tests/{$testId}/submit", [], [], [
             'csrf_token' => $token,
         ]));
-        $this->assertSame(['redirect' => '/portal/tests', 'flash' => 'Test hozircha yopiq'], $submitResult);
+        $this->assertSame(['redirect' => '/portal/tests', 'flash' => 'Test hozircha yopiq', 'flash_type' => 'warning'], $submitResult);
 
         $attemptCount = $pdo->query("SELECT COUNT(*) FROM test_attempts WHERE test_id = {$testId}")->fetchColumn();
         $this->assertSame('0', (string) $attemptCount);

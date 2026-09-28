@@ -59,7 +59,7 @@ final class PasswordResetController
 
         $newPassword = (string) ($body['password'] ?? '');
         if (strlen($newPassword) < 6) {
-            return ['redirect' => '/admin/password-resets', 'flash' => 'Parol kamida 6 belgidan iborat bo\'lishi kerak'];
+            return ['redirect' => '/admin/password-resets', 'flash' => 'Parol kamida 6 belgidan iborat bo\'lishi kerak', 'flash_type' => 'error'];
         }
 
         if ($resetRequest['user_id'] !== null) {

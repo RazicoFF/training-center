@@ -55,15 +55,15 @@ final class AccountController
         $user = $this->users->find($claims['user_id']);
 
         if ($user === null || !Auth::verifyPassword($currentPassword, $user['password_hash'])) {
-            return ['redirect' => '/admin/account', 'flash' => Lang::t('account_current_password_invalid')];
+            return ['redirect' => '/admin/account', 'flash' => Lang::t('account_current_password_invalid'), 'flash_type' => 'error'];
         }
 
         if (strlen($newPassword) < 6) {
-            return ['redirect' => '/admin/account', 'flash' => Lang::t('account_password_too_short')];
+            return ['redirect' => '/admin/account', 'flash' => Lang::t('account_password_too_short'), 'flash_type' => 'error'];
         }
 
         if ($newPassword !== $confirmPassword) {
-            return ['redirect' => '/admin/account', 'flash' => Lang::t('account_password_mismatch')];
+            return ['redirect' => '/admin/account', 'flash' => Lang::t('account_password_mismatch'), 'flash_type' => 'error'];
         }
 
         $this->users->updatePassword($claims['user_id'], Auth::hashPassword($newPassword));

@@ -4,7 +4,8 @@ use App\Core\Csrf;
 use App\Core\Lang;
 
 $flash = $_SESSION['flash'] ?? null;
-unset($_SESSION['flash']);
+$flashClass = ['error' => 'alert-danger', 'warning' => 'alert-warning'][$_SESSION['flash_type'] ?? ''] ?? 'alert-info';
+unset($_SESSION['flash'], $_SESSION['flash_type']);
 $isLoggedIn = isset($_SESSION['site_user_id']);
 $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 ?>
@@ -69,7 +70,7 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 </nav>
 <div class="container py-4">
     <?php if ($flash): ?>
-        <div class="alert alert-info tc-alert"><?= htmlspecialchars($flash) ?></div>
+        <div class="alert <?= $flashClass ?> tc-alert" role="alert"><?= htmlspecialchars($flash) ?></div>
     <?php endif; ?>
     <?= $content ?>
 </div>

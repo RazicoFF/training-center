@@ -4,7 +4,8 @@ use App\Core\Csrf;
 use App\Core\Lang;
 
 $flash = $_SESSION['flash'] ?? null;
-unset($_SESSION['flash']);
+$flashClass = ['error' => 'alert-danger', 'warning' => 'alert-warning'][$_SESSION['flash_type'] ?? ''] ?? 'alert-success';
+unset($_SESSION['flash'], $_SESSION['flash_type']);
 $isLoggedIn = isset($_SESSION['admin_user_id']);
 $isTeacherSession = ($_SESSION['admin_role'] ?? null) === 'teacher';
 $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
@@ -110,7 +111,7 @@ if (!function_exists('tc_icon')) {
     </aside>
     <main class="tc-main">
         <?php if ($flash !== null): ?>
-            <div class="alert alert-success tc-alert"><?= htmlspecialchars($flash) ?></div>
+            <div class="alert <?= $flashClass ?> tc-alert" role="alert"><?= htmlspecialchars($flash) ?></div>
         <?php endif; ?>
         <div class="tc-fade-in">
             <?= $content ?>
@@ -164,7 +165,7 @@ if (!function_exists('tc_icon')) {
 </div>
 <div class="container tc-fade-in">
     <?php if ($flash !== null): ?>
-        <div class="alert alert-success tc-alert"><?= htmlspecialchars($flash) ?></div>
+        <div class="alert <?= $flashClass ?> tc-alert" role="alert"><?= htmlspecialchars($flash) ?></div>
     <?php endif; ?>
     <?= $content ?>
 </div>

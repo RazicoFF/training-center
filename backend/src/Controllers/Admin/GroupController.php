@@ -93,7 +93,7 @@ final class GroupController
         $room = (string) ($body['room'] ?? '');
 
         if ($professionId <= 0 || $name === '' || $startDate === '' || $endDate === '') {
-            return ['redirect' => '/admin/groups/create', 'flash' => 'Barcha maydonlarni to\'ldiring'];
+            return ['redirect' => '/admin/groups/create', 'flash' => 'Barcha maydonlarni to\'ldiring', 'flash_type' => 'error'];
         }
 
         $groupId = $this->groups->create($professionId, $teacherId, $name, $startDate, $endDate, $brandId);
@@ -205,7 +205,7 @@ final class GroupController
         $endDate = (string) ($body['end_date'] ?? '');
 
         if ($name === '' || $startDate === '' || $endDate === '') {
-            return ['redirect' => "/admin/groups/{$groupId}/edit", 'flash' => 'Barcha maydonlarni to\'ldiring'];
+            return ['redirect' => "/admin/groups/{$groupId}/edit", 'flash' => 'Barcha maydonlarni to\'ldiring', 'flash_type' => 'error'];
         }
 
         $this->groups->update($groupId, $teacherId, $name, $startDate, $endDate, $brandId);

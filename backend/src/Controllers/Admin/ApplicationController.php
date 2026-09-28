@@ -57,7 +57,7 @@ final class ApplicationController
         $password = (string) ($body['password'] ?? '');
 
         if (strlen($password) < 6) {
-            return ['redirect' => '/admin/applications', 'flash' => 'Parol kamida 6 belgidan iborat bo\'lishi kerak'];
+            return ['redirect' => '/admin/applications', 'flash' => 'Parol kamida 6 belgidan iborat bo\'lishi kerak', 'flash_type' => 'error'];
         }
 
         try {
@@ -68,9 +68,9 @@ final class ApplicationController
             // NOTE: \PDOException extends \RuntimeException in PHP 8.0+, so this MORE SPECIFIC
             // catch block must come first, or it would be unreachable dead code (shadowed by
             // the \RuntimeException catch below).
-            return ['redirect' => '/admin/applications', 'flash' => 'Bu telefon raqami bo\'yicha allaqachon foydalanuvchi mavjud'];
+            return ['redirect' => '/admin/applications', 'flash' => 'Bu telefon raqami bo\'yicha allaqachon foydalanuvchi mavjud', 'flash_type' => 'error'];
         } catch (\RuntimeException) {
-            return ['redirect' => '/admin/applications', 'flash' => 'Ariza allaqachon ko\'rib chiqilgan'];
+            return ['redirect' => '/admin/applications', 'flash' => 'Ariza allaqachon ko\'rib chiqilgan', 'flash_type' => 'error'];
         }
 
         return ['redirect' => '/admin/applications', 'flash' => Lang::t('application_approved')];

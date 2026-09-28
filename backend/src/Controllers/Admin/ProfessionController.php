@@ -76,7 +76,7 @@ final class ProfessionController
         $price = (float) ($body['price'] ?? 0);
 
         if ($nameUz === '' || $nameRu === '' || $durationDays <= 0 || $price <= 0) {
-            return ['redirect' => '/admin/professions/create', 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring'];
+            return ['redirect' => '/admin/professions/create', 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring', 'flash_type' => 'error'];
         }
 
         $careerInfoUz = trim((string) ($body['career_info_uz'] ?? ''));
@@ -106,7 +106,7 @@ final class ProfessionController
         }
 
         if ($imageFailed) {
-            return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('profession_image_upload_failed')];
+            return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('profession_image_upload_failed'), 'flash_type' => 'warning'];
         }
 
         return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('profession_created')];
@@ -161,7 +161,7 @@ final class ProfessionController
         $price = (float) ($body['price'] ?? 0);
 
         if ($nameUz === '' || $nameRu === '' || $durationDays <= 0 || $price <= 0) {
-            return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring'];
+            return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring', 'flash_type' => 'error'];
         }
 
         $careerInfoUz = trim((string) ($body['career_info_uz'] ?? ''));
@@ -191,7 +191,7 @@ final class ProfessionController
         }
 
         if ($imageFailed) {
-            return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('profession_image_upload_failed')];
+            return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('profession_image_upload_failed'), 'flash_type' => 'warning'];
         }
 
         return ['redirect' => '/admin/professions', 'flash' => Lang::t('profession_updated')];
@@ -211,7 +211,7 @@ final class ProfessionController
 
         $youtubeUrl = trim((string) ($body['youtube_url'] ?? ''));
         if ($youtubeUrl === '' || ProfessionVideoRepository::extractYoutubeId($youtubeUrl) === null) {
-            return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('video_invalid_url')];
+            return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('video_invalid_url'), 'flash_type' => 'error'];
         }
 
         $titleUz = trim((string) ($body['title_uz'] ?? ''));
@@ -258,7 +258,7 @@ final class ProfessionController
 
         $name = trim((string) ($body['name'] ?? ''));
         if ($name === '') {
-            return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('brand_name_required')];
+            return ['redirect' => "/admin/professions/{$professionId}/edit", 'flash' => Lang::t('brand_name_required'), 'flash_type' => 'error'];
         }
 
         $this->brands->create($professionId, $name);
@@ -302,7 +302,7 @@ final class ProfessionController
         }
 
         if ($this->professions->hasDependents($professionId)) {
-            return ['redirect' => '/admin/professions', 'flash' => Lang::t('profession_has_dependents')];
+            return ['redirect' => '/admin/professions', 'flash' => Lang::t('profession_has_dependents'), 'flash_type' => 'error'];
         }
 
         $this->professions->delete($professionId);

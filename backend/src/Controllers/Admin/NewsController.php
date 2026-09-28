@@ -64,7 +64,7 @@ final class NewsController
         $titleRu = trim((string) ($body['title_ru'] ?? ''));
 
         if ($titleUz === '' || $titleRu === '') {
-            return ['redirect' => '/admin/news/create', 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring'];
+            return ['redirect' => '/admin/news/create', 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring', 'flash_type' => 'error'];
         }
 
         $bodyUz = trim((string) ($body['body_uz'] ?? ''));
@@ -126,7 +126,7 @@ final class NewsController
         $titleRu = trim((string) ($body['title_ru'] ?? ''));
 
         if ($titleUz === '' || $titleRu === '') {
-            return ['redirect' => "/admin/news/{$newsId}/edit", 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring'];
+            return ['redirect' => "/admin/news/{$newsId}/edit", 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring', 'flash_type' => 'error'];
         }
 
         $bodyUz = trim((string) ($body['body_uz'] ?? ''));

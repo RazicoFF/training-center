@@ -101,7 +101,7 @@ final class StudentController
         $password = (string) ($body['password'] ?? '');
 
         if ($fullName === '' || $phone === '' || strlen($password) < 6) {
-            return ['redirect' => '/admin/students/create', 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring'];
+            return ['redirect' => '/admin/students/create', 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring', 'flash_type' => 'error'];
         }
 
         $studentId = $this->users->create($fullName, $phone, Auth::hashPassword($password), 'student');
@@ -187,7 +187,7 @@ final class StudentController
         $phone = trim((string) ($body['phone'] ?? ''));
 
         if ($fullName === '' || $phone === '') {
-            return ['redirect' => "/admin/students/{$studentId}/edit", 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring'];
+            return ['redirect' => "/admin/students/{$studentId}/edit", 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring', 'flash_type' => 'error'];
         }
 
         $this->users->updateProfile($studentId, $fullName, $phone);
@@ -200,7 +200,7 @@ final class StudentController
         $newPassword = (string) ($body['password'] ?? '');
         if ($newPassword !== '') {
             if (strlen($newPassword) < 6) {
-                return ['redirect' => "/admin/students/{$studentId}/edit", 'flash' => 'Parol kamida 6 belgidan iborat bo\'lishi kerak'];
+                return ['redirect' => "/admin/students/{$studentId}/edit", 'flash' => 'Parol kamida 6 belgidan iborat bo\'lishi kerak', 'flash_type' => 'error'];
             }
             $this->users->updatePassword($studentId, Auth::hashPassword($newPassword));
         }

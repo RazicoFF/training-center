@@ -85,12 +85,12 @@ final class PortalController
         $test = $this->tests->find($testId);
 
         if ($test === null || !$this->tests->isOpenNow($test)) {
-            return ['redirect' => '/portal/tests', 'flash' => 'Test hozircha yopiq'];
+            return ['redirect' => '/portal/tests', 'flash' => 'Test hozircha yopiq', 'flash_type' => 'warning'];
         }
 
         $eligibility = $this->tests->retakeEligibility($claims['user_id'], $testId);
         if (!$eligibility['eligible']) {
-            return ['redirect' => '/portal/tests', 'flash' => $this->retakeMessage($eligibility)];
+            return ['redirect' => '/portal/tests', 'flash' => $this->retakeMessage($eligibility), 'flash_type' => 'warning'];
         }
 
         SiteView::render('site/portal/test_show', [
@@ -117,12 +117,12 @@ final class PortalController
         $test = $this->tests->find($testId);
 
         if ($test === null || !$this->tests->isOpenNow($test)) {
-            return ['redirect' => '/portal/tests', 'flash' => 'Test hozircha yopiq'];
+            return ['redirect' => '/portal/tests', 'flash' => 'Test hozircha yopiq', 'flash_type' => 'warning'];
         }
 
         $eligibility = $this->tests->retakeEligibility($claims['user_id'], $testId);
         if (!$eligibility['eligible']) {
-            return ['redirect' => '/portal/tests', 'flash' => $this->retakeMessage($eligibility)];
+            return ['redirect' => '/portal/tests', 'flash' => $this->retakeMessage($eligibility), 'flash_type' => 'warning'];
         }
 
         $answerIds = array_map('intval', array_values($body['answer_id'] ?? []));
@@ -130,7 +130,7 @@ final class PortalController
         try {
             $result = $this->tests->score($testId, $claims['user_id'], $answerIds);
         } catch (\InvalidArgumentException) {
-            return ['redirect' => '/portal/tests', 'flash' => 'Test yuborishda xatolik yuz berdi'];
+            return ['redirect' => '/portal/tests', 'flash' => 'Test yuborishda xatolik yuz berdi', 'flash_type' => 'error'];
         }
 
         $this->tests->recordAttempt($claims['user_id'], $testId, $result['score'], $result['passed']);

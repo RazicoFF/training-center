@@ -62,12 +62,12 @@ final class QuestionController
         $textRu = trim((string) ($body['text_ru'] ?? ''));
 
         if ($textUz === '' || $textRu === '') {
-            return ['redirect' => "/admin/tests/{$testId}/questions", 'flash' => 'Savol va kamida 2 ta javob kiriting'];
+            return ['redirect' => "/admin/tests/{$testId}/questions", 'flash' => 'Savol va kamida 2 ta javob kiriting', 'flash_type' => 'error'];
         }
 
         $answers = $this->buildAnswersFromBody($body);
         if ($answers === null) {
-            return ['redirect' => "/admin/tests/{$testId}/questions", 'flash' => 'Savol va kamida 2 ta javob kiriting'];
+            return ['redirect' => "/admin/tests/{$testId}/questions", 'flash' => 'Savol va kamida 2 ta javob kiriting', 'flash_type' => 'error'];
         }
 
         $this->questions->createWithAnswers($testId, $textUz, $textRu, $answers);
@@ -118,12 +118,12 @@ final class QuestionController
         $textRu = trim((string) ($body['text_ru'] ?? ''));
 
         if ($textUz === '' || $textRu === '') {
-            return ['redirect' => "/admin/tests/{$testId}/questions/{$questionId}/edit", 'flash' => 'Savol va kamida 2 ta javob kiriting'];
+            return ['redirect' => "/admin/tests/{$testId}/questions/{$questionId}/edit", 'flash' => 'Savol va kamida 2 ta javob kiriting', 'flash_type' => 'error'];
         }
 
         $answers = $this->buildAnswersFromBody($body);
         if ($answers === null) {
-            return ['redirect' => "/admin/tests/{$testId}/questions/{$questionId}/edit", 'flash' => 'Savol va kamida 2 ta javob kiriting'];
+            return ['redirect' => "/admin/tests/{$testId}/questions/{$questionId}/edit", 'flash' => 'Savol va kamida 2 ta javob kiriting', 'flash_type' => 'error'];
         }
 
         $this->questions->updateWithAnswers($questionId, $textUz, $textRu, $answers);
@@ -205,7 +205,7 @@ final class QuestionController
 
         $uzFile = $_FILES['excel_uz'] ?? null;
         if (!is_array($uzFile) || ($uzFile['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            return ['redirect' => "/admin/tests/{$testId}/questions", 'flash' => Lang::t('excel_import_missing_uz')];
+            return ['redirect' => "/admin/tests/{$testId}/questions", 'flash' => Lang::t('excel_import_missing_uz'), 'flash_type' => 'error'];
         }
 
         $ruFile = $_FILES['excel_ru'] ?? null;
@@ -216,11 +216,11 @@ final class QuestionController
         try {
             $imported = $this->excelImporter->importFromFiles($testId, (string) $uzFile['tmp_name'], $ruPath);
         } catch (\Throwable) {
-            return ['redirect' => "/admin/tests/{$testId}/questions", 'flash' => Lang::t('excel_import_failed')];
+            return ['redirect' => "/admin/tests/{$testId}/questions", 'flash' => Lang::t('excel_import_failed'), 'flash_type' => 'error'];
         }
 
         if ($imported === 0) {
-            return ['redirect' => "/admin/tests/{$testId}/questions", 'flash' => Lang::t('excel_import_empty')];
+            return ['redirect' => "/admin/tests/{$testId}/questions", 'flash' => Lang::t('excel_import_empty'), 'flash_type' => 'error'];
         }
 
         return [

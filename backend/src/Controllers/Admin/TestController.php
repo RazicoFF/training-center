@@ -71,7 +71,7 @@ final class TestController
         $passingScore = (int) ($body['passing_score'] ?? 70);
 
         if ($professionId <= 0 || $titleUz === '' || $titleRu === '') {
-            return ['redirect' => '/admin/tests/create', 'flash' => 'Barcha maydonlarni to\'ldiring'];
+            return ['redirect' => '/admin/tests/create', 'flash' => 'Barcha maydonlarni to\'ldiring', 'flash_type' => 'error'];
         }
 
         $opensAt = $this->parseSchedule((string) ($body['opens_at'] ?? ''));
@@ -139,7 +139,7 @@ final class TestController
         $passingScore = (int) ($body['passing_score'] ?? 70);
 
         if ($titleUz === '' || $titleRu === '') {
-            return ['redirect' => "/admin/tests/{$testId}/edit", 'flash' => 'Barcha maydonlarni to\'ldiring'];
+            return ['redirect' => "/admin/tests/{$testId}/edit", 'flash' => 'Barcha maydonlarni to\'ldiring', 'flash_type' => 'error'];
         }
 
         $opensAt = $this->parseSchedule((string) ($body['opens_at'] ?? ''));

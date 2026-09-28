@@ -53,7 +53,7 @@ final class MediaController
 
         $fileUrl = $this->storeUploadedImage();
         if ($fileUrl === null) {
-            return ['redirect' => '/admin/media', 'flash' => Lang::t('media_image_required')];
+            return ['redirect' => '/admin/media', 'flash' => Lang::t('media_image_required'), 'flash_type' => 'error'];
         }
 
         $titleUz = trim((string) ($body['title_uz'] ?? ''));
@@ -81,7 +81,7 @@ final class MediaController
 
         $youtubeUrl = trim((string) ($body['youtube_url'] ?? ''));
         if ($youtubeUrl === '' || ProfessionVideoRepository::extractYoutubeId($youtubeUrl) === null) {
-            return ['redirect' => '/admin/media', 'flash' => Lang::t('video_invalid_url')];
+            return ['redirect' => '/admin/media', 'flash' => Lang::t('video_invalid_url'), 'flash_type' => 'error'];
         }
 
         $titleUz = trim((string) ($body['title_uz'] ?? ''));
@@ -139,13 +139,13 @@ final class MediaController
             if (is_array($uploadedImage) && ($uploadedImage['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
                 $fileUrl = $this->storeUploadedImage();
                 if ($fileUrl === null) {
-                    return ['redirect' => "/admin/media/{$mediaId}/edit", 'flash' => Lang::t('media_image_required')];
+                    return ['redirect' => "/admin/media/{$mediaId}/edit", 'flash' => Lang::t('media_image_required'), 'flash_type' => 'error'];
                 }
             }
         } else {
             $youtubeUrl = trim((string) ($body['youtube_url'] ?? ''));
             if ($youtubeUrl === '' || ProfessionVideoRepository::extractYoutubeId($youtubeUrl) === null) {
-                return ['redirect' => "/admin/media/{$mediaId}/edit", 'flash' => Lang::t('video_invalid_url')];
+                return ['redirect' => "/admin/media/{$mediaId}/edit", 'flash' => Lang::t('video_invalid_url'), 'flash_type' => 'error'];
             }
         }
 

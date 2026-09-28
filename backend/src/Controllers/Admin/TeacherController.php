@@ -83,7 +83,7 @@ final class TeacherController
         $password = (string) ($body['password'] ?? '');
 
         if ($fullName === '' || $phone === '' || strlen($password) < 6) {
-            return ['redirect' => '/admin/teachers/create', 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring'];
+            return ['redirect' => '/admin/teachers/create', 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring', 'flash_type' => 'error'];
         }
 
         $teacherId = $this->users->create($fullName, $phone, Auth::hashPassword($password), 'teacher');

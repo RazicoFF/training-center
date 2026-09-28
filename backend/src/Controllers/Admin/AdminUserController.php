@@ -69,7 +69,7 @@ final class AdminUserController
         $password = (string) ($body['password'] ?? '');
 
         if ($fullName === '' || $phone === '' || strlen($password) < 6) {
-            return ['redirect' => '/admin/admins/create', 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring'];
+            return ['redirect' => '/admin/admins/create', 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring', 'flash_type' => 'error'];
         }
 
         $this->users->create($fullName, $phone, Auth::hashPassword($password), 'admin');
@@ -119,7 +119,7 @@ final class AdminUserController
         $phone = trim((string) ($body['phone'] ?? ''));
 
         if ($fullName === '' || $phone === '') {
-            return ['redirect' => "/admin/admins/{$adminId}/edit", 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring'];
+            return ['redirect' => "/admin/admins/{$adminId}/edit", 'flash' => 'Barcha maydonlarni to\'g\'ri to\'ldiring', 'flash_type' => 'error'];
         }
 
         $this->users->updateProfile($adminId, $fullName, $phone);
@@ -127,7 +127,7 @@ final class AdminUserController
         $newPassword = (string) ($body['password'] ?? '');
         if ($newPassword !== '') {
             if (strlen($newPassword) < 6) {
-                return ['redirect' => "/admin/admins/{$adminId}/edit", 'flash' => 'Parol kamida 6 belgidan iborat bo\'lishi kerak'];
+                return ['redirect' => "/admin/admins/{$adminId}/edit", 'flash' => 'Parol kamida 6 belgidan iborat bo\'lishi kerak', 'flash_type' => 'error'];
             }
             $this->users->updatePassword($adminId, Auth::hashPassword($newPassword));
         }
@@ -156,7 +156,7 @@ final class AdminUserController
         }
 
         if ($adminId === $claims['user_id']) {
-            return ['redirect' => '/admin/admins', 'flash' => Lang::t('admin_user_cannot_delete_self')];
+            return ['redirect' => '/admin/admins', 'flash' => Lang::t('admin_user_cannot_delete_self'), 'flash_type' => 'error'];
         }
 
         $this->users->delete($adminId);

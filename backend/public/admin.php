@@ -74,6 +74,7 @@ if ($result === null) {
 if (isset($result['redirect'])) {
     if (isset($result['flash'])) {
         $_SESSION['flash'] = $result['flash'];
+        $_SESSION['flash_type'] = $result['flash_type'] ?? 'success';
     }
     header('Location: ' . $result['redirect']);
     return;
