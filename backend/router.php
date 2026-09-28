@@ -23,7 +23,7 @@ if (str_starts_with($path, '/uploads/')) {
     return true;
 }
 
-$sitePaths =['/', '/login', '/logout', '/lang', '/teachers', '/apply', '/portal', '/media', '/forgot-password'];
+$sitePaths =['/', '/login', '/logout', '/lang', '/teachers', '/apply', '/portal', '/media', '/forgot-password', '/sitemap.xml'];
 $isSitePath = in_array($path, $sitePaths, true)
     || str_starts_with($path, '/teachers/')
     || str_starts_with($path, '/apply/')

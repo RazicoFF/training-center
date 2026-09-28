@@ -70,3 +70,14 @@ use App\Core\Lang;
 
     <button type="submit" class="btn btn-primary"><?= htmlspecialchars(Lang::t('profession_save')) ?></button>
 </form>
+
+<div class="card mt-5">
+    <div class="card-body">
+        <h2 class="h6"><?= htmlspecialchars(Lang::t('backup_title')) ?></h2>
+        <p class="text-muted small mb-3"><?= htmlspecialchars(Lang::t('backup_hint')) ?></p>
+        <form method="post" action="/admin/settings/backup">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
+            <button type="submit" class="btn btn-outline-primary"><?= htmlspecialchars(Lang::t('backup_download')) ?></button>
+        </form>
+    </div>
+</div>

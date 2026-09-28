@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers\Site;
 
+use App\Core\Lang;
 use App\Core\Request;
 use App\Core\Router;
 use App\Core\SiteView;
@@ -23,7 +24,10 @@ final class TeacherController
 
     private function index(Request $request): array
     {
-        SiteView::render('site/teachers', ['teachers' => $this->profiles->allTeachersWithProfiles()]);
+        SiteView::render('site/teachers', [
+            'teachers' => $this->profiles->allTeachersWithProfiles(),
+            'meta' => ['title' => Lang::t('site_nav_teachers'), 'description' => Lang::t('site_meta_teachers')],
+        ]);
         return ['rendered' => true];
     }
 }

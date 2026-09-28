@@ -8,13 +8,36 @@ $flashClass = ['error' => 'alert-danger', 'warning' => 'alert-warning'][$_SESSIO
 unset($_SESSION['flash'], $_SESSION['flash_type']);
 $isLoggedIn = isset($_SESSION['site_user_id']);
 $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+
+// Per-page title/description/share image, passed by controllers as 'meta'. Railway
+// terminates TLS in front of the app, so the scheme comes from X-Forwarded-Proto.
+$meta = $meta ?? [];
+$siteName = Lang::t('site_app_title');
+$metaTitle = !empty($meta['title']) ? $meta['title'] . ' — ' . $siteName : $siteName;
+$metaDescription = trim((string) preg_replace('/\s+/u', ' ', (string) ($meta['description'] ?? '')));
+$metaDescription = mb_strimwidth($metaDescription !== '' ? $metaDescription : Lang::t('site_meta_description'), 0, 160, '…');
+$scheme = ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https' || !empty($_SERVER['HTTPS']) ? 'https' : 'http';
+$baseUrl = $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+$metaImage = $baseUrl . ($meta['image'] ?? '/images/professions/excavator.jpg');
+$canonicalUrl = $baseUrl . $currentPath;
 ?>
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars(Lang::current()) ?>" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= htmlspecialchars(Lang::t('site_app_title')) ?></title>
+    <title><?= htmlspecialchars($metaTitle) ?></title>
+    <meta name="description" content="<?= htmlspecialchars($metaDescription) ?>">
+    <link rel="canonical" href="<?= htmlspecialchars($canonicalUrl) ?>">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="<?= htmlspecialchars($siteName) ?>">
+    <meta property="og:title" content="<?= htmlspecialchars($metaTitle) ?>">
+    <meta property="og:description" content="<?= htmlspecialchars($metaDescription) ?>">
+    <meta property="og:image" content="<?= htmlspecialchars($metaImage) ?>">
+    <meta property="og:url" content="<?= htmlspecialchars($canonicalUrl) ?>">
+    <meta property="og:locale" content="<?= Lang::current() === 'ru' ? 'ru_RU' : 'uz_UZ' ?>">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" href="/images/brand/logo.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/admin.css" rel="stylesheet">
     <link href="/css/site.css?v=<?= (int) @filemtime(dirname(__DIR__, 3) . '/public/css/site.css') ?>" rel="stylesheet">

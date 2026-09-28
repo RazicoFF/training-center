@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers\Site;
 
+use App\Core\Lang;
 use App\Core\Request;
 use App\Core\Router;
 use App\Core\SiteView;
@@ -36,10 +37,16 @@ final class ProfessionController
             return ['rendered' => true];
         }
 
+        $isRu = Lang::current() === 'ru';
         SiteView::render('site/profession_show', [
             'profession' => $profession,
             'videos' => $this->videos->forProfession($professionId),
             'tests' => $this->tests->forProfession($professionId),
+            'meta' => [
+                'title' => $isRu ? $profession['name_ru'] : $profession['name_uz'],
+                'description' => $isRu ? $profession['description_ru'] : $profession['description_uz'],
+                'image' => $profession['image_url'] ?: null,
+            ],
         ]);
         return ['rendered' => true];
     }

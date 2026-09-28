@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin
+Disallow: /portal
+Disallow: /api/
+
+Sitemap: https://training-center.up.railway.app/sitemap.xml

@@ -29,7 +29,29 @@ DB_USER=${{MySQL.MYSQLUSER}}
 DB_PASS=${{MySQL.MYSQLPASSWORD}}
 JWT_SECRET=<uzun tasodifiy satr, masalan: openssl rand -hex 32>
 JWT_TTL_DAYS=30
+APP_URL=https://<nom>.up.railway.app
 ```
+
+### Yangi arizalar haqida Telegram xabari (ixtiyoriy)
+
+Saytdan yoki ilovadan ariza kelganda admin Telegram'iga darhol xabar boradi.
+
+1. Telegram'da **@BotFather** ga `/newbot` yozing, botga nom bering va u bergan
+   **token**ni oling (`123456789:AA...` ko'rinishida).
+2. Xabar kimga borsin:
+   - **o'zingizga**: yangi botingizga `/start` yozing;
+   - **guruhga**: botni admin guruhingizga qo'shing va guruhda istalgan xabar yozing.
+3. Brauzerda `https://api.telegram.org/bot<TOKEN>/getUpdates` ni oching va
+   `"chat":{"id": ...}` dagi raqamni oling (guruh uchun u `-100...` bilan boshlanadi).
+4. Railway backend xizmatining **Variables** bo'limiga qo'shing:
+
+```
+TELEGRAM_BOT_TOKEN=<token>
+TELEGRAM_CHAT_ID=<chat id>
+```
+
+`APP_URL` berilgan bo'lsa, xabarda arizani admin panelda ochadigan havola ham bo'ladi.
+Bu o'zgaruvchilar bo'lmasa, xabar yuborilmaydi va boshqa hech narsa o'zgarmaydi.
 
 ## 4. Yuklangan fayllar (Volume shart emas)
 
@@ -46,6 +68,19 @@ Konteyner diski har `git push`dan keyin tozalanadi, lekin bu endi fayllarni yo'q
 
 Volume (Hobby tarif) ixtiyoriy: ulasangiz, fayllar bazadan qayta tiklanishi ham shart
 bo'lmay qoladi. Mount path: `/var/www/html/public/uploads` va `/var/www/html/storage`.
+
+### Zaxira nusxa (backup)
+
+Admin panel → **Sozlamalar** sahifasining pastidagi **"Zaxira nusxani yuklab olish"**
+tugmasi butun bazani (yuklangan rasmlar bilan birga) `backup-YYYY-MM-DD-HHMMSS.sql.gz`
+fayliga yuklab beradi. Haftada bir marta yuklab, kompyuter yoki Google Drive'da saqlang.
+
+Tiklash (Railway MySQL'ning public ulanish ma'lumotlari bilan):
+
+```
+gunzip backup-....sql.gz
+mysql -h <host> -P <port> -u root -p railway < backup-....sql
+```
 
 ## 5. Deploy va migratsiya
 

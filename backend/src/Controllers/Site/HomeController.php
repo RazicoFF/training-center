@@ -14,6 +14,7 @@ use App\Repositories\NewsRepository;
 use App\Repositories\ProfessionBrandRepository;
 use App\Repositories\ProfessionRepository;
 use App\Repositories\SiteSettingsRepository;
+use App\Services\TelegramNotifier;
 use App\Services\UploadStore;
 
 final class HomeController
@@ -24,7 +25,8 @@ final class HomeController
         private readonly SiteSettingsRepository $settings = new SiteSettingsRepository(),
         private readonly NewsRepository $news = new NewsRepository(),
         private readonly ProfessionBrandRepository $brands = new ProfessionBrandRepository(),
-        private readonly UploadStore $uploads = new UploadStore()
+        private readonly UploadStore $uploads = new UploadStore(),
+        private readonly TelegramNotifier $telegram = new TelegramNotifier()
     ) {
     }
 
@@ -33,14 +35,19 @@ final class HomeController
         $router->get('/', fn (Request $req) => $this->home($req));
         $router->get('/apply', fn (Request $req) => $this->applyForm($req));
         $router->post('/apply', fn (Request $req) => $this->apply($req));
+        $router->get('/sitemap.xml', fn (Request $req) => $this->sitemap($req));
     }
 
     private function home(Request $request): array
     {
+        $settings = $this->settings->get();
         SiteView::render('site/home', [
             'professions' => $this->professions->all(),
-            'settings' => $this->settings->get(),
+            'settings' => $settings,
             'newsItems' => $this->news->latest(),
+            'meta' => [
+                'description' => Lang::current() === 'ru' ? ($settings['about_ru'] ?? null) : ($settings['about_uz'] ?? null),
+            ],
         ]);
         return ['rendered' => true];
     }
@@ -52,7 +59,30 @@ final class HomeController
             'brandsByProfession' => $this->brands->allGroupedByProfession(),
             'selectedProfessionId' => (int) ($_GET['profession_id'] ?? 0),
             'submitted' => false,
+            'meta' => ['title' => Lang::t('site_nav_apply'), 'description' => Lang::t('site_meta_apply')],
         ]);
+        return ['rendered' => true];
+    }
+
+    /** Public pages for search engines; robots.txt points here. */
+    private function sitemap(Request $request): array
+    {
+        $scheme = ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https' || !empty($_SERVER['HTTPS']) ? 'https' : 'http';
+        $baseUrl = $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+
+        $paths = ['/', '/teachers', '/media', '/apply'];
+        foreach ($this->professions->all() as $profession) {
+            $paths[] = '/professions/' . (int) $profession['id'];
+        }
+
+        header('Content-Type: application/xml; charset=utf-8');
+        echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+        foreach ($paths as $path) {
+            echo '  <url><loc>' . htmlspecialchars($baseUrl . $path, ENT_XML1) . '</loc></url>' . "\n";
+        }
+        echo '</urlset>' . "\n";
+
         return ['rendered' => true];
     }
 
@@ -81,7 +111,8 @@ final class HomeController
 
         $photoUrl = $this->handlePhotoUpload();
 
-        $this->applications->create($fullName, $phone, $professionId, $brandId, $photoUrl);
+        $applicationId = $this->applications->create($fullName, $phone, $professionId, $brandId, $photoUrl);
+        $this->telegram->notifyNewApplication($applicationId);
 
         SiteView::render('site/apply', [
             'professions' => $this->professions->all(),

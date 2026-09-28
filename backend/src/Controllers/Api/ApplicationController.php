@@ -8,6 +8,7 @@ use App\Core\Request;
 use App\Core\Router;
 use App\Repositories\ApplicationRepository;
 use App\Repositories\ProfessionRepository;
+use App\Services\TelegramNotifier;
 use App\Services\UploadStore;
 
 final class ApplicationController
@@ -15,7 +16,8 @@ final class ApplicationController
     public function __construct(
         private readonly ApplicationRepository $repository = new ApplicationRepository(),
         private readonly ProfessionRepository $professions = new ProfessionRepository(),
-        private readonly UploadStore $uploads = new UploadStore()
+        private readonly UploadStore $uploads = new UploadStore(),
+        private readonly TelegramNotifier $telegram = new TelegramNotifier()
     ) {
     }
 
@@ -49,6 +51,7 @@ final class ApplicationController
         $photoUrl = $this->handlePhotoUpload((string) ($body['photo_base64'] ?? ''));
 
         $id = $this->repository->create($fullName, $phone, $professionId, $brandId, $photoUrl);
+        $this->telegram->notifyNewApplication($id);
 
         return ['id' => $id, 'status' => 201];
     }
