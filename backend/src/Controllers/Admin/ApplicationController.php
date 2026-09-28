@@ -21,6 +21,7 @@ final class ApplicationController
     public function register(Router $router): void
     {
         $router->get('/admin/applications', fn (Request $req) => $this->index($req));
+        $router->get('/admin/applications/{id}', fn (Request $req) => $this->show($req));
         $router->post('/admin/applications/{id}/approve', fn (Request $req) => $this->approve($req));
         $router->post('/admin/applications/{id}/reject', fn (Request $req) => $this->reject($req));
     }
@@ -39,6 +40,31 @@ final class ApplicationController
             'statusFilter' => $status,
         ]);
 
+        return ['rendered' => true];
+    }
+
+    /**
+     * Application card: large photo, contacts, chosen profession/brand, and the
+     * approve/reject actions. With ?modal=1 only the card fragment is returned.
+     */
+    private function show(Request $request): array
+    {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $application = $this->repository->findWithProfession((int) $request->param('id'));
+        if ($application === null) {
+            http_response_code(404);
+            echo '<h1>404</h1>';
+            return ['rendered' => true];
+        }
+
+        if (($_GET['modal'] ?? '') === '1') {
+            View::partial('applications/show', ['app' => $application]);
+        } else {
+            View::render('applications/show', ['app' => $application]);
+        }
         return ['rendered' => true];
     }
 

@@ -71,6 +71,21 @@ final class ApplicationRepository
         return ['user_id' => $userId, 'phone' => $application['phone']];
     }
 
+    public function findWithProfession(int $id): ?array
+    {
+        $stmt = Database::pdo()->prepare(
+            'SELECT a.*, p.name_uz AS profession_name_uz, p.name_ru AS profession_name_ru, b.name AS brand_name
+             FROM applications a
+             JOIN professions p ON p.id = a.profession_id
+             LEFT JOIN profession_brands b ON b.id = a.brand_id
+             WHERE a.id = ?'
+        );
+        $stmt->execute([$id]);
+        $row = $stmt->fetch();
+
+        return $row === false ? null : $row;
+    }
+
     public function allWithProfession(?string $status = null): array
     {
         $sql = 'SELECT a.*, p.name_uz AS profession_name_uz, p.name_ru AS profession_name_ru, b.name AS brand_name

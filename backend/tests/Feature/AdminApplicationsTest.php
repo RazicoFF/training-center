@@ -28,6 +28,38 @@ final class AdminApplicationsTest extends TestCase
         $this->applicationId = (int) $pdo->lastInsertId();
     }
 
+    public function testCardShowsDetailsAndActionsForPendingApplication(): void
+    {
+        $router = new Router();
+        (new ApplicationController())->register($router);
+
+        $_GET = ['modal' => '1'];
+        ob_start();
+        $result = $router->dispatch(new Request('GET', "/admin/applications/{$this->applicationId}", [], [], []));
+        $html = ob_get_clean();
+        $_GET = [];
+
+        $this->assertSame(['rendered' => true], $result);
+        $this->assertStringContainsString('App Test', $html);
+        $this->assertStringContainsString('tel:+998933333333', $html);
+        $this->assertStringContainsString("/admin/applications/{$this->applicationId}/approve", $html);
+        $this->assertStringContainsString("/admin/applications/{$this->applicationId}/reject", $html);
+        $this->assertStringNotContainsString('<html', $html);
+    }
+
+    public function testListLinksNamesToApplicationCard(): void
+    {
+        $router = new Router();
+        (new ApplicationController())->register($router);
+
+        ob_start();
+        $router->dispatch(new Request('GET', '/admin/applications', [], [], []));
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString("href=\"/admin/applications/{$this->applicationId}\" data-tc-card", $html);
+        $this->assertStringContainsString("/admin/applications/{$this->applicationId}/approve", $html);
+    }
+
     public function testListRendersPendingApplication(): void
     {
         $router = new Router();
