@@ -16,7 +16,7 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
     <title><?= htmlspecialchars(Lang::t('site_app_title')) ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/admin.css" rel="stylesheet">
-    <link href="/css/site.css" rel="stylesheet">
+    <link href="/css/site.css?v=<?= (int) @filemtime(dirname(__DIR__, 3) . '/public/css/site.css') ?>" rel="stylesheet">
 </head>
 <body>
 <div class="tc-bg-fx" aria-hidden="true"></div>

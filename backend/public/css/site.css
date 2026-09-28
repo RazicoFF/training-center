@@ -199,10 +199,14 @@ h2.h4 {
     border-color: var(--tc-primary);
 }
 
+/* Fill the card edge to edge; 3:2 matches the recommended 960x640 upload size, so
+   images at that ratio show uncropped and others are trimmed evenly around the centre. */
 .tc-price-card img {
+    display: block;
     width: 100%;
-    height: 180px;
-    object-fit: contain;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    object-position: center;
     background: var(--tc-surface-2);
 }
 
