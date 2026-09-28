@@ -26,6 +26,9 @@ use App\Core\Lang;
                     </div>
                     <button type="submit" class="btn btn-primary w-100"><?= htmlspecialchars(Lang::t('login_submit')) ?></button>
                 </form>
+                <div class="text-center mt-3">
+                    <a href="/forgot-password" class="small"><?= htmlspecialchars(Lang::t('forgot_password_link')) ?></a>
+                </div>
             </div>
         </div>
     </div>

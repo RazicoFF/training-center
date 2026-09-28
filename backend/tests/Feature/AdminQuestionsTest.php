@@ -107,4 +107,76 @@ final class AdminQuestionsTest extends TestCase
         $count = (int) $pdo->query('SELECT COUNT(*) FROM questions')->fetchColumn();
         $this->assertSame(0, $count);
     }
+
+    public function testUpdateReplacesQuestionTextAndAnswers(): void
+    {
+        $pdo = Database::pdo();
+        $pdo->prepare('INSERT INTO questions (test_id, text_uz, text_ru) VALUES (?, "Old", "Old ru")')->execute([$this->testId]);
+        $questionId = (int) $pdo->lastInsertId();
+        $pdo->prepare('INSERT INTO answers (question_id, text_uz, text_ru, is_correct) VALUES (?, "OldA", "OldA ru", 1)')->execute([$questionId]);
+        $pdo->prepare('INSERT INTO answers (question_id, text_uz, text_ru, is_correct) VALUES (?, "OldB", "OldB ru", 0)')->execute([$questionId]);
+
+        $router = new Router();
+        (new QuestionController())->register($router);
+        $token = Csrf::token();
+
+        $result = $router->dispatch(new Request('POST', "/admin/tests/{$this->testId}/questions/{$questionId}", [], [], [
+            'csrf_token' => $token,
+            'text_uz' => 'New text',
+            'text_ru' => 'New text ru',
+            'answer_text_uz' => ['NewA', 'NewB', '', ''],
+            'answer_text_ru' => ['NewA ru', 'NewB ru', '', ''],
+            'correct_index' => '1',
+        ]));
+
+        $this->assertSame("/admin/tests/{$this->testId}/questions", $result['redirect']);
+
+        $question = $pdo->query("SELECT text_uz FROM questions WHERE id = {$questionId}")->fetch();
+        $this->assertSame('New text', $question['text_uz']);
+
+        $answers = $pdo->query("SELECT text_uz, is_correct FROM answers WHERE question_id = {$questionId} ORDER BY id")->fetchAll();
+        $this->assertCount(2, $answers);
+        $this->assertSame('NewA', $answers[0]['text_uz']);
+        $this->assertSame('NewB', $answers[1]['text_uz']);
+        $this->assertSame(1, (int) $answers[1]['is_correct']);
+    }
+
+    public function testDeleteRemovesQuestionAndItsAnswers(): void
+    {
+        $pdo = Database::pdo();
+        $pdo->prepare('INSERT INTO questions (test_id, text_uz, text_ru) VALUES (?, "Q", "Q ru")')->execute([$this->testId]);
+        $questionId = (int) $pdo->lastInsertId();
+        $pdo->prepare('INSERT INTO answers (question_id, text_uz, text_ru, is_correct) VALUES (?, "A", "A ru", 1)')->execute([$questionId]);
+
+        $router = new Router();
+        (new QuestionController())->register($router);
+        $token = Csrf::token();
+
+        $result = $router->dispatch(new Request('POST', "/admin/tests/{$this->testId}/questions/{$questionId}/delete", [], [], [
+            'csrf_token' => $token,
+        ]));
+
+        $this->assertSame("/admin/tests/{$this->testId}/questions", $result['redirect']);
+        $this->assertSame(0, (int) $pdo->query("SELECT COUNT(*) FROM questions WHERE id = {$questionId}")->fetchColumn());
+        $this->assertSame(0, (int) $pdo->query("SELECT COUNT(*) FROM answers WHERE question_id = {$questionId}")->fetchColumn());
+    }
+
+    public function testEditFormRejectsQuestionBelongingToADifferentTest(): void
+    {
+        $pdo = Database::pdo();
+        $professionId = (int) $pdo->query('SELECT id FROM professions LIMIT 1')->fetchColumn();
+        $pdo->prepare('INSERT INTO tests (profession_id, title_uz, title_ru, passing_score) VALUES (?, "Other", "Other", 50)')->execute([$professionId]);
+        $otherTestId = (int) $pdo->lastInsertId();
+        $pdo->prepare('INSERT INTO questions (test_id, text_uz, text_ru) VALUES (?, "Q", "Q ru")')->execute([$otherTestId]);
+        $questionId = (int) $pdo->lastInsertId();
+
+        $router = new Router();
+        (new QuestionController())->register($router);
+
+        ob_start();
+        $router->dispatch(new Request('GET', "/admin/tests/{$this->testId}/questions/{$questionId}/edit", [], [], []));
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString('404', $html);
+    }
 }

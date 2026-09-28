@@ -29,6 +29,7 @@ $tablesToClear = [
     'media_items',
     'profession_brands',
     'test_question_selections',
+    'password_reset_requests',
     'news',
     'users',
 ];

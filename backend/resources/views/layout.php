@@ -29,6 +29,7 @@ $navItems = $isTeacherSession
         ['href' => '/admin/media', 'label' => Lang::t('nav_media'), 'match' => '/admin/media', 'icon' => 'award'],
         ['href' => '/admin/tests', 'label' => Lang::t('nav_tests'), 'match' => '/admin/tests', 'icon' => 'clipboard'],
         ['href' => '/admin/certificates', 'label' => Lang::t('nav_certificates'), 'match' => '/admin/certificates', 'icon' => 'award'],
+        ['href' => '/admin/password-resets', 'label' => Lang::t('nav_password_resets'), 'match' => '/admin/password-resets', 'icon' => 'settings'],
         ['href' => '/admin/settings', 'label' => Lang::t('nav_settings'), 'match' => '/admin/settings', 'icon' => 'settings'],
     ];
 

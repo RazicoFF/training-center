@@ -1,5 +1,6 @@
 <?php
 /** @var array $tests */
+use App\Core\Csrf;
 use App\Core\Lang;
 ?>
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -7,7 +8,7 @@ use App\Core\Lang;
     <a href="/admin/tests/create" class="btn btn-primary btn-sm"><?= htmlspecialchars(Lang::t('test_create')) ?></a>
 </div>
 <table class="table table-striped">
-    <thead><tr><th>Sarlavha</th><th>Kasb</th><th>Savollar</th><th></th><th></th><th></th></tr></thead>
+    <thead><tr><th>Sarlavha</th><th>Kasb</th><th>Savollar</th><th></th><th></th><th></th><th></th></tr></thead>
     <tbody>
     <?php foreach ($tests as $t): ?>
         <tr>
@@ -17,6 +18,12 @@ use App\Core\Lang;
             <td><a href="/admin/tests/<?= (int) $t['id'] ?>/questions" class="btn btn-sm btn-outline-primary"><?= htmlspecialchars(Lang::t('question_add')) ?></a></td>
             <td><a href="/admin/tests/<?= (int) $t['id'] ?>/edit" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('test_edit')) ?></a></td>
             <td><a href="/admin/tests/<?= (int) $t['id'] ?>/attempts" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('test_attempts_title')) ?></a></td>
+            <td>
+                <form method="post" action="/admin/tests/<?= (int) $t['id'] ?>/delete" onsubmit="return confirm('<?= htmlspecialchars(Lang::t('test_delete_confirm')) ?>');">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
+                    <button type="submit" class="btn btn-sm btn-outline-danger"><?= htmlspecialchars(Lang::t('admin_user_delete')) ?></button>
+                </form>
+            </td>
         </tr>
     <?php endforeach; ?>
     </tbody>

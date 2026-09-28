@@ -31,6 +31,7 @@ final class TestController
         $router->get('/admin/tests/{id}/edit', fn (Request $req) => $this->editForm($req));
         $router->post('/admin/tests/{id}/edit', fn (Request $req) => $this->update($req));
         $router->get('/admin/tests/{id}/attempts', fn (Request $req) => $this->attempts($req));
+        $router->post('/admin/tests/{id}/delete', fn (Request $req) => $this->delete($req));
     }
 
     private function index(Request $request): array
@@ -208,6 +209,29 @@ final class TestController
             'attempts' => $this->tests->attemptsForTest((int) $test['id']),
         ]);
         return ['rendered' => true];
+    }
+
+    private function delete(Request $request): array
+    {
+        if (AdminAuthMiddleware::requireAdmin() === null) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        $testId = (int) $request->param('id');
+        $body = $request->formBody();
+        if (!Csrf::verify($body['csrf_token'] ?? null)) {
+            return ['redirect' => '/admin/login'];
+        }
+
+        if ($this->tests->find($testId) === null) {
+            http_response_code(404);
+            echo '<h1>404</h1>';
+            return ['rendered' => true];
+        }
+
+        $this->tests->delete($testId);
+
+        return ['redirect' => '/admin/tests', 'flash' => Lang::t('test_deleted')];
     }
 
     /**

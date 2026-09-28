@@ -9,7 +9,7 @@ RewriteRule ^ - [L]
 
 RewriteRule ^admin(/.*)?$ admin.php [L]
 
-RewriteRule ^(login|logout|lang|teachers|apply|portal|media)(/.*)?$ site.php [L]
+RewriteRule ^(login|logout|lang|teachers|apply|portal|media|forgot-password)(/.*)?$ site.php [L]
 RewriteRule ^professions/.*$ site.php [L]
 RewriteRule ^$ site.php [L]
 

@@ -10,6 +10,7 @@ use App\Core\Router;
 use App\Controllers\Site\AuthController;
 use App\Controllers\Site\HomeController;
 use App\Controllers\Site\MediaController;
+use App\Controllers\Site\PasswordResetController;
 use App\Controllers\Site\PortalController;
 use App\Controllers\Site\ProfessionController;
 use App\Controllers\Site\TeacherController;
@@ -29,6 +30,7 @@ $router = new Router();
 (new PortalController())->register($router);
 (new ProfessionController())->register($router);
 (new MediaController())->register($router);
+(new PasswordResetController())->register($router);
 
 $request = Request::fromGlobals();
 

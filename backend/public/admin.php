@@ -16,6 +16,7 @@ use App\Controllers\Admin\DashboardController;
 use App\Controllers\Admin\GroupController;
 use App\Controllers\Admin\MediaController;
 use App\Controllers\Admin\NewsController;
+use App\Controllers\Admin\PasswordResetController;
 use App\Controllers\Admin\ProfessionController;
 use App\Controllers\Admin\QuestionController;
 use App\Controllers\Admin\SiteSettingsController;
@@ -47,6 +48,7 @@ $router = new Router();
 (new NewsController())->register($router);
 (new MediaController())->register($router);
 (new AdminUserController())->register($router);
+(new PasswordResetController())->register($router);
 
 $request = Request::fromGlobals();
 

@@ -349,4 +349,18 @@ final class TestRepository
 
         return Database::pdo()->query($sql)->fetchAll();
     }
+
+    /**
+     * Deleting a test cascades through its questions/answers, recorded attempts, and the
+     * per-user shown-question selections - none of it means anything once the test is gone.
+     */
+    public function delete(int $id): void
+    {
+        $pdo = Database::pdo();
+        $pdo->prepare('DELETE a FROM answers a JOIN questions q ON q.id = a.question_id WHERE q.test_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM questions WHERE test_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM test_attempts WHERE test_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM test_question_selections WHERE test_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM tests WHERE id = ?')->execute([$id]);
+    }
 }

@@ -8,7 +8,16 @@ use App\Core\Lang;
 
 <?php foreach ($questions as $q): ?>
     <div class="card mb-2"><div class="card-body">
-        <p class="fw-bold"><?= htmlspecialchars($q['text_uz']) ?></p>
+        <div class="d-flex justify-content-between align-items-start">
+            <p class="fw-bold"><?= htmlspecialchars($q['text_uz']) ?></p>
+            <div class="d-flex gap-2 flex-shrink-0 ms-3">
+                <a href="/admin/tests/<?= $testId ?>/questions/<?= (int) $q['id'] ?>/edit" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('teacher_edit')) ?></a>
+                <form method="post" action="/admin/tests/<?= $testId ?>/questions/<?= (int) $q['id'] ?>/delete" onsubmit="return confirm('<?= htmlspecialchars(Lang::t('question_delete_confirm')) ?>');">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(Csrf::token()) ?>">
+                    <button type="submit" class="btn btn-sm btn-outline-danger"><?= htmlspecialchars(Lang::t('admin_user_delete')) ?></button>
+                </form>
+            </div>
+        </div>
         <ul>
         <?php foreach ($q['answers'] as $a): ?>
             <li><?= htmlspecialchars($a['text_uz']) ?><?= ((int) $a['is_correct'] === 1) ? ' ✓' : '' ?></li>
