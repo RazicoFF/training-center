@@ -76,6 +76,17 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+// Cards that open a modal are divs with role="button"; give them Enter/Space like a real button.
+document.querySelectorAll('.tc-card-clickable[role="button"]').forEach(function (card) {
+    card.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            card.click();
+        }
+    });
+});
+</script>
+<script>
 (function () {
     var root = document.documentElement;
     var icon = document.getElementById('tc-site-theme-icon');

@@ -245,21 +245,21 @@ h2.h4 {
     font-size: 1.4rem;
 }
 
-/* Teacher cards open a full-profile modal (site/teachers.php). */
-.tc-teacher-card-clickable {
+/* Cards that open a detail modal (teachers page, news on the home page). */
+.tc-card-clickable {
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.tc-teacher-card-clickable:hover,
-.tc-teacher-card-clickable:focus-visible {
+.tc-card-clickable:hover,
+.tc-card-clickable:focus-visible {
     transform: translateY(-3px);
     box-shadow: var(--tc-shadow-hover);
     border-color: var(--tc-primary);
     outline: none;
 }
 
-.tc-teacher-more {
+.tc-card-more {
     display: inline-block;
     margin-top: 0.5rem;
     color: var(--tc-primary);
@@ -279,6 +279,14 @@ h2.h4 {
     border: 1px solid var(--tc-border);
     border-radius: 8px;
     position: relative;
+}
+
+.tc-news-modal-img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    max-height: 420px;
+    object-fit: cover;
 }
 
 .tc-teacher-modal .modal-body {

@@ -35,7 +35,7 @@ if (!function_exists('tc_teacher_age')) {
         $education = $isRu ? ($t['education_ru'] ?? null) : ($t['education_uz'] ?? null);
         ?>
         <div class="col-md-6 col-lg-4">
-            <div class="tc-teacher-card tc-teacher-card-clickable tc-reveal" style="transition-delay:<?= min($i, 5) * 0.06 ?>s;"
+            <div class="tc-teacher-card tc-card-clickable tc-reveal" style="transition-delay:<?= min($i, 5) * 0.06 ?>s;"
                  role="button" tabindex="0" data-bs-toggle="modal" data-bs-target="#tcTeacherModal<?= $i ?>"
                  aria-label="<?= htmlspecialchars($t['full_name']) ?>">
                 <div class="d-flex align-items-center gap-3 mb-3">
@@ -57,7 +57,7 @@ if (!function_exists('tc_teacher_age')) {
                 <?php if (!empty($education)): ?>
                     <p class="small mb-1 tc-clamp-2"><strong><?= htmlspecialchars(Lang::t('site_teacher_education')) ?>:</strong> <?= htmlspecialchars($education) ?></p>
                 <?php endif; ?>
-                <span class="tc-teacher-more small"><?= htmlspecialchars(Lang::t('site_teacher_more')) ?> &rarr;</span>
+                <span class="tc-card-more small"><?= htmlspecialchars(Lang::t('site_teacher_more')) ?> &rarr;</span>
             </div>
         </div>
     <?php endforeach; ?>
@@ -125,14 +125,3 @@ if (!function_exists('tc_teacher_age')) {
     </div>
 <?php endforeach; ?>
 
-<script>
-// Let keyboard users open a teacher card with Enter/Space, like a real button.
-document.querySelectorAll('.tc-teacher-card-clickable').forEach(function (card) {
-    card.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            card.click();
-        }
-    });
-});
-</script>

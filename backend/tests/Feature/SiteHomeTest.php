@@ -94,6 +94,29 @@ final class SiteHomeTest extends TestCase
         $pdo->exec("DELETE FROM news WHERE title_uz = 'Smoke Home News'");
     }
 
+    public function testNewsCardOpensModalWithFullText(): void
+    {
+        $pdo = Database::pdo();
+        $longBody = str_repeat('Uzun yangilik matni. ', 20) . 'OXIRGI-JUMLA';
+        $pdo->exec("DELETE FROM news WHERE title_uz = 'Modal News'");
+        $pdo->prepare('INSERT INTO news (title_uz, title_ru, body_uz) VALUES (?, ?, ?)')
+            ->execute(['Modal News', 'Новость', $longBody]);
+
+        $router = new Router();
+        (new HomeController())->register($router);
+
+        ob_start();
+        $router->dispatch(new Request('GET', '/', [], [], []));
+        $html = ob_get_clean();
+
+        $this->assertMatchesRegularExpression('/data-bs-target="#tcNewsModal\d+"/', $html);
+        $this->assertStringContainsString('class="modal fade" id="tcNewsModal', $html);
+        // The card shows a 160-character excerpt; only the modal carries the full body.
+        $this->assertStringContainsString('OXIRGI-JUMLA', $html);
+
+        $pdo->exec("DELETE FROM news WHERE title_uz = 'Modal News'");
+    }
+
     public function testApplySubmitsApplicationAndShowsSuccessMessage(): void
     {
         $professionId = (int) Database::pdo()->query('SELECT id FROM professions LIMIT 1')->fetchColumn();

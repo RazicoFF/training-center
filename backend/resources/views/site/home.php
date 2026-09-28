@@ -47,7 +47,9 @@ $addressText = $isRu ? ($settings['address_ru'] ?? null) : ($settings['address_u
     <div class="row g-4">
         <?php foreach ($newsItems as $i => $n): ?>
             <div class="col-md-4">
-                <div class="tc-price-card h-100 tc-reveal" style="transition-delay:<?= min($i, 3) * 0.08 ?>s;">
+                <div class="tc-price-card tc-card-clickable h-100 tc-reveal" style="transition-delay:<?= min($i, 3) * 0.08 ?>s;"
+                     role="button" tabindex="0" data-bs-toggle="modal" data-bs-target="#tcNewsModal<?= $i ?>"
+                     aria-label="<?= htmlspecialchars($isRu ? $n['title_ru'] : $n['title_uz']) ?>">
                     <?php if (!empty($n['image_url'])): ?>
                         <img src="<?= htmlspecialchars($n['image_url']) ?>" alt="">
                     <?php endif; ?>
@@ -55,13 +57,41 @@ $addressText = $isRu ? ($settings['address_ru'] ?? null) : ($settings['address_u
                         <h3 class="h6"><?= htmlspecialchars($isRu ? $n['title_ru'] : $n['title_uz']) ?></h3>
                         <?php $newsBody = $isRu ? ($n['body_ru'] ?? null) : ($n['body_uz'] ?? null); ?>
                         <?php if (!empty($newsBody)): ?>
-                            <p class="text-muted small mb-0"><?= htmlspecialchars(mb_strimwidth($newsBody, 0, 160, '...')) ?></p>
+                            <p class="text-muted small mb-2"><?= htmlspecialchars(mb_strimwidth($newsBody, 0, 160, '...')) ?></p>
                         <?php endif; ?>
+                        <span class="tc-card-more small"><?= htmlspecialchars(Lang::t('site_teacher_more')) ?> &rarr;</span>
                     </div>
                 </div>
             </div>
         <?php endforeach; ?>
     </div>
+
+    <?php // Modals sit outside the .tc-reveal cards: a transformed ancestor would trap them. ?>
+    <?php foreach ($newsItems as $i => $n): ?>
+        <?php
+        $newsTitle = $isRu ? $n['title_ru'] : $n['title_uz'];
+        $newsBody = $isRu ? ($n['body_ru'] ?? null) : ($n['body_uz'] ?? null);
+        ?>
+        <div class="modal fade" id="tcNewsModal<?= $i ?>" tabindex="-1" aria-hidden="true" aria-labelledby="tcNewsModalTitle<?= $i ?>">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+                <div class="modal-content tc-teacher-modal">
+                    <button type="button" class="btn-close tc-teacher-modal-close" data-bs-dismiss="modal" aria-label="<?= htmlspecialchars(Lang::t('card_close')) ?>"></button>
+                    <?php if (!empty($n['image_url'])): ?>
+                        <img src="<?= htmlspecialchars($n['image_url']) ?>" alt="" class="tc-news-modal-img">
+                    <?php endif; ?>
+                    <div class="modal-body">
+                        <h2 class="h5 mb-1 pe-4" id="tcNewsModalTitle<?= $i ?>"><?= htmlspecialchars($newsTitle) ?></h2>
+                        <?php if (!empty($n['published_at'])): ?>
+                            <div class="text-muted small mb-3"><?= htmlspecialchars(date('d.m.Y', strtotime((string) $n['published_at']))) ?></div>
+                        <?php endif; ?>
+                        <?php if (!empty($newsBody)): ?>
+                            <p class="mb-0"><?= nl2br(htmlspecialchars($newsBody)) ?></p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
 <?php endif; ?>
 
 <?php if (!empty($aboutText)): ?>
