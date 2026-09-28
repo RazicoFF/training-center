@@ -11,7 +11,7 @@ $isRu = Lang::current() === 'ru';
 <div class="row g-4">
     <div class="col-md-5">
         <?php if (!empty($profession['image_url'])): ?>
-            <img src="<?= htmlspecialchars($profession['image_url']) ?>" alt="" class="w-100 rounded" style="max-height:320px;object-fit:contain;background:var(--tc-surface-2);">
+            <img src="<?= htmlspecialchars($profession['image_url']) ?>" alt="" class="w-100 rounded d-block" style="aspect-ratio:3/2;max-height:360px;object-fit:cover;">
         <?php endif; ?>
     </div>
     <div class="col-md-7">

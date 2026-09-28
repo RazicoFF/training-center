@@ -7,7 +7,7 @@ use App\Core\Lang;
 ?>
 <h1 class="h4 mb-3"><?= htmlspecialchars($profession['name_uz']) ?></h1>
 <?php if (!empty($profession['image_url'])): ?>
-    <img src="<?= htmlspecialchars($profession['image_url']) ?>" alt="" style="width:220px;height:140px;object-fit:contain;background:var(--tc-surface-2);" class="mb-3 rounded">
+    <img src="<?= htmlspecialchars($profession['image_url']) ?>" alt="" style="width:220px;height:140px;object-fit:cover;" class="mb-3 rounded">
 <?php endif; ?>
 <?php if (!empty($profession['pdf_url'])): ?>
     <p><a href="<?= htmlspecialchars($profession['pdf_url']) ?>" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary"><?= htmlspecialchars(Lang::t('profession_pdf_current')) ?></a></p>

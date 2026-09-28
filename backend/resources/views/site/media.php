@@ -16,7 +16,7 @@ $isRu = Lang::current() === 'ru';
                 <div class="tc-price-card h-100 tc-reveal" style="transition-delay:<?= min($i, 5) * 0.05 ?>s;">
                     <?php if ($m['type'] === 'image'): ?>
                         <button type="button" class="btn p-0 border-0 w-100" data-bs-toggle="modal" data-bs-target="#tcMediaModal<?= $i ?>" style="cursor:zoom-in;">
-                            <img src="<?= htmlspecialchars($m['file_url']) ?>" alt="<?= htmlspecialchars((string) $title) ?>" style="width:100%;height:220px;object-fit:cover;">
+                            <img src="<?= htmlspecialchars($m['file_url']) ?>" alt="<?= htmlspecialchars((string) $title) ?>">
                         </button>
                     <?php else: ?>
                         <?php $youtubeId = ProfessionVideoRepository::extractYoutubeId($m['youtube_url']); ?>

@@ -49,7 +49,7 @@ $addressText = $isRu ? ($settings['address_ru'] ?? null) : ($settings['address_u
             <div class="col-md-4">
                 <div class="tc-price-card h-100 tc-reveal" style="transition-delay:<?= min($i, 3) * 0.08 ?>s;">
                     <?php if (!empty($n['image_url'])): ?>
-                        <img src="<?= htmlspecialchars($n['image_url']) ?>" alt="" style="object-fit:cover;">
+                        <img src="<?= htmlspecialchars($n['image_url']) ?>" alt="">
                     <?php endif; ?>
                     <div class="p-3">
                         <h3 class="h6"><?= htmlspecialchars($isRu ? $n['title_ru'] : $n['title_uz']) ?></h3>
