@@ -87,6 +87,25 @@ final class UploadStoreTest extends TestCase
         $this->assertNull($this->store->fetch($url));
     }
 
+    public function testDeleteIfUnusedKeepsFilesStillReferenced(): void
+    {
+        $pdo = Database::pdo();
+        $professionId = (int) $pdo->query('SELECT id FROM professions LIMIT 1')->fetchColumn();
+        $shared = $this->store->storeImageBytes($this->pngBytes(40, 40), 'unittest', 'shared');
+        $orphan = $this->store->storeImageBytes($this->pngBytes(40, 40), 'unittest', 'orphan');
+        $pdo->prepare('INSERT INTO applications (full_name, phone, profession_id, photo_url) VALUES (?, ?, ?, ?)')
+            ->execute(['Upload Ref', '+998900001234', $professionId, $shared]);
+
+        $this->store->deleteIfUnused($shared);
+        $this->store->deleteIfUnused($orphan);
+
+        $this->assertFileExists($this->publicDir . $shared);
+        $this->assertFileDoesNotExist($this->publicDir . $orphan);
+        $this->assertNull($this->store->fetch($orphan));
+
+        $pdo->exec("DELETE FROM applications WHERE phone = '+998900001234'");
+    }
+
     public function testDeleteIgnoresBundledImages(): void
     {
         mkdir($this->publicDir . '/images', 0775, true);

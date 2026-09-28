@@ -105,6 +105,38 @@ final class UploadStore
     }
 
     /**
+     * Deletes the upload only when no record still points at it. Needed for photos,
+     * which an approved application and the student it created share by URL.
+     */
+    public function deleteIfUnused(?string $url): void
+    {
+        $path = self::normalizePath($url);
+        if ($path === null) {
+            return;
+        }
+
+        $references = [
+            'users' => ['photo_url'],
+            'applications' => ['photo_url'],
+            'teacher_profiles' => ['photo_url'],
+            'professions' => ['image_url', 'pdf_url'],
+            'news' => ['image_url'],
+            'media_items' => ['file_url'],
+        ];
+        foreach ($references as $table => $columns) {
+            foreach ($columns as $column) {
+                $stmt = Database::pdo()->prepare("SELECT 1 FROM `{$table}` WHERE `{$column}` = ? LIMIT 1");
+                $stmt->execute([$path]);
+                if ($stmt->fetchColumn() !== false) {
+                    return;
+                }
+            }
+        }
+
+        $this->delete($path);
+    }
+
+    /**
      * Looks up an upload by its URL path. When found, restores the disk copy (best
      * effort) and returns ['mime' => ..., 'data' => ...].
      */

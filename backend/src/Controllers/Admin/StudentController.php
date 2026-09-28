@@ -197,6 +197,7 @@ final class StudentController
         $photoUrl = $this->uploadPhoto($studentId);
         if ($photoUrl !== null) {
             $this->users->updatePhoto($studentId, $photoUrl);
+            $this->uploads->deleteIfUnused($student['photo_url']);
         }
 
         $newPassword = (string) ($body['password'] ?? '');
@@ -249,6 +250,7 @@ final class StudentController
         }
 
         $this->users->deleteStudentCascade($studentId);
+        $this->uploads->deleteIfUnused($student['photo_url']);
 
         return ['redirect' => '/admin/students', 'flash' => Lang::t('student_deleted')];
     }
