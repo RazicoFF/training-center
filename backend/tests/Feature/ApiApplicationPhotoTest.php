@@ -8,6 +8,7 @@ use App\Core\Database;
 use App\Core\Request;
 use App\Core\Router;
 use App\Controllers\Api\ApplicationController;
+use App\Services\UploadStore;
 use PHPUnit\Framework\TestCase;
 
 final class ApiApplicationPhotoTest extends TestCase
@@ -46,7 +47,7 @@ final class ApiApplicationPhotoTest extends TestCase
 
         $absolutePath = dirname(__DIR__, 2) . '/public' . $photoUrl;
         $this->assertFileExists($absolutePath);
-        @unlink($absolutePath);
+        (new UploadStore())->delete($photoUrl);
     }
 
     public function testMissingPhotoStillSucceeds(): void
