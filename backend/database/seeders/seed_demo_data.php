@@ -124,20 +124,6 @@ function ensureTeacher(
     return $id;
 }
 
-/**
- * Fills in a teacher's photo if they don't already have one, without wiping the rest of
- * their profile (TeacherProfileRepository::upsert() replaces the whole row, so the existing
- * fields have to be re-sent alongside the new photo_url).
- */
-function ensureTeacherPhoto(TeacherProfileRepository $profiles, int $teacherId, string $photoUrl): void
-{
-    $existing = $profiles->findByUserId($teacherId);
-    if ($existing === null || !empty($existing['photo_url'])) {
-        return;
-    }
-    $profiles->upsert($teacherId, array_merge($existing, ['photo_url' => $photoUrl]));
-}
-
 $teacherAziz = ensureTeacher($users, $teacherProfiles, 'Aziz Karimov', '+998901112233', [
     'age' => 42, 'birth_date' => '1983-05-12', 'experience_years' => 15,
     'skills_uz' => "Ekskavator boshqarish, texnik xizmat ko'rsatish",
@@ -165,10 +151,6 @@ $teacherNodira = ensureTeacher($users, $teacherProfiles, 'Nodira Tosheva', '+998
     'education_uz' => 'Toshkent Davlat Texnika Universiteti', 'education_ru' => 'Ташкентский государственный технический университет',
     'telegram' => '@nodira_tosheva', 'email' => 'nodira.tosheva@example.uz',
 ]);
-ensureTeacherPhoto($teacherProfiles, $teacherAziz, '/images/teachers/aziz-karimov.jpg');
-ensureTeacherPhoto($teacherProfiles, $teacherBahodir, '/images/teachers/bahodir-yusupov.jpg');
-ensureTeacherPhoto($teacherProfiles, $teacherSardor, '/images/teachers/sardor-rahimov.jpg');
-ensureTeacherPhoto($teacherProfiles, $teacherNodira, '/images/teachers/nodira-tosheva.jpg');
 echo "Teachers ensured.\n";
 
 // ---------- 4. Groups ----------
