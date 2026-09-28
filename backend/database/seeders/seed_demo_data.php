@@ -24,6 +24,7 @@ use App\Repositories\NewsRepository;
 use App\Repositories\ProfessionBrandRepository;
 use App\Repositories\ProfessionRepository;
 use App\Repositories\QuestionRepository;
+use App\Repositories\SiteSettingsRepository;
 use App\Repositories\TeacherProfileRepository;
 use App\Repositories\TestRepository;
 use App\Repositories\UserRepository;
@@ -43,6 +44,7 @@ $questions = new QuestionRepository();
 $certificates = new CertificateRepository();
 $media = new MediaRepository();
 $news = new NewsRepository();
+$siteSettings = new SiteSettingsRepository();
 $scheduleGenerator = new ScheduleGenerator();
 
 // ---------- 1. Professions ----------
@@ -122,6 +124,20 @@ function ensureTeacher(
     return $id;
 }
 
+/**
+ * Fills in a teacher's photo if they don't already have one, without wiping the rest of
+ * their profile (TeacherProfileRepository::upsert() replaces the whole row, so the existing
+ * fields have to be re-sent alongside the new photo_url).
+ */
+function ensureTeacherPhoto(TeacherProfileRepository $profiles, int $teacherId, string $photoUrl): void
+{
+    $existing = $profiles->findByUserId($teacherId);
+    if ($existing === null || !empty($existing['photo_url'])) {
+        return;
+    }
+    $profiles->upsert($teacherId, array_merge($existing, ['photo_url' => $photoUrl]));
+}
+
 $teacherAziz = ensureTeacher($users, $teacherProfiles, 'Aziz Karimov', '+998901112233', [
     'age' => 42, 'birth_date' => '1983-05-12', 'experience_years' => 15,
     'skills_uz' => "Ekskavator boshqarish, texnik xizmat ko'rsatish",
@@ -149,6 +165,10 @@ $teacherNodira = ensureTeacher($users, $teacherProfiles, 'Nodira Tosheva', '+998
     'education_uz' => 'Toshkent Davlat Texnika Universiteti', 'education_ru' => 'Ташкентский государственный технический университет',
     'telegram' => '@nodira_tosheva', 'email' => 'nodira.tosheva@example.uz',
 ]);
+ensureTeacherPhoto($teacherProfiles, $teacherAziz, '/images/teachers/aziz-karimov.jpg');
+ensureTeacherPhoto($teacherProfiles, $teacherBahodir, '/images/teachers/bahodir-yusupov.jpg');
+ensureTeacherPhoto($teacherProfiles, $teacherSardor, '/images/teachers/sardor-rahimov.jpg');
+ensureTeacherPhoto($teacherProfiles, $teacherNodira, '/images/teachers/nodira-tosheva.jpg');
 echo "Teachers ensured.\n";
 
 // ---------- 4. Groups ----------
@@ -349,24 +369,76 @@ if ((int) $pdo->query('SELECT COUNT(*) FROM media_items')->fetchColumn() === 0) 
     echo "Media items already present, skipping.\n";
 }
 
-if ((int) $pdo->query('SELECT COUNT(*) FROM news')->fetchColumn() === 0) {
-    $news->create(
-        "Yangi o'quv yili boshlandi",
-        'Начался новый учебный год',
-        "O'quv markazimizda yangi guruhlar shakllantirildi va darslar boshlandi.",
-        'В нашем учебном центре сформированы новые группы и начались занятия.',
-        null
-    );
-    $news->create(
-        'Bitiruvchilarga sertifikatlar topshirildi',
-        'Выпускникам вручены сертификаты',
-        "Kursni muvaffaqiyatli tugatgan talabalarga elektron sertifikatlar berildi.",
-        'Студентам, успешно завершившим курс, вручены электронные сертификаты.',
-        null
-    );
-    echo "News seeded.\n";
+function ensureNews(NewsRepository $news, PDO $pdo, string $titleUz, string $titleRu, string $bodyUz, string $bodyRu, ?string $imageUrl): void
+{
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM news WHERE title_uz = ?');
+    $stmt->execute([$titleUz]);
+    if ((int) $stmt->fetchColumn() > 0) {
+        return;
+    }
+    $news->create($titleUz, $titleRu, $bodyUz, $bodyRu, $imageUrl);
+}
+
+ensureNews(
+    $news, $pdo,
+    "Yangi o'quv yili boshlandi", 'Начался новый учебный год',
+    "O'quv markazimizda yangi guruhlar shakllantirildi va darslar boshlandi.",
+    'В нашем учебном центре сформированы новые группы и начались занятия.',
+    '/images/professions/excavator.jpg'
+);
+ensureNews(
+    $news, $pdo,
+    'Bitiruvchilarga sertifikatlar topshirildi', 'Выпускникам вручены сертификаты',
+    "Kursni muvaffaqiyatli tugatgan talabalarga elektron sertifikatlar berildi.",
+    'Студентам, успешно завершившим курс, вручены электронные сертификаты.',
+    '/images/professions/dump-truck.jpg'
+);
+ensureNews(
+    $news, $pdo,
+    "Yangi ekskavator o'quv poligoni ishga tushdi", 'Запущен новый учебный полигон для экскаваторов',
+    "Amaliy mashg'ulotlar uchun zamonaviy texnika bilan jihozlangan yangi o'quv poligoni ochildi.",
+    'Открыт новый учебный полигон, оснащённый современной техникой для практических занятий.',
+    '/images/professions/excavator.jpg'
+);
+ensureNews(
+    $news, $pdo,
+    "Burg'ilash yo'nalishiga qabul boshlandi", 'Начался приём на направление бурения',
+    "Burg'ilash stanogi mashinisti kasbi bo'yicha yangi guruhga qabul e'lon qilindi. Arizalarni saytimiz orqali qoldirishingiz mumkin.",
+    "Объявлен набор в новую группу по профессии машиниста бурового станка. Заявку можно оставить на нашем сайте.",
+    '/images/professions/drilling-rig.jpg'
+);
+ensureNews(
+    $news, $pdo,
+    "O'qituvchilar malaka oshirish kursidan o'tdi", 'Преподаватели прошли курсы повышения квалификации',
+    "Markazimiz o'qituvchilari zamonaviy texnika bo'yicha malaka oshirish kursini muvaffaqiyatli tamomladi.",
+    'Преподаватели нашего центра успешно завершили курсы повышения квалификации по современной технике.',
+    null
+);
+echo "News ensured.\n";
+
+// ---------- 9. Site settings (contact info, map, about text, stats) ----------
+$currentSettings = $siteSettings->get();
+if (empty($currentSettings['phone']) && empty($currentSettings['address_uz'])) {
+    $siteSettings->update([
+        'address_uz' => "Toshkent shahri, Chilonzor tumani, Bunyodkor shoh ko'chasi, 45-uy",
+        'address_ru' => 'г. Ташкент, Чиланзарский район, проспект Бунёдкор, дом 45',
+        'map_embed_url' => 'https://maps.google.com/maps?q=Tashkent,Uzbekistan&z=14&output=embed',
+        'telegram' => '@oquv_markazi',
+        'email' => 'info@oquvmarkazi.uz',
+        'phone' => '+998 71 200 30 40',
+        'about_uz' => "O'quv markazimiz 2015-yildan buyon malakali ishchi kadrlar tayyorlab kelmoqda. "
+            . "Zamonaviy texnika va tajribali o'qituvchilar yordamida siz qisqa muddatda talab qilinadigan "
+            . "kasb-hunarga ega bo'lasiz.",
+        'about_ru' => 'Наш учебный центр с 2015 года готовит квалифицированные рабочие кадры. '
+            . 'С помощью современной техники и опытных преподавателей вы за короткий срок получите '
+            . 'востребованную профессию.',
+        'stat_graduates' => 1240,
+        'stat_years' => 10,
+        'stat_employment_percent' => 92,
+    ]);
+    echo "Site settings filled in.\n";
 } else {
-    echo "News already present, skipping.\n";
+    echo "Site settings already filled in, skipping.\n";
 }
 
 echo "Done.\n";

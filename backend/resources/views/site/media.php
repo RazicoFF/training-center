@@ -11,12 +11,25 @@ $isRu = Lang::current() === 'ru';
 <?php else: ?>
     <div class="row g-4">
         <?php foreach ($mediaItems as $i => $m): ?>
+            <?php $title = $isRu ? ($m['title_ru'] ?? null) : ($m['title_uz'] ?? null); ?>
             <div class="col-md-4">
-                <div class="tc-price-card h-100 tc-reveal" style="transition-delay:<?= min($i, 5) * 0.05 ?>s;">
+                <div class="tc-price-card h-100 tc-reveal" style="transition-delay:<?= min($i, 5) * 0.05 ?>s;overflow:hidden;">
                     <?php if ($m['type'] === 'image'): ?>
-                        <a href="<?= htmlspecialchars($m['file_url']) ?>" target="_blank" rel="noopener">
-                            <img src="<?= htmlspecialchars($m['file_url']) ?>" alt="" style="width:100%;height:220px;object-fit:cover;">
-                        </a>
+                        <button type="button" class="btn p-0 border-0 w-100" data-bs-toggle="modal" data-bs-target="#tcMediaModal<?= $i ?>" style="cursor:zoom-in;">
+                            <img src="<?= htmlspecialchars($m['file_url']) ?>" alt="<?= htmlspecialchars((string) $title) ?>" style="width:100%;height:220px;object-fit:cover;">
+                        </button>
+
+                        <div class="modal fade" id="tcMediaModal<?= $i ?>" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h2 class="modal-title h6 mb-0"><?= htmlspecialchars((string) ($title ?? Lang::t('nav_media'))) ?></h2>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <img src="<?= htmlspecialchars($m['file_url']) ?>" alt="<?= htmlspecialchars((string) $title) ?>" class="w-100">
+                                </div>
+                            </div>
+                        </div>
                     <?php else: ?>
                         <?php $youtubeId = ProfessionVideoRepository::extractYoutubeId($m['youtube_url']); ?>
                         <?php if ($youtubeId !== null): ?>
@@ -26,9 +39,8 @@ $isRu = Lang::current() === 'ru';
                             <a href="<?= htmlspecialchars($m['youtube_url']) ?>" target="_blank" rel="noopener" class="small d-block px-3 pt-2"><?= htmlspecialchars(Lang::t('site_video_open_youtube')) ?></a>
                         <?php endif; ?>
                     <?php endif; ?>
-                    <?php $title = $isRu ? ($m['title_ru'] ?? null) : ($m['title_uz'] ?? null); ?>
                     <?php if (!empty($title)): ?>
-                        <div class="p-3"><?= htmlspecialchars($title) ?></div>
+                        <div class="p-3 fw-semibold"><?= htmlspecialchars($title) ?></div>
                     <?php endif; ?>
                 </div>
             </div>
