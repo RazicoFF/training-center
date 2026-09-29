@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Core\Csrf;
+use App\Core\Env;
 use App\Core\Lang;
 use App\Core\Request;
 use App\Core\Router;
@@ -89,8 +90,10 @@ final class ApplicationController
             return ['redirect' => '/admin/applications', 'flash' => 'Parol kamida 6 belgidan iborat bo\'lishi kerak', 'flash_type' => 'error'];
         }
 
+        $application = $this->repository->find($id);
+
         try {
-            $this->repository->approve($id, $password);
+            $account = $this->repository->approve($id, $password);
         } catch (\PDOException) {
             // Most commonly a UNIQUE constraint violation on users.phone: this applicant's
             // phone number already has an account (e.g. a duplicate application approved twice).
@@ -102,7 +105,29 @@ final class ApplicationController
             return ['redirect' => '/admin/applications', 'flash' => 'Ariza allaqachon ko\'rib chiqilgan', 'flash_type' => 'error'];
         }
 
-        return ['redirect' => '/admin/applications', 'flash' => Lang::t('application_approved')];
+        // The password exists in plain text only for this request, so the ready-to-send
+        // message is handed to the next page once through the session and never stored.
+        $_SESSION['credentials_message'] = [
+            'user_id' => $account['user_id'],
+            'phone' => $account['phone'],
+            'text' => self::credentialsMessage((string) ($application['full_name'] ?? ''), $account['phone'], $password),
+        ];
+
+        return ['redirect' => "/admin/students/{$account['user_id']}", 'flash' => Lang::t('application_approved')];
+    }
+
+    /** The text the admin copies to the new student over Telegram or SMS. */
+    public static function credentialsMessage(string $fullName, string $phone, string $password): string
+    {
+        $scheme = ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https' || !empty($_SERVER['HTTPS']) ? 'https' : 'http';
+        $siteUrl = rtrim((string) (Env::get('APP_URL') ?: $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost')), '/');
+
+        return "Assalomu alaykum, {$fullName}!\n"
+            . "O'quv markaziga arizangiz tasdiqlandi.\n\n"
+            . "Shaxsiy kabinetga kirish: {$siteUrl}/login\n"
+            . "Login: {$phone}\n"
+            . "Parol: {$password}\n\n"
+            . "Kabinetda dars jadvali, testlar va sertifikatlaringizni ko'rasiz. Mobil ilova: {$siteUrl}/downloads/training-center.apk";
     }
 
     private function reject(Request $request): array

@@ -5,10 +5,10 @@
 /** @var string $q */
 use App\Core\Lang;
 
+// No "approved" tab: approving turns the application into a student and deletes it.
 $tabs = [
     '' => [Lang::t('filter_all_statuses'), array_sum($statusCounts)],
     'pending' => [Lang::t('status_pending'), $statusCounts['pending']],
-    'approved' => [Lang::t('status_approved'), $statusCounts['approved']],
     'rejected' => [Lang::t('status_rejected'), $statusCounts['rejected']],
 ];
 ?>

@@ -11,7 +11,42 @@ $statusLabels = [
     'dropped' => Lang::t('student_status_dropped'),
 ];
 $passedCount = count(array_filter($testAttempts, static fn (array $a) => (int) $a['passed'] === 1));
+
+// Set once by application approval; shown a single time since it contains the password.
+$credentials = ($_SESSION['credentials_message']['user_id'] ?? null) === (int) $student['id'] ? $_SESSION['credentials_message'] : null;
+if ($credentials !== null) {
+    unset($_SESSION['credentials_message']);
+}
 ?>
+<?php if ($credentials !== null): ?>
+    <div class="alert alert-info tc-alert tc-credentials">
+        <h2 class="h6 mb-2"><?= htmlspecialchars(Lang::t('credentials_title')) ?></h2>
+        <p class="small mb-2"><?= htmlspecialchars(Lang::t('credentials_hint')) ?></p>
+        <textarea class="form-control mb-2" rows="8" readonly id="tc-credentials-text"><?= htmlspecialchars($credentials['text']) ?></textarea>
+        <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-sm btn-primary" data-copy-target="tc-credentials-text" data-copied-label="<?= htmlspecialchars(Lang::t('credentials_copied')) ?>"><?= htmlspecialchars(Lang::t('credentials_copy')) ?></button>
+            <a class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener"
+               href="https://t.me/share/url?url=%20&amp;text=<?= htmlspecialchars(rawurlencode($credentials['text'])) ?>">Telegram</a>
+            <a class="btn btn-sm btn-outline-primary"
+               href="sms:<?= htmlspecialchars(preg_replace('/[^0-9+]/', '', $credentials['phone'])) ?>?body=<?= htmlspecialchars(rawurlencode($credentials['text'])) ?>">SMS</a>
+        </div>
+    </div>
+    <script>
+    document.querySelectorAll('[data-copy-target]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var field = document.getElementById(button.getAttribute('data-copy-target'));
+            field.select();
+            var done = function () { button.textContent = button.getAttribute('data-copied-label'); };
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(field.value).then(done, function () { document.execCommand('copy'); done(); });
+            } else {
+                document.execCommand('copy');
+                done();
+            }
+        });
+    });
+    </script>
+<?php endif; ?>
 <div class="tc-profile-card">
     <div class="tc-profile-head">
         <?php if (!empty($student['photo_url'])): ?>

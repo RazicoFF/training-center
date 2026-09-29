@@ -9,6 +9,7 @@ use App\Core\Database;
 use App\Core\Request;
 use App\Core\Router;
 use App\Controllers\Admin\ApplicationController;
+use App\Controllers\Admin\StudentController;
 use PHPUnit\Framework\TestCase;
 
 final class AdminApplicationsTest extends TestCase
@@ -116,11 +117,38 @@ final class AdminApplicationsTest extends TestCase
             'csrf_token' => $token,
         ]));
 
-        $this->assertSame('/admin/applications', $result['redirect']);
+        $userId = (int) Database::pdo()->query("SELECT id FROM users WHERE phone = '+998933333333'")->fetchColumn();
+        $this->assertSame("/admin/students/{$userId}", $result['redirect']);
         // Approving deletes the application record entirely rather than leaving it around
         // with status = 'approved'.
         $remaining = Database::pdo()->query("SELECT COUNT(*) FROM applications WHERE id = {$this->applicationId}")->fetchColumn();
         $this->assertSame(0, (int) $remaining);
+    }
+
+    public function testApprovalShowsReadyToSendCredentialsOnceOnTheStudentCard(): void
+    {
+        $router = new Router();
+        (new ApplicationController())->register($router);
+        (new StudentController())->register($router);
+
+        $result = $router->dispatch(new Request('POST', "/admin/applications/{$this->applicationId}/approve", [], [], [
+            'password' => 'temp12345',
+            'csrf_token' => Csrf::token(),
+        ]));
+
+        $render = function () use ($router, $result): string {
+            ob_start();
+            $router->dispatch(new Request('GET', $result['redirect'], [], [], []));
+            return (string) ob_get_clean();
+        };
+
+        $first = $render();
+        $this->assertStringContainsString('Login: +998933333333', $first);
+        $this->assertStringContainsString('Parol: temp12345', $first);
+        $this->assertStringContainsString('https://t.me/share/url', $first);
+        $this->assertStringContainsString('sms:+998933333333', $first);
+
+        $this->assertStringNotContainsString('temp12345', $render(), 'the password is shown only once');
     }
 
     public function testApproveWithPhoneAlreadyRegisteredFlashRedirectsInsteadOf500(): void

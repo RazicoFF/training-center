@@ -32,12 +32,6 @@ $statusBadges = ['pending' => 'text-bg-warning', 'approved' => 'text-bg-success'
         <dd><?= htmlspecialchars(date('d.m.Y H:i', strtotime((string) $app['created_at']))) ?></dd>
     </dl>
 
-    <?php if ($app['status'] === 'approved' && !empty($app['created_user_id'])): ?>
-        <div class="mt-3">
-            <a href="/admin/students/<?= (int) $app['created_user_id'] ?>" class="btn btn-sm btn-outline-primary"><?= htmlspecialchars(Lang::t('card_open_student')) ?></a>
-        </div>
-    <?php endif; ?>
-
     <?php if ($app['status'] === 'pending'): ?>
         <div class="mt-3 d-flex flex-wrap gap-2 align-items-center">
             <?php require __DIR__ . '/_actions.php'; ?>
