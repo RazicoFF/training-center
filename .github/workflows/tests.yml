@@ -1,0 +1,78 @@
+name: Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend (PHPUnit)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: training_center_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_mysql, gd, zip, mbstring, zlib
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Configure test database
+        run: |
+          cat > .env.testing <<'EOF'
+          DB_HOST=127.0.0.1
+          DB_PORT=3306
+          DB_NAME=training_center_test
+          DB_USER=root
+          DB_PASS=root
+          JWT_SECRET=ci-only-secret-not-used-anywhere-else
+          JWT_TTL_DAYS=30
+          EOF
+          php database/migrate.php .env.testing
+
+      - name: Run tests
+        run: vendor/bin/phpunit
+
+  android:
+    name: Android (unit tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android-app
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Run unit tests
+        run: |
+          chmod +x gradlew
+          ./gradlew testDebugUnitTest --no-daemon
