@@ -10,6 +10,7 @@ use App\Repositories\ProfessionBrandRepository;
 use App\Repositories\ProfessionRepository;
 use App\Repositories\ProfessionVideoRepository;
 use App\Repositories\TestRepository;
+use App\Services\UploadStore;
 
 final class ProfessionController
 {
@@ -29,7 +30,7 @@ final class ProfessionController
 
     private function index(Request $request): array
     {
-        return ['professions' => $this->repository->all()];
+        return ['professions' => UploadStore::withThumbs($this->repository->all(), 'image_url')];
     }
 
     private function show(Request $request): array

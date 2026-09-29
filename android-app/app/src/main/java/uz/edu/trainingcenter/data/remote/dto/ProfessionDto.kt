@@ -13,6 +13,8 @@ data class ProfessionDto(
     @Json(name = "duration_days") val durationDays: Int,
     val price: String,
     @Json(name = "image_url") val imageUrl: String?,
+    // Card-sized copy, sent in list responses only; lists fall back to imageUrl.
+    @Json(name = "thumb_url") val thumbUrl: String? = null,
     @Json(name = "pdf_url") val pdfUrl: String? = null,
     @Json(name = "career_info_uz") val careerInfoUz: String? = null,
     @Json(name = "career_info_ru") val careerInfoRu: String? = null,

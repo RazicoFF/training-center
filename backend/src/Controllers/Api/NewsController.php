@@ -7,6 +7,7 @@ namespace App\Controllers\Api;
 use App\Core\Request;
 use App\Core\Router;
 use App\Repositories\NewsRepository;
+use App\Services\UploadStore;
 
 final class NewsController
 {
@@ -21,6 +22,6 @@ final class NewsController
 
     private function index(Request $request): array
     {
-        return ['news' => $this->repository->all()];
+        return ['news' => UploadStore::withThumbs($this->repository->all(), 'image_url')];
     }
 }

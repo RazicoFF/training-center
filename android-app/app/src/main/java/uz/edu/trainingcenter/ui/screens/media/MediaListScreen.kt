@@ -74,7 +74,7 @@ private fun MediaRow(item: MediaDto, language: String, baseUrl: String, onOpenVi
         Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
             Column {
                 AsyncImage(
-                    model = resolveMediaUrl(baseUrl, item.fileUrl),
+                    model = resolveMediaUrl(baseUrl, item.thumbUrl ?: item.fileUrl),
                     contentDescription = null,
                     modifier = Modifier.fillMaxWidth().height(180.dp),
                     contentScale = ContentScale.Crop

@@ -89,6 +89,18 @@ final class UploadStore
      * "/uploads/news/a-sm.webp"). Anything that is not an upload - bundled /images/...
      * defaults, null - is returned unchanged, so views can call this unconditionally.
      */
+    /**
+     * Adds a "thumb_url" next to $urlKey in each row, for API list responses whose
+     * clients (the Android app) should load the small copy in lists.
+     */
+    public static function withThumbs(array $rows, string $urlKey): array
+    {
+        return array_map(
+            static fn (array $row): array => $row + ['thumb_url' => self::thumbUrl($row[$urlKey] ?? null)],
+            $rows
+        );
+    }
+
     public static function thumbUrl(?string $url): ?string
     {
         $path = self::normalizePath($url);

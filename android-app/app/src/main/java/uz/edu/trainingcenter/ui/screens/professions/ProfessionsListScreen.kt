@@ -49,7 +49,7 @@ fun ProfessionsListScreen(
 private fun ProfessionRow(profession: ProfessionDto, language: String, baseUrl: String, onClick: () -> Unit) {
     Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), onClick = onClick) {
         Column {
-            profession.imageUrl?.let { path ->
+            (profession.thumbUrl ?: profession.imageUrl)?.let { path ->
                 AsyncImage(
                     model = resolveMediaUrl(baseUrl, path),
                     contentDescription = null,

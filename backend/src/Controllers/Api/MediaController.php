@@ -7,6 +7,7 @@ namespace App\Controllers\Api;
 use App\Core\Request;
 use App\Core\Router;
 use App\Repositories\MediaRepository;
+use App\Services\UploadStore;
 
 final class MediaController
 {
@@ -21,6 +22,6 @@ final class MediaController
 
     private function index(Request $request): array
     {
-        return ['media' => $this->repository->all()];
+        return ['media' => UploadStore::withThumbs($this->repository->all(), 'file_url')];
     }
 }

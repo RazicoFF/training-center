@@ -91,6 +91,37 @@ class ApiServiceMoshiParsingTest {
         assertEquals(30, profession.durationDays)
         assertEquals("1500000.00", profession.price)
         assertEquals(null, profession.imageUrl)
+        assertEquals(null, profession.thumbUrl)
+    }
+
+    @Test
+    fun `getProfessions reads the list thumbnail url when the backend sends it`() = runTest {
+        server.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                """
+                {
+                  "professions": [
+                    {
+                      "id": 2,
+                      "name_uz": "Ekskavator",
+                      "name_ru": "Экскаватор",
+                      "description_uz": "",
+                      "description_ru": "",
+                      "duration_days": 30,
+                      "price": "1500000.00",
+                      "image_url": "/uploads/professions/p-2-ab.webp",
+                      "thumb_url": "/uploads/professions/p-2-ab-sm.webp"
+                    }
+                  ]
+                }
+                """.trimIndent()
+            )
+        )
+
+        val profession = api.getProfessions().professions.first()
+
+        assertEquals("/uploads/professions/p-2-ab.webp", profession.imageUrl)
+        assertEquals("/uploads/professions/p-2-ab-sm.webp", profession.thumbUrl)
     }
 
     @Test

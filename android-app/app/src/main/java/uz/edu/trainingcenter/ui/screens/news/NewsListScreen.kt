@@ -47,7 +47,7 @@ fun NewsListScreen(viewModel: NewsListViewModel, padding: PaddingValues) {
 private fun NewsRow(item: NewsDto, language: String, baseUrl: String) {
     Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
         Column {
-            item.imageUrl?.let { path ->
+            (item.thumbUrl ?: item.imageUrl)?.let { path ->
                 AsyncImage(
                     model = resolveMediaUrl(baseUrl, path),
                     contentDescription = null,

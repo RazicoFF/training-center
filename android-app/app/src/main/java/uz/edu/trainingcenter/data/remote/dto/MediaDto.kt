@@ -10,7 +10,8 @@ data class MediaDto(
     @Json(name = "file_url") val fileUrl: String?,
     @Json(name = "youtube_url") val youtubeUrl: String?,
     @Json(name = "title_uz") val titleUz: String?,
-    @Json(name = "title_ru") val titleRu: String?
+    @Json(name = "title_ru") val titleRu: String?,
+    @Json(name = "thumb_url") val thumbUrl: String? = null
 )
 
 @JsonClass(generateAdapter = true)

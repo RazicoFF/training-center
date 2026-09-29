@@ -11,7 +11,8 @@ data class NewsDto(
     @Json(name = "body_uz") val bodyUz: String?,
     @Json(name = "body_ru") val bodyRu: String?,
     @Json(name = "image_url") val imageUrl: String?,
-    @Json(name = "published_at") val publishedAt: String
+    @Json(name = "published_at") val publishedAt: String,
+    @Json(name = "thumb_url") val thumbUrl: String? = null
 )
 
 @JsonClass(generateAdapter = true)

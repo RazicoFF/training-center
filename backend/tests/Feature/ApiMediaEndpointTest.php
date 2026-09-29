@@ -31,5 +31,8 @@ final class ApiMediaEndpointTest extends TestCase
         $this->assertArrayHasKey('media', $result);
         $titles = array_column($result['media'], 'title_uz');
         $this->assertContains('API Media Test', $titles);
+
+        $item = $result['media'][array_search('API Media Test', $titles, true)];
+        $this->assertSame('/uploads/media/x-sm.jpg', $item['thumb_url'], 'the app loads the small copy in lists');
     }
 }
