@@ -32,26 +32,8 @@ JWT_TTL_DAYS=30
 APP_URL=https://<nom>.up.railway.app
 ```
 
-### Yangi arizalar haqida Telegram xabari (ixtiyoriy)
-
-Saytdan yoki ilovadan ariza kelganda admin Telegram'iga darhol xabar boradi.
-
-1. Telegram'da **@BotFather** ga `/newbot` yozing, botga nom bering va u bergan
-   **token**ni oling (`123456789:AA...` ko'rinishida).
-2. Xabar kimga borsin:
-   - **o'zingizga**: yangi botingizga `/start` yozing;
-   - **guruhga**: botni admin guruhingizga qo'shing va guruhda istalgan xabar yozing.
-3. Brauzerda `https://api.telegram.org/bot<TOKEN>/getUpdates` ni oching va
-   `"chat":{"id": ...}` dagi raqamni oling (guruh uchun u `-100...` bilan boshlanadi).
-4. Railway backend xizmatining **Variables** bo'limiga qo'shing:
-
-```
-TELEGRAM_BOT_TOKEN=<token>
-TELEGRAM_CHAT_ID=<chat id>
-```
-
-`APP_URL` berilgan bo'lsa, xabarda arizani admin panelda ochadigan havola ham bo'ladi.
-Bu o'zgaruvchilar bo'lmasa, xabar yuborilmaydi va boshqa hech narsa o'zgarmaydi.
+`APP_URL` arizani tasdiqlagandan keyin talabaga yuboriladigan login xabaridagi sayt
+manzili uchun ishlatiladi.
 
 ## 4. Yuklangan fayllar (Volume shart emas)
 

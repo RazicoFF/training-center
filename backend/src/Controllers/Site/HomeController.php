@@ -14,7 +14,6 @@ use App\Repositories\NewsRepository;
 use App\Repositories\ProfessionBrandRepository;
 use App\Repositories\ProfessionRepository;
 use App\Repositories\SiteSettingsRepository;
-use App\Services\TelegramNotifier;
 use App\Services\UploadStore;
 
 final class HomeController
@@ -25,8 +24,7 @@ final class HomeController
         private readonly SiteSettingsRepository $settings = new SiteSettingsRepository(),
         private readonly NewsRepository $news = new NewsRepository(),
         private readonly ProfessionBrandRepository $brands = new ProfessionBrandRepository(),
-        private readonly UploadStore $uploads = new UploadStore(),
-        private readonly TelegramNotifier $telegram = new TelegramNotifier()
+        private readonly UploadStore $uploads = new UploadStore()
     ) {
     }
 
@@ -111,8 +109,7 @@ final class HomeController
 
         $photoUrl = $this->handlePhotoUpload();
 
-        $applicationId = $this->applications->create($fullName, $phone, $professionId, $brandId, $photoUrl);
-        $this->telegram->notifyNewApplication($applicationId);
+        $this->applications->create($fullName, $phone, $professionId, $brandId, $photoUrl);
 
         SiteView::render('site/apply', [
             'professions' => $this->professions->all(),
